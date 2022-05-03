@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.32014.148
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wob_LabourCosts", "Wob_LabourCosts\Wob_LabourCosts.csproj", "{FF26ABA1-7F85-4AB9-A6B3-D5BFCD214679}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wob_HouseRules", "Wob_HouseRules\Wob_HouseRules.csproj", "{D98FEA97-0DD4-4FDB-8555-E7E9495D3DDF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FF26ABA1-7F85-4AB9-A6B3-D5BFCD214679}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FF26ABA1-7F85-4AB9-A6B3-D5BFCD214679}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FF26ABA1-7F85-4AB9-A6B3-D5BFCD214679}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FF26ABA1-7F85-4AB9-A6B3-D5BFCD214679}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D98FEA97-0DD4-4FDB-8555-E7E9495D3DDF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D98FEA97-0DD4-4FDB-8555-E7E9495D3DDF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D98FEA97-0DD4-4FDB-8555-E7E9495D3DDF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D98FEA97-0DD4-4FDB-8555-E7E9495D3DDF}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D112DA6C-541F-4B4B-B7D4-32DDCC1C32D0}
+	EndGlobalSection
+EndGlobal
