@@ -1,5 +1,4 @@
 ﻿using BepInEx;
-using BepInEx.Configuration;
 using HarmonyLib;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,50 +6,26 @@ using System.Reflection;
 using System.Reflection.Emit;
 using TMPro;
 using UnityEngine;
+using Wob_Common;
 
 namespace Wob_LabourCosts {
     [BepInPlugin("Wob.LabourCosts", "Labour Costs Mod", "0.1.0")]
-    public partial class BepInExPlugin : BaseUnityPlugin
-    {
-        // Static reference to the BepInEx logger for debugging
-        private static BepInEx.Logging.ManualLogSource debugLog;
-
+    public partial class BepInExPlugin : BaseUnityPlugin {
         // Configuration file entries, globally accessible for patches
-        public static ConfigEntry<bool> configModEnabled;
-        public static ConfigEntry<bool> configDebugLogs;
-        public static ConfigEntry<sbyte> configStartLevel;
-        public static ConfigEntry<float> configPerLevel;
-        public static ConfigEntry<int> configRoundTo;
-
-        // Send a message to the BepInEx log file
-        public static void DebugLog( string message ) {
-            if ( configDebugLogs.Value ) {
-                debugLog.LogMessage( message );
-            }
-        }
+        public static ConfigItem<sbyte> configStartLevel;
+        public static ConfigItem<float> configPerLevel;
+        public static ConfigItem<int>   configRoundTo;
 
         // Main method that kicks everything off
         private void Awake() {
-            // Set static reference to logger for use in patches
-            debugLog = this.Logger;
-
-            // Basic mod settings
-            configModEnabled = this.Config.Bind( "General", "Enabled", true, new ConfigDescription( "Enable this mod", new AcceptableValueList<bool>( new bool[] { true, false } ) ) );
-            configDebugLogs = this.Config.Bind( "General", "IsDebug", false, new ConfigDescription( "Enable debug logs", new AcceptableValueList<bool>( new bool[] { true, false } ) ) );
-            
-            // Create/read the configuration options for how the labour costs should be calculated
-            configStartLevel = this.Config.Bind( "Options", "StartLevel", (sbyte)18, new ConfigDescription( "Level after which labour costs start.", new AcceptableValueRange<sbyte>( 0, sbyte.MaxValue ) ) );
-            configPerLevel = this.Config.Bind( "Options", "PerLevel", 14f, new ConfigDescription( "Cost increase per level. Set to 0 to remove labour costs.", new AcceptableValueRange<float>( 0, float.MaxValue ) ) );
-            configRoundTo = this.Config.Bind( "Options", "RoundTo", 5, new ConfigDescription( "Round down calculated cost to this significance.", new AcceptableValueRange<int>( 1, int.MaxValue ) ) );
-            
-            // Check if the mod has been disabled in the options
-            if( configModEnabled.Value ) {
-                // Perform the patching
-                Harmony.CreateAndPatchAll( Assembly.GetExecutingAssembly(), null );
-                DebugLog( "Plugin awake" );
-            } else {
-                DebugLog( "Plugin disabled" );
-            }
+            // Set up the logger and basic config items
+            WobPlugin.Initialise( this, this.Logger );
+            // Create/read the mod specific configuration options
+            configStartLevel = new ConfigItem<sbyte>( this.Config, "Options", "StartLevel", "Level after which labour costs start.",                     18,  0, sbyte.MaxValue );
+            configPerLevel   = new ConfigItem<float>( this.Config, "Options", "PerLevel",   "Cost increase per level. Set to 0 to remove labour costs.", 14f, 0, float.MaxValue );
+            configRoundTo    = new ConfigItem<int>(   this.Config, "Options", "RoundTo",    "Round down calculated cost to this significance.",          5,   1, int.MaxValue   );
+            // Apply the patches if the mod is enabled
+            WobPlugin.Patch();
         }
 
         // Calculate new labour costs based on config parameters
@@ -74,15 +49,15 @@ namespace Wob_LabourCosts {
             static IEnumerable<CodeInstruction> Transpiler( IEnumerable<CodeInstruction> instructions ) {
                 // Put the instructions into a list for easier manipulation
                 List<CodeInstruction> codes = new List<CodeInstruction>( instructions );
-                DebugLog( "Searching opcodes" );
+                WobPlugin.Log( "Searching opcodes" );
                 // Iterate through the instruction codes
                 for( int i = 0; i < codes.Count; i++ ) {
                     // Search for instruction 'ldc.i4.s' which pushes an int8 onto the stack
                     if( codes[i].opcode == OpCodes.Ldc_I4_S ) {
-                        DebugLog( "Found matching opcode at " + i + ": " + codes[i].ToString() );
+                        WobPlugin.Log( "Found matching opcode at " + i + ": " + codes[i].ToString() );
                         // Check if the operand is correct for level 18
                         if( (sbyte)codes[i].operand == 18 ) {
-                            DebugLog( "Correct operand - patching" );
+                            WobPlugin.Log( "Correct operand - patching" );
                             // Set the operand to the new value from the config file
                             codes[i].operand = configStartLevel.Value;
                         }
@@ -118,15 +93,15 @@ namespace Wob_LabourCosts {
             static IEnumerable<CodeInstruction> Transpiler( IEnumerable<CodeInstruction> instructions ) {
                 // Put the instructions into a list for easier manipulation
                 List<CodeInstruction> codes = new List<CodeInstruction>( instructions );
-                DebugLog( "Searching opcodes" );
+                WobPlugin.Log( "Searching opcodes" );
                 // Iterate through the instruction codes
                 for( int i = 0; i < codes.Count; i++ ) {
                     // Search for instruction 'ldc.i4.s' which pushes an int8 onto the stack
                     if( codes[i].opcode == OpCodes.Ldc_I4_S ) {
-                        DebugLog( "Found matching opcode at " + i + ": " + codes[i].ToString() );
+                        WobPlugin.Log( "Found matching opcode at " + i + ": " + codes[i].ToString() );
                         // Check if the operand is correct for level 18
                         if( (sbyte)codes[i].operand == 18 ) {
-                            DebugLog( "Correct operand - patching" );
+                            WobPlugin.Log( "Correct operand - patching" );
                             // Set the operand to the new value from the config file
                             codes[i].operand = configStartLevel.Value;
                         }
