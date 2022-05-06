@@ -10,16 +10,16 @@ namespace Wob_UnlockSkillTree {
     [BepInPlugin( "Wob.UnlockSkillTree", "Unlock Skill Tree Mod", "0.1.1" )]
     public partial class BepInExPlugin : BaseUnityPlugin {
         // Configuration file entries, globally accessible for patches
-        public static ConfigItem<bool> configUnlockTree;
-        public static ConfigItem<bool> configUnlockLevel;
+        public static ConfigItemBool configUnlockTree;
+        public static ConfigItemBool configUnlockLevel;
 
         // Main method that kicks everything off
         private void Awake() {
             // Set up the logger and basic config items
             WobPlugin.Initialise( this, this.Logger );
             // Create/read the mod specific configuration options
-            configUnlockTree =  new ConfigItem<bool>( this.Config, "Options", "UnlockTree",  "Unlock the tree - all skills visible/selectable",    true, new bool[] { true, false } );
-            configUnlockLevel = new ConfigItem<bool>( this.Config, "Options", "UnlockLevel", "Unlock the level - remove manor level requirements", true, new bool[] { true, false } );
+            configUnlockTree =  new ConfigItemBool( this.Config, "Options", "UnlockTree",  "Unlock the tree - all skills visible/selectable",    true );
+            configUnlockLevel = new ConfigItemBool( this.Config, "Options", "UnlockLevel", "Unlock the level - remove manor level requirements", true );
             // Apply the patches if the mod is enabled
             WobPlugin.Patch();
         }

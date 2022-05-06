@@ -20,10 +20,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wob_UpgradeStats", "Wob_Upg
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Wob_Common", "Wob_Common\Wob_Common.shproj", "{C2D09D20-E45B-434A-8E6E-16703A8B76DB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wob_Accessibility", "Wob_Accessibility\Wob_Accessibility.csproj", "{1EEFB374-0D38-4DFD-A35B-F64D58ECA764}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wob_Accessibility", "Wob_Accessibility\Wob_Accessibility.csproj", "{1EEFB374-0D38-4DFD-A35B-F64D58ECA764}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wob_TraitBan", "Wob_TraitBan\Wob_TraitBan.csproj", "{02DC09FD-477F-4F12-AC33-EAEB42600A0C}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		Wob_Common\Wob_Common.projitems*{02dc09fd-477f-4f12-ac33-eaeb42600a0c}*SharedItemsImports = 5
 		Wob_Common\Wob_Common.projitems*{05ae1e02-c22e-4065-af11-bd327cc7086f}*SharedItemsImports = 5
 		Wob_Common\Wob_Common.projitems*{1eefb374-0d38-4dfd-a35b-f64d58eca764}*SharedItemsImports = 5
 		Wob_Common\Wob_Common.projitems*{74ce4b26-cb25-4724-beb8-ba3baf9b9afb}*SharedItemsImports = 5
@@ -61,6 +64,10 @@ Global
 		{1EEFB374-0D38-4DFD-A35B-F64D58ECA764}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1EEFB374-0D38-4DFD-A35B-F64D58ECA764}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1EEFB374-0D38-4DFD-A35B-F64D58ECA764}.Release|Any CPU.Build.0 = Release|Any CPU
+		{02DC09FD-477F-4F12-AC33-EAEB42600A0C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{02DC09FD-477F-4F12-AC33-EAEB42600A0C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{02DC09FD-477F-4F12-AC33-EAEB42600A0C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{02DC09FD-477F-4F12-AC33-EAEB42600A0C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

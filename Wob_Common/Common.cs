@@ -20,8 +20,8 @@ namespace Wob_Common {
             bepInExLog = log;
 
             // Basic settings used in all mods
-            Enabled = new ConfigItem<bool>( plugin.Config, "General", "Enabled", "Enable this mod",   true,  new bool[] { true, false } ).Value;
-            Debug   = new ConfigItem<bool>( plugin.Config, "General", "IsDebug", "Enable debug logs", false, new bool[] { true, false } ).Value;
+            Enabled = new ConfigItemBool( plugin.Config, "General", "Enabled", "Enable this mod",   true  ).Value;
+            Debug   = new ConfigItemBool( plugin.Config, "General", "IsDebug", "Enable debug logs", false ).Value;
         }
 
         // Check if the mod is enabled, and if so apply the patches
@@ -44,6 +44,19 @@ namespace Wob_Common {
                 bepInExLog.LogMessage( message );
             }
         }
+
+        // Helper to get the UI names of a trait
+        public static string GetTraitTitles( TraitData traitData ) {
+            // Each trait has 4 possible names - scientific/non-scientific and male/female character
+            // First get all 4 variants
+            string tScientificM = LocalizationManager.GetString( traitData.Title, false, false );
+            string tScientificF = LocalizationManager.GetString( traitData.Title, true, false );
+            string tNonScientificM = LocalizationManager.GetString( traitData.Title.Replace( "_1", "_2" ), false, false );
+            string tNonScientificF = LocalizationManager.GetString( traitData.Title.Replace( "_1", "_2" ), true, false );
+            // Build a return string, suppressing variants if they are the same as one already added
+            return tScientificM + ( tScientificM == tScientificF ? "" : "/" + tScientificF ) + ( tScientificM == tNonScientificM ? "" : "/" + tNonScientificM ) + ( ( tNonScientificM == tNonScientificF || tScientificF == tNonScientificF ) ? "" : "/" + tNonScientificF );
+        }
+
     }
 
     // Wrapper class for binding config file options with validation
@@ -68,12 +81,26 @@ namespace Wob_Common {
         public T Value { get => this.configEntry.Value; }
     }
 
+    public class ConfigItemBool : ConfigItem<bool> {
+        public ConfigItemBool( ConfigFile config, string section, string key, string desc, bool value ) : base( config, section, key, desc, value, new bool[] { true, false }, null ) { }
+    }
+
+
+    public interface ISkillConfig { float StatGain { get; } }
+    
     // Extended config item for calculating skill stat gain float from a scaled int
-    public class SkillConfig : ConfigItem<int> {
-        public SkillConfig( ConfigFile config, string section, string key, string desc, int value, int min, int max, float scaler ) : base( config, section, key, desc, value, min, max ) {
+    public class SkillConfigI : ConfigItem<int>, ISkillConfig {
+        public SkillConfigI( ConfigFile config, string section, string key, string desc, int value, int min, int max, float scaler ) : base( config, section, key, desc, value, min, max ) {
             this.StatGain = scaler * this.configEntry.Value;
         }
-        public float StatGain { get; private set; }
+        public float StatGain { get; protected set; }
+    }
+
+    public class SkillConfigF : ConfigItem<float>, ISkillConfig {
+        public SkillConfigF( ConfigFile config, string section, string key, string desc, float value, float min, float max, float scaler ) : base( config, section, key, desc, value, min, max ) {
+            this.StatGain = scaler * this.configEntry.Value;
+        }
+        public float StatGain { get; protected set; }
     }
 
 }

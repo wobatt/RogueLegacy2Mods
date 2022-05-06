@@ -6,14 +6,14 @@ namespace Wob_Accessibility {
     [BepInPlugin( "Wob.Accessibility", "Accessibility Mod", "0.1" )]
     public class BepInExPlugin : BaseUnityPlugin {
         // Configuration file entries, globally accessible for patches
-        public static ConfigItem<bool> configChromaticAbberation;
+        public static ConfigItemBool configChromaticAbberation;
 
         // Main method that kicks everything off
         private void Awake() {
             // Set up the logger and basic config items
             WobPlugin.Initialise( this, this.Logger );
             // Create/read the mod specific configuration options
-            configChromaticAbberation = new ConfigItem<bool>( this.Config, "Options", "ChromaticAbberation", "Allow chromatic abberation effects", false, new bool[] { true, false } );
+            configChromaticAbberation = new ConfigItemBool( this.Config, "Options", "ChromaticAbberation", "Allow chromatic abberation effects", false );
             // Apply the patches if the mod is enabled
             WobPlugin.Patch();
         }
