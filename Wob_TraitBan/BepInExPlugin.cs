@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using Wob_Common;
 
 namespace Wob_TraitBan {
-    [BepInPlugin( "Wob.TraitBan", "Trait Ban Mod", "0.1" )]
+    [BepInPlugin( "Wob.TraitBan", "Trait Ban Mod", "0.2" )]
     public partial class BepInExPlugin : BaseUnityPlugin {
         // Static reference to the config item collection so it can be searched in the patch
         public static Dictionary<string, ConfigItem<bool>> configTraits;
@@ -134,22 +134,24 @@ namespace Wob_TraitBan {
         static class TraitType_RL_TypeArray_Patch {
             private static bool runOnce = false;
 
-            static void Prefix( TraitType[] ___m_typeArray ) {
+            static void Prefix() {
                 if( !runOnce ) {
-                    for( int i = ___m_typeArray.Length - 1; i >= 0; i-- ) {
-                        TraitData traitData = TraitLibrary.GetTraitData( ___m_typeArray[i] );
+                    List<TraitType> typeList = new List<TraitType>( (TraitType[])Traverse.Create( typeof( TraitType_RL ) ).Field( "m_typeArray" ).GetValue() );
+                    for( int i = typeList.Count - 1; i >= 0; i-- ) {
+                        TraitData traitData = TraitLibrary.GetTraitData( typeList[i] );
                         if( traitData != null ) {
                             // Create a variable for the config file element
                             ConfigItem<bool> traitConfig;
                             // Search the config for a setting that has the same name as the internal name of the trait
                             if( configTraits.TryGetValue( traitData.Name, out traitConfig ) ) {
                                 if( !traitConfig.Value ) {
-                                    ___m_typeArray.RemoveAt( i );
+                                    typeList.RemoveAt( i );
                                     WobPlugin.Log( "Banning trait " + traitData.Name );
                                 }
                             }
                         }
                     }
+                    Traverse.Create( typeof( TraitType_RL ) ).Field( "m_typeArray" ).SetValue( typeList.ToArray() );
                     runOnce = true;
                 }
             }
@@ -163,7 +165,8 @@ namespace Wob_TraitBan {
                     if( traitType != TraitType.None ) {
                         TraitData traitData = TraitLibrary.GetTraitData( traitType );
                         if( traitData != null ) {
-                            WobPlugin.Log( traitData.Name + "|" + traitData.GoldBonus + "|" + WobPlugin.GetTraitTitles( traitData ) + "|" + LocalizationManager.GetString( traitData.Description, false, false ) + "|" + LocalizationManager.GetString( traitData.Description_2, false, false ) );
+                            WobPlugin.Log( traitData.Name + "|" + traitData.GoldBonus + "|" + WobPlugin.GetTraitTitles( traitData ) );
+                            //WobPlugin.Log( traitData.Name + "|" + traitData.GoldBonus + "|" + WobPlugin.GetTraitTitles( traitData ) + "|" + LocalizationManager.GetString( traitData.Description, false, false ) + "|" + LocalizationManager.GetString( traitData.Description_2, false, false ) );
                         }
                     }
                 }

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using Wob_Common;
 
 namespace Wob_TraitGold {
-    [BepInPlugin( "Wob.TraitGold", "Trait Gold Bonus Mod", "0.1" )]
+    [BepInPlugin( "Wob.TraitGold", "Trait Gold Bonus Mod", "0.2" )]
     public partial class BepInExPlugin : BaseUnityPlugin {
         // Static reference to the config item collection so it can be searched in the patch
         public static Dictionary<string, ConfigItem<float>> configTraits;
