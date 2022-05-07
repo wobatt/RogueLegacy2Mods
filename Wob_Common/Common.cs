@@ -86,21 +86,21 @@ namespace Wob_Common {
     }
 
 
-    public interface ISkillConfig { float StatGain { get; } }
+    public interface IScaledConfigItem { float ScaledValue { get; } }
     
     // Extended config item for calculating skill stat gain float from a scaled int
-    public class SkillConfigI : ConfigItem<int>, ISkillConfig {
-        public SkillConfigI( ConfigFile config, string section, string key, string desc, int value, int min, int max, float scaler ) : base( config, section, key, desc, value, min, max ) {
-            this.StatGain = scaler * this.configEntry.Value;
+    public class ScaledConfigItemI : ConfigItem<int>, IScaledConfigItem {
+        public ScaledConfigItemI( ConfigFile config, string section, string key, string desc, int value, int min, int max, float scaler ) : base( config, section, key, desc, value, min, max ) {
+            this.ScaledValue = scaler * this.configEntry.Value;
         }
-        public float StatGain { get; protected set; }
+        public float ScaledValue { get; protected set; }
     }
 
-    public class SkillConfigF : ConfigItem<float>, ISkillConfig {
-        public SkillConfigF( ConfigFile config, string section, string key, string desc, float value, float min, float max, float scaler ) : base( config, section, key, desc, value, min, max ) {
-            this.StatGain = scaler * this.configEntry.Value;
+    public class ScaledConfigItemF : ConfigItem<float>, IScaledConfigItem {
+        public ScaledConfigItemF( ConfigFile config, string section, string key, string desc, float value, float min, float max, float scaler ) : base( config, section, key, desc, value, min, max ) {
+            this.ScaledValue = scaler * this.configEntry.Value;
         }
-        public float StatGain { get; protected set; }
+        public float ScaledValue { get; protected set; }
     }
 
 }
