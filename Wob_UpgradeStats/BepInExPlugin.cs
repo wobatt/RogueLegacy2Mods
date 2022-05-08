@@ -1,6 +1,9 @@
 ﻿using BepInEx;
 using HarmonyLib;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Reflection.Emit;
 using Wob_Common;
 
 namespace Wob_UpgradeStats {
@@ -80,13 +83,39 @@ namespace Wob_UpgradeStats {
                 if( configSkills.TryGetValue( skill.Name, out skillConfig ) ) {
                     // Check if the stat gain is already what we want it to be
                     if( skillConfig.ScaledValue != skill.FirstLevelStatGain || skillConfig.ScaledValue != skill.AdditionalLevelStatGain ) {
+                        // Report the change to the log
+                        WobPlugin.Log( "Changing bonus for " + skill.Name + " from " + skill.FirstLevelStatGain + "/" + skill.AdditionalLevelStatGain + " to " + skillConfig.ScaledValue );
                         // Set the stat gain for all ranks
                         skill.FirstLevelStatGain = skillConfig.ScaledValue;
                         skill.AdditionalLevelStatGain = skillConfig.ScaledValue;
-                        // Report the change to the log
-                        WobPlugin.Log( "Changing bonus for " + skill.Name + "  from " + skill.FirstLevelStatGain + "/" + skill.AdditionalLevelStatGain + " to " + skillConfig.ScaledValue );
                     }
                 }
+            }
+        }
+
+        // Reroll for heirs seems to ignore the stat gain and just use the upgrade level - this is to fix that
+        // Patch for the method that controls initial setup of the UI elements for character selection, including reroll
+        [HarmonyPatch( typeof( LineageWindowController ), "OnOpen" )]
+        static class LineageWindowController_OnOpen_Patch {
+            static IEnumerable<CodeInstruction> Transpiler( IEnumerable<CodeInstruction> instructions ) {
+                // Put the instructions into a list for easier manipulation
+                List<CodeInstruction> codes = new List<CodeInstruction>( instructions );
+                WobPlugin.Log( "Searching opcodes" );
+                // Iterate through the instruction codes
+                for( int i = 0; i < codes.Count; i++ ) {
+                    // Search for the call to get the level of the reroll upgrade
+                    if( codes[i].opcode == OpCodes.Call && ( codes[i].operand as MethodInfo ).Name == "GetSkillObjLevel" ) {
+                        WobPlugin.Log( "Found matching opcode at " + i + ": " + codes[i].ToString() );
+                        // Replace the call with one that gets the upgrade itself
+                        codes[i].operand = AccessTools.Method( typeof( SkillTreeManager), "GetSkillTreeObj", new System.Type[] { typeof( SkillTreeType ) } );
+                        // Add a call to the upgrade's CurrentStatGain getter
+                        codes.Insert( i + 1, new CodeInstruction( OpCodes.Callvirt, AccessTools.Method( typeof( SkillTreeObj ), "get_CurrentStatGain" ) ) );
+                        // Cast the float return value to int
+                        codes.Insert( i + 2, new CodeInstruction( OpCodes.Conv_I4 ) );
+                    }
+                }
+                // Return the modified instructions to complete the patch
+                return codes.AsEnumerable();
             }
         }
 
