@@ -7,7 +7,7 @@ using System.Reflection.Emit;
 using Wob_Common;
 
 namespace Wob_UpgradeStats {
-    [BepInPlugin( "Wob.UpgradeStats", "Upgrade Stat Gains Mod", "0.1" )]
+    [BepInPlugin( "Wob.UpgradeStats", "Upgrade Stat Gains Mod", "0.2" )]
     public partial class BepInExPlugin : BaseUnityPlugin {
         // Static reference to the config item collection so it can be searched in the patch
         public static Dictionary<string, IScaledConfigItem> configSkills;
@@ -64,7 +64,7 @@ namespace Wob_UpgradeStats {
                 { "Rune_Ore_Find_Up",          new ScaledConfigItemF( this.Config, "Upgrades", "Rune_Ore_Find_Up",          "Dowsing Center - Chance to randomly find Red Aether in Breakables. +X% chance per rank",                                                                 1f,   0.1f, 20f,            0.01f ) },
                 { "Rune_Ore_Gain_Up",          new ScaledConfigItemF( this.Config, "Upgrades", "Rune_Ore_Gain_Up",          "Buried Tomb - Increase Red Aether gain. +X% Aether gain per rank",                                                                                       5f,   0.1f, float.MaxValue, 0.01f ) },
                 { "Traits_Give_Gold_Mod",      new ScaledConfigItemI( this.Config, "Upgrades", "Traits_Give_Gold_Mod",      "Repurposed Mining Shaft - Increases Gold Gain for certain Traits. +X% Gold granted by Trait bonus per rank",                                             10,   1,    int.MaxValue,   0.01f ) },
-                { "Weight_CD_Reduce",          new ScaledConfigItemI( this.Config, "Upgrades", "Weight_CD_Reduce",          "Aerobics Classroom - Increases Encumbrance Limits. *Your Weight Class will now change every X%. +X% Encumbrance per rank",                               1,    1,    10,             0.01f ) },
+                { "Weight_CD_Reduce",          new ScaledConfigItemI( this.Config, "Upgrades", "Weight_CD_Reduce",          "Aerobics Classroom - Increases Encumbrance Limits. *Your Weight Class will now change every X%. +X% Encumbrance per rank",                               1,    1,    8,              0.01f ) },
                 { "XP_Up",                     new ScaledConfigItemF( this.Config, "Upgrades", "XP_Up",                     "Trophy Room - Increase XP Gain. +X% XP per rank",                                                                                                        2.5f, 0.1f, float.MaxValue, 0.01f ) },
             };
             // Apply the patches if the mod is enabled

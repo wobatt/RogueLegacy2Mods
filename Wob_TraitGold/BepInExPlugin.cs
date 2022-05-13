@@ -158,6 +158,5 @@ namespace Wob_TraitGold {
                 // If any of the 'if' statements fail, don't change the return value that the original method decided on
             }
         }
-
     }
 }

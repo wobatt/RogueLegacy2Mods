@@ -9,7 +9,7 @@ using UnityEngine;
 using Wob_Common;
 
 namespace Wob_LabourCosts {
-    [BepInPlugin("Wob.LabourCosts", "Labour Costs Mod", "0.1.0")]
+    [BepInPlugin("Wob.LabourCosts", "Labour Costs Mod", "0.2.0")]
     public partial class BepInExPlugin : BaseUnityPlugin {
         // Configuration file entries, globally accessible for patches
         public static ConfigItem<sbyte> configStartLevel;
@@ -21,7 +21,7 @@ namespace Wob_LabourCosts {
             // Set up the logger and basic config items
             WobPlugin.Initialise( this, this.Logger );
             // Create/read the mod specific configuration options
-            configStartLevel = new ConfigItem<sbyte>( this.Config, "Options", "StartLevel", "Level after which labour costs start.",                     18,  0, sbyte.MaxValue );
+            configStartLevel = new ConfigItem<sbyte>( this.Config, "Options", "StartLevel", "Level after which labour costs start.",                     20,  0, sbyte.MaxValue );
             configPerLevel   = new ConfigItem<float>( this.Config, "Options", "PerLevel",   "Cost increase per level. Set to 0 to remove labour costs.", 14f, 0, float.MaxValue );
             configRoundTo    = new ConfigItem<int>(   this.Config, "Options", "RoundTo",    "Round down calculated cost to this significance.",          5,   1, int.MaxValue   );
             // Apply the patches if the mod is enabled
@@ -51,13 +51,13 @@ namespace Wob_LabourCosts {
                 List<CodeInstruction> codes = new List<CodeInstruction>( instructions );
                 WobPlugin.Log( "Searching opcodes" );
                 // Iterate through the instruction codes
-                for( int i = 0; i < codes.Count; i++ ) {
+                for( int i = 1; i < codes.Count; i++ ) {
                     // Search for instruction 'ldc.i4.s' which pushes an int8 onto the stack
                     if( codes[i].opcode == OpCodes.Ldc_I4_S ) {
                         WobPlugin.Log( "Found matching opcode at " + i + ": " + codes[i].ToString() );
-                        // Check if the operand is correct for level 18
-                        if( (sbyte)codes[i].operand == 18 ) {
-                            WobPlugin.Log( "Correct operand - patching" );
+                        // Check if the previous instruction is the total upgrade level for comparing to
+                        if( codes[i-1].opcode == OpCodes.Call && ( codes[i-1].operand as MethodInfo ).Name == "GetTotalSkillObjLevel" ) {
+                            WobPlugin.Log( "Correct preceding instruction - patching" );
                             // Set the operand to the new value from the config file
                             codes[i].operand = configStartLevel.Value;
                         }
@@ -95,13 +95,13 @@ namespace Wob_LabourCosts {
                 List<CodeInstruction> codes = new List<CodeInstruction>( instructions );
                 WobPlugin.Log( "Searching opcodes" );
                 // Iterate through the instruction codes
-                for( int i = 0; i < codes.Count; i++ ) {
+                for( int i = 1; i < codes.Count; i++ ) {
                     // Search for instruction 'ldc.i4.s' which pushes an int8 onto the stack
                     if( codes[i].opcode == OpCodes.Ldc_I4_S ) {
                         WobPlugin.Log( "Found matching opcode at " + i + ": " + codes[i].ToString() );
-                        // Check if the operand is correct for level 18
-                        if( (sbyte)codes[i].operand == 18 ) {
-                            WobPlugin.Log( "Correct operand - patching" );
+                        // Check if the previous instruction is the total upgrade level for comparing to
+                        if( codes[i - 1].opcode == OpCodes.Call && ( codes[i - 1].operand as MethodInfo ).Name == "GetTotalSkillObjLevel" ) {
+                            WobPlugin.Log( "Correct preceding instruction - patching" );
                             // Set the operand to the new value from the config file
                             codes[i].operand = configStartLevel.Value;
                         }
