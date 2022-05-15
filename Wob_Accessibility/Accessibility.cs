@@ -4,7 +4,7 @@ using Wob_Common;
 
 namespace Wob_Accessibility {
     [BepInPlugin( "Wob.Accessibility", "Accessibility Mod", "0.1" )]
-    public class BepInExPlugin : BaseUnityPlugin {
+    public class Accessibility : BaseUnityPlugin {
         // Configuration file entries, globally accessible for patches
         public static ConfigItemBool configChromaticAbberation;
 

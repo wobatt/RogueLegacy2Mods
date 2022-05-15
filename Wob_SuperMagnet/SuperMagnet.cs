@@ -4,7 +4,7 @@ using Wob_Common;
 
 namespace Wob_SuperMagnet {
     [BepInPlugin( "Wob.SuperMagnet", "Super Magnet Mod", "0.1.0" )]
-    public partial class BepInExPlugin : BaseUnityPlugin {
+    public partial class SuperMagnet : BaseUnityPlugin {
         // Configuration file entries, globally accessible for patches
         public static ConfigItem<float> configDistanceScaler;
 
@@ -24,6 +24,13 @@ namespace Wob_SuperMagnet {
             static void Postfix( ref float __result ) {
                 // Calculate the new cost and overwrite the original return value
                 __result *= configDistanceScaler.Value;
+            }
+        }
+
+        [HarmonyPatch( typeof( CaveLanternPostProcessingController ), "DarknessAmountWhenFullyLit", MethodType.Getter )]
+        static class CaveLanternPostProcessingController_DarknessAmountWhenFullyLit_Patch {
+            static void Postfix( ref float __result ) {
+                __result = 0f;
             }
         }
     }

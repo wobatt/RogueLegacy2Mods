@@ -10,7 +10,7 @@ using Wob_Common;
 
 namespace Wob_LabourCosts {
     [BepInPlugin("Wob.LabourCosts", "Labour Costs Mod", "0.2.0")]
-    public partial class BepInExPlugin : BaseUnityPlugin {
+    public partial class LabourCosts : BaseUnityPlugin {
         // Configuration file entries, globally accessible for patches
         public static ConfigItem<sbyte> configStartLevel;
         public static ConfigItem<float> configPerLevel;

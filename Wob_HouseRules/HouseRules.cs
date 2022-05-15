@@ -7,7 +7,7 @@ using Wob_Common;
 
 namespace Wob_HouseRules {
     [BepInPlugin("Wob.HouseRules", "House Rules Mod", "0.1.0")]
-    public partial class BepInExPlugin : BaseUnityPlugin {
+    public partial class HouseRules : BaseUnityPlugin {
         // Configuration file entries, globally accessible for patches
         public static ConfigItem<int> configMaxDifficulty;
 

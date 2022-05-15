@@ -5,7 +5,7 @@ using Wob_Common;
 
 namespace Wob_TraitHPPenalties {
     [BepInPlugin( "Wob.TraitHPPenalties", "Super Magnet Mod", "0.1.0" )]
-    public partial class BepInExPlugin : BaseUnityPlugin {
+    public partial class TraitHPPenalties : BaseUnityPlugin {
 		// Configuration file entries, globally accessible for patches
 		public static Dictionary<TraitType, IScaledConfigItem> configTraits;
 

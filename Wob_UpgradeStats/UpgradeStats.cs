@@ -8,7 +8,7 @@ using Wob_Common;
 
 namespace Wob_UpgradeStats {
     [BepInPlugin( "Wob.UpgradeStats", "Upgrade Stat Gains Mod", "0.2" )]
-    public partial class BepInExPlugin : BaseUnityPlugin {
+    public partial class UpgradeStats : BaseUnityPlugin {
         // Static reference to the config item collection so it can be searched in the patch
         public static Dictionary<string, IScaledConfigItem> configSkills;
 
@@ -52,7 +52,7 @@ namespace Wob_UpgradeStats {
                 { "Magic_Crit_Chance_Flat_Up", new ScaledConfigItemF( this.Config, "Upgrades", "Magic_Crit_Chance_Flat_Up", "The Quantum Observatory - Increases the chance of random Magic Crits. Adds a chance for Magic Crits to become Super Crits. +X% Crit Chance per rank",    1f,   0.1f, 4f,             0.01f ) },
                 { "Magic_Crit_Damage_Up",      new ScaledConfigItemF( this.Config, "Upgrades", "Magic_Crit_Damage_Up",      "The Lodge - Increases damage from Spell Crits. +X% Crit Damage per rank",                                                                                2f,   0.1f, float.MaxValue, 0.01f ) },
                 { "Ore_Find_Up",               new ScaledConfigItemF( this.Config, "Upgrades", "Ore_Find_Up",               "Geologist's Camp - Chance to randomly find Ore in Breakables. +X% chance per rank",                                                                      1f,   0.1f, 20f,            0.01f ) },
-                { "Potion_Up",                 new ScaledConfigItemF( this.Config, "Upgrades", "Potion_Up",                 "Institute of Gastronomy - Improve INT. scaling from Health Drops. +X% Health gain per rank",                                                             2f,   0.1f, float.MaxValue, 0.01f ) },
+                { "Potion_Up",                 new ScaledConfigItemF( this.Config, "Upgrades", "Potion_Up",                 "Institute of Gastronomy - Improve INT. scaling from Health Drops. +X% Health gain per rank",                                                             2f,   0.1f, 4f,             0.01f ) },
                 { "Randomize_Children",        new ScaledConfigItemI( this.Config, "Upgrades", "Randomize_Children",        "Career Center - Allows you to re-roll your characters. +X re-rolls per rank",                                                                            1,    1,    int.MaxValue,   1f    ) },
                 { "Relic_Cost_Down",           new ScaledConfigItemI( this.Config, "Upgrades", "Relic_Cost_Down",           "Archeology Camp - Relics cost less Resolve. -X% Resolve cost per rank",                                                                                  1,    1,    20,             0.01f ) },
                 { "Reroll_Relic",              new ScaledConfigItemI( this.Config, "Upgrades", "Reroll_Relic",              "Medieval Forgery - You can now re-roll Relics and Curios found in the Kingdom. +X re-rolls per rank",                                                    1,    1,    int.MaxValue,   1f    ) },

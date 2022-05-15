@@ -5,7 +5,7 @@ using Wob_Common;
 
 namespace Wob_TraitBan {
     [BepInPlugin( "Wob.TraitBan", "Trait Ban Mod", "0.2" )]
-    public partial class BepInExPlugin : BaseUnityPlugin {
+    public partial class TraitBan : BaseUnityPlugin {
         // Static reference to the config item collection so it can be searched in the patch
         public static Dictionary<string, ConfigItem<bool>> configTraits;
 

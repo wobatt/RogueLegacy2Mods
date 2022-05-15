@@ -4,7 +4,7 @@ using Wob_Common;
 
 namespace Wob_FairyChests {
     [BepInPlugin( "Wob.FairyChests", "Fairy Chests Mod", "0.1.0" )]
-    public partial class BepInExPlugin : BaseUnityPlugin {
+    public partial class FairyChests : BaseUnityPlugin {
         // Main method that kicks everything off
         private void Awake() {
             // Set up the logger and basic config items

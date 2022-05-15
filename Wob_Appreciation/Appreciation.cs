@@ -5,7 +5,7 @@ using Wob_Common;
 
 namespace Wob_Appreciation {
     [BepInPlugin( "Wob.Appreciation", "Upgrade Appreciation Mod", "0.1.0" )]
-    public partial class BepInExPlugin : BaseUnityPlugin {
+    public partial class Appreciation : BaseUnityPlugin {
         // Configuration file entries, globally accessible for patches
         public static ConfigItem<float> configAppreciation;
 

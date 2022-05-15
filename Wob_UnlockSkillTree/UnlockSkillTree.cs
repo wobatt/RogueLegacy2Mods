@@ -8,7 +8,7 @@ using Wob_Common;
 
 namespace Wob_UnlockSkillTree {
     [BepInPlugin( "Wob.UnlockSkillTree", "Unlock Skill Tree Mod", "0.1.1" )]
-    public partial class BepInExPlugin : BaseUnityPlugin {
+    public partial class UnlockSkillTree : BaseUnityPlugin {
         // Configuration file entries, globally accessible for patches
         public static ConfigItemBool configUnlockTree;
         public static ConfigItemBool configUnlockLevel;
