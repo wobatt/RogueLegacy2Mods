@@ -4,26 +4,34 @@ using BepInEx;
 using HarmonyLib;
 using Wob_Common;
 
-namespace Wob_ManaRegen {
-    [BepInPlugin( "Wob.ManaRegen", "Mana Regen Mod", "0.2.0" )]
-    public partial class ManaRegeneration : BaseUnityPlugin {
+namespace Wob_Regeneration {
+    [BepInPlugin( "Wob.Regeneration", "Regeneration Mod", "0.3.0" )]
+    public partial class Regeneration : BaseUnityPlugin {
         // Configuration file entries, globally accessible for patches
-        public static ConfigItemBool configEnableRegen;
-        public static ConfigItemBool configRegenDelay;
+        public static ConfigItemBool configHealthRegenEnabled;
+        public static ConfigItem<int> configHealthRegenTicks;
+        public static ConfigItem<int> configHealthRegenAdd;
+
+        public static ConfigItemBool configManaRegenEnabled;
+        public static ConfigItem<int> configManaRegenTicks;
+        public static ConfigItem<int> configManaRegenAdd;
+        public static ConfigItemBool configManaRegenDelay;
         public static ConfigItem<int> configManaMax;
-        public static ConfigItem<int> configRegenAdd;
-        public static ConfigItem<int> configRegenTicks;
 
         // Main method that kicks everything off
         private void Awake() {
             // Set up the logger and basic config items
             WobPlugin.Initialise( this, this.Logger );
             // Create/read the mod specific configuration options
-            configEnableRegen = new ConfigItemBool( this.Config, "Options", "EnableRegen", "Enable mana regeneration", true );
-            configRegenDelay = new ConfigItemBool( this.Config, "Options", "RegenDelay", "Enable the 2 second delay to mana regeneration after casting a spell", true );
+            configHealthRegenEnabled = new ConfigItemBool( this.Config, "Options", "HealthRegenEnabled", "Enable mana regeneration", true );
+            configHealthRegenTicks = new ConfigItem<int>( this.Config, "Options", "HealthRegenTicks", "Number of ticks/frames between adding health - higher number means slower regen", 30, 1, 1000 );
+            configHealthRegenAdd = new ConfigItem<int>( this.Config, "Options", "HealthRegenAdd", "When health is added, this is the amount to add", 1, 1, 10000 );
+
+            configManaRegenEnabled = new ConfigItemBool( this.Config, "Options", "ManaRegenEnabled", "Enable mana regeneration", true );
+            configManaRegenTicks = new ConfigItem<int>( this.Config, "Options", "ManaRegenTicks", "Number of ticks/frames between adding mana - higher number means slower regen", 1, 1, 1000 );
+            configManaRegenAdd = new ConfigItem<int>( this.Config, "Options", "ManaRegenAdd", "When mana is added, this is the amount to add", 1, 1, 10000 );
+            configManaRegenDelay = new ConfigItemBool( this.Config, "Options", "ManaRegenDelay", "Enable the 2 second delay to mana regeneration after casting a spell", true );
             configManaMax = new ConfigItem<int>( this.Config, "Options", "MaxMana", "Additional max mana", 0, 0, 10000 );
-            configRegenTicks = new ConfigItem<int>( this.Config, "Options", "RegenTicks", "Number of ticks/frames between adding mana - higher number means slower regen", 1, 1, 1000 );
-            configRegenAdd = new ConfigItem<int>( this.Config, "Options", "RegenAdd", "When mana is added, this is the amount to add", 1, 1, 10000 );
             // Apply the patches if the mod is enabled
             WobPlugin.Patch();
         }
@@ -38,27 +46,63 @@ namespace Wob_ManaRegen {
 
         // Patch to the method that controls mana regen
         [HarmonyPatch( typeof( ManaRegen ), "Update" )]
-        static class ManaRegen_Update_Patch {
+        static class ManaRegen_Update_Health_Patch {
+            // Counter for number of frames - every X ticks add Y health
+            private static int tick = 0;
+            // Increment counter and return amount of health to regen
+            private static int Tick() {
+                tick = ( tick + 1 ) % configHealthRegenTicks.Value;
+                return tick == 0 ? configHealthRegenAdd.Value : 0;
+            }
+            static void Prefix( ManaRegen __instance ) {
+                // Continue if we are enabling regen
+                if( configHealthRegenEnabled.Value ) {
+                    // Get a reference to the private field where current player info is stored
+                    PlayerController m_playerController = (PlayerController)Traverse.Create( __instance ).Field( "m_playerController" ).GetValue();
+                    // Get the current health state
+                    float actualMaxHealth = m_playerController.ActualMaxHealth;
+                    float currentHealth = m_playerController.CurrentHealth;
+                    // Check that health is missing
+                    if( currentHealth < actualMaxHealth ) {
+                        // Calculate how much health to regenerate this frame
+                        float regenRate = Tick();
+                        if( regenRate > 0 ) {
+                            // Check if this would take us over the maximum
+                            if( regenRate + currentHealth >= actualMaxHealth ) {
+                                // Set health to maximum
+                                m_playerController.SetHealth( actualMaxHealth, false, true );
+                            } else {
+                                // Add regen amount to current health
+                                m_playerController.SetHealth( regenRate, true, true );
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Patch to the method that controls mana regen
+        [HarmonyPatch( typeof( ManaRegen ), "Update" )]
+        static class ManaRegen_Update_Mana_Patch {
             // Counter for number of frames - every X ticks add Y mana
             private static int tick = 0;
             // Increment counter and return amount of mana to regen
             private static int Tick() {
-                tick = ( tick + 1 ) % configRegenTicks.Value;
-                return tick == 0 ? configRegenAdd.Value : 0;
+                tick = ( tick + 1 ) % configManaRegenTicks.Value;
+                return tick == 0 ? configManaRegenAdd.Value : 0;
             }
-
             static void Prefix( ManaRegen __instance ) {
                 // The default is to only use regen if the trait 'Crippling Intellect' is present, so check for it
                 bool regenTrait = TraitManager.IsTraitActive( TraitType.BonusMagicStrength );
                 // Continue if we are always enabling regen or the trait is present
-                if( configEnableRegen.Value || regenTrait ) {
+                if( configManaRegenEnabled.Value || regenTrait ) {
                     // Get a reference to the private field where current player info is stored
                     PlayerController m_playerController = (PlayerController)Traverse.Create( __instance ).Field( "m_playerController" ).GetValue();
                     // Get the current mana state
                     float actualMaxMana = m_playerController.ActualMaxMana;
                     float currentMana = m_playerController.CurrentMana;
                     // Check that mana is missing, and whether to respect the delay after casing
-                    if( currentMana < actualMaxMana && !( __instance.IsManaRegenDelayed && configRegenDelay.Value ) ) {
+                    if( currentMana < actualMaxMana && !( __instance.IsManaRegenDelayed && configManaRegenDelay.Value ) ) {
                         // Calculate how much mana to regenerate this frame
                         float regenRate = Tick();
                         if( regenRate > 0 ) {
