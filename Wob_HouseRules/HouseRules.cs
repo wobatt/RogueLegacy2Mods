@@ -23,80 +23,68 @@ namespace Wob_HouseRules {
 
         // Patch for the method that gets the gold cost for a specific upgrade with labour costs included
         [HarmonyPatch( typeof( ChangeAssistStatModOptionItem ), nameof( ChangeAssistStatModOptionItem.Initialize ) )]
-        static class SkillTreeObj_GoldCostWithLevelAppreciation_Patch {
+        static class ChangeAssistStatModOptionItem_Initialize_Patch {
             // Change the minimum values of the house rule sliders
             static IEnumerable<CodeInstruction> Transpiler( IEnumerable<CodeInstruction> instructions ) {
-                // Put the instructions into a list for easier manipulation
-                List<CodeInstruction> codes = new List<CodeInstruction>( instructions );
-                WobPlugin.Log( "Searching opcodes" );
-                // Track how many of the int32 values (maximums) have been found
-                byte found_ldc_i4 = 0;
-                // Track how many of the int8 values (minimums) have been found
-                byte found_ldc_i4_s = 0;
-                // Iterate through the instruction codes
-                for( int i = 0; i < codes.Count; i++ ) {
-                    // Search for instruction 'ldc.i4' which pushes an int32 onto the stack, looking for maximum values
-                    if( codes[i].opcode == OpCodes.Ldc_I4 ) {
-                        WobPlugin.Log( "Found matching opcode at " + i + ": " + codes[i].ToString() );
-                        // We are finding 3 specific operand values in order
-                        switch( found_ldc_i4 ) {
-                            case 0:
-                                // Check if the operand is correct for 200% enemy health
-                                if( (int)codes[i].operand == 200 ) {
-                                    WobPlugin.Log( "Enemy Health Max: correct operand - patching" );
-                                    // Set the operand to 1000%
-                                    codes[i].operand = configMaxDifficulty.Value;
-                                }
-                                found_ldc_i4++;
-                                break;
-                            case 1:
-                                // Check if the operand is correct for 200% enemy damage
-                                if( (int)codes[i].operand == 200 ) {
-                                    WobPlugin.Log( "Enemy Damage Max: correct operand - patching" );
-                                    // Set the operand to 1000%
-                                    codes[i].operand = configMaxDifficulty.Value;
-                                }
-                                found_ldc_i4++;
-                                break;
-                        }
-                    }
-                    // Search for instruction 'ldc.i4.s' which pushes an int8 onto the stack, looking for minimum values
-                    if( codes[i].opcode == OpCodes.Ldc_I4_S ) {
-                        WobPlugin.Log( "Found matching opcode at " + i + ": " + codes[i].ToString() );
-                        // We are finding 3 specific operand values in order
-                        switch( found_ldc_i4_s ) {
-                            case 0:
-                                // Check if the operand is correct for 50% enemy health
-                                if( (sbyte)codes[i].operand == 50 ) {
-                                    WobPlugin.Log( "Enemy Health Min: correct operand - patching" );
-                                    // Set the operand to 5%
-                                    codes[i].operand = (sbyte)5;
-                                }
-                                found_ldc_i4_s++;
-                                break;
-                            case 1:
-                                // Check if the operand is correct for 50% enemy damage
-                                if( (sbyte)codes[i].operand == 50 ) {
-                                    WobPlugin.Log( "Enemy Damage Min: correct operand - patching" );
-                                    // Set the operand to 0% (god mode)
-                                    codes[i].operand = (sbyte)0;
-                                }
-                                found_ldc_i4_s++;
-                                break;
-                            case 2:
-                                // Check if the operand is correct for 25% aim time slow
-                                if( (sbyte)codes[i].operand == 25 ) {
-                                    WobPlugin.Log( "Aim Time Slow Min: correct operand - patching" );
-                                    // Set the operand to 5% (setting this to 0% will soft lock the game)
-                                    codes[i].operand = (sbyte)5;
-                                }
-                                found_ldc_i4_s++;
-                                break;
-                        }
-                    }
-                }
-                // Return the modified instructions to complete the patch
-                return codes.AsEnumerable();
+                WobPlugin.Log( "ChangeAssistStatModOptionItem.Initialize Transpiler Patch" );
+                // Set up the transpiler handler's parameters
+                WobTranspiler transpiler = new WobTranspiler( instructions,
+                        // Define the IL code instructions that should be matched
+                        new List<WobTranspiler.OpTestLine> {
+                            // case ChangeAssistStatModOptionItem.StatType.EnemyHealth:
+                            /*  0 */ new WobTranspiler.OpTestLine( OpCodes.Ldarg_0                         ), // this
+                            /*  1 */ new WobTranspiler.OpTestLine( OpCodeSet.Ldc_I4                        ), // 50
+                            /*  2 */ new WobTranspiler.OpTestLine( OpCodes.Stfld, name: "m_minValue"       ), // this.m_minValue = 50
+                            /*  3 */ new WobTranspiler.OpTestLine( OpCodes.Ldarg_0                         ), // this
+                            /*  4 */ new WobTranspiler.OpTestLine( OpCodeSet.Ldc_I4                        ), // 200
+                            /*  5 */ new WobTranspiler.OpTestLine( OpCodes.Stfld, name: "m_maxValue"       ), // this.m_maxValue = 200
+                            /*  6 */ new WobTranspiler.OpTestLine( OpCodes.Ldarg_0                         ), // this
+                            /*  7 */ new WobTranspiler.OpTestLine( OpCodeSet.Ldc_I4                        ), // 5
+                            /*  8 */ new WobTranspiler.OpTestLine( OpCodes.Stfld, name: "m_incrementValue" ), // this.m_incrementValue = 5
+                            /*  9 */ new WobTranspiler.OpTestLine( OpCodes.Br                              ), // break
+                            // case ChangeAssistStatModOptionItem.StatType.EnemyDamage:
+                            /* 10 */ new WobTranspiler.OpTestLine( OpCodes.Ldarg_0                         ), // this
+                            /* 11 */ new WobTranspiler.OpTestLine( OpCodeSet.Ldc_I4                        ), // 50
+                            /* 12 */ new WobTranspiler.OpTestLine( OpCodes.Stfld, name: "m_minValue"       ), // this.m_minValue = 50
+                            /* 13 */ new WobTranspiler.OpTestLine( OpCodes.Ldarg_0                         ), // this
+                            /* 14 */ new WobTranspiler.OpTestLine( OpCodeSet.Ldc_I4                        ), // 200
+                            /* 15 */ new WobTranspiler.OpTestLine( OpCodes.Stfld, name: "m_maxValue"       ), // this.m_maxValue = 200
+                            /* 16 */ new WobTranspiler.OpTestLine( OpCodes.Ldarg_0                         ), // this
+                            /* 17 */ new WobTranspiler.OpTestLine( OpCodeSet.Ldc_I4                        ), // 5
+                            /* 18 */ new WobTranspiler.OpTestLine( OpCodes.Stfld, name: "m_incrementValue" ), // this.m_incrementValue = 5
+                            /* 19 */ new WobTranspiler.OpTestLine( OpCodes.Br                              ), // break
+                            // case ChangeAssistStatModOptionItem.StatType.AimTimeSlow:
+                            /* 20 */ new WobTranspiler.OpTestLine( OpCodes.Ldarg_0                         ), // this
+                            /* 21 */ new WobTranspiler.OpTestLine( OpCodeSet.Ldc_I4                        ), // 25
+                            /* 22 */ new WobTranspiler.OpTestLine( OpCodes.Stfld, name: "m_minValue"       ), // this.m_minValue = 25
+                            /* 23 */ new WobTranspiler.OpTestLine( OpCodes.Ldarg_0                         ), // this
+                            /* 24 */ new WobTranspiler.OpTestLine( OpCodeSet.Ldc_I4                        ), // 100
+                            /* 25 */ new WobTranspiler.OpTestLine( OpCodes.Stfld, name: "m_maxValue"       ), // this.m_maxValue = 100
+                            /* 26 */ new WobTranspiler.OpTestLine( OpCodes.Ldarg_0                         ), // this
+                            /* 27 */ new WobTranspiler.OpTestLine( OpCodeSet.Ldc_I4                        ), // 5
+                            /* 28 */ new WobTranspiler.OpTestLine( OpCodes.Stfld, name: "m_incrementValue" ), // this.m_incrementValue = 5
+                            /* 29 */ new WobTranspiler.OpTestLine( OpCodes.Br                              ), // break
+                            // case ChangeAssistStatModOptionItem.StatType.BurdenRequirement:
+                            /* 30 */ new WobTranspiler.OpTestLine( OpCodes.Ldarg_0                         ), // this
+                            /* 31 */ new WobTranspiler.OpTestLine( OpCodeSet.Ldc_I4                        ), // 50
+                            /* 32 */ new WobTranspiler.OpTestLine( OpCodes.Stfld, name: "m_minValue"       ), // this.m_minValue = 50
+                            /* 33 */ new WobTranspiler.OpTestLine( OpCodes.Ldarg_0                         ), // this
+                            /* 34 */ new WobTranspiler.OpTestLine( OpCodeSet.Ldc_I4                        ), // 200
+                            /* 35 */ new WobTranspiler.OpTestLine( OpCodes.Stfld, name: "m_maxValue"       ), // this.m_maxValue = 200
+                            /* 36 */ new WobTranspiler.OpTestLine( OpCodes.Ldarg_0                         ), // this
+                            /* 37 */ new WobTranspiler.OpTestLine( OpCodeSet.Ldc_I4                        ), // 50
+                            /* 38 */ new WobTranspiler.OpTestLine( OpCodes.Stfld, name: "m_incrementValue" ), // this.m_incrementValue = 50
+                        },
+                        // Define the actions to take when an occurrence is found
+                        new List<WobTranspiler.OpAction> {
+                            new WobTranspiler.OpAction_SetOperand(  1, (sbyte)5                  ), // Set minimum enemy health
+                            new WobTranspiler.OpAction_SetOperand(  4, configMaxDifficulty.Value ), // Set maximum enemy health
+                            new WobTranspiler.OpAction_SetOperand( 11, (sbyte)0                  ), // Set minimum enemy damage
+                            new WobTranspiler.OpAction_SetOperand( 14, configMaxDifficulty.Value ), // Set maximum enemy damage
+                            new WobTranspiler.OpAction_SetOperand( 21, (sbyte)5                  ), // Set minimum aim time slow
+                        } );
+                // Perform the patching and return the modified instructions
+                return transpiler.PatchFirst();
             }
         }
     }

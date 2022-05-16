@@ -41,24 +41,26 @@ namespace Wob_UnlockSkillTree {
             // When the skill tree initialises, it looks for all skills with level > 0 and makes them visible, then all skills they connect to and also makes them visible
             // We are looking for the check of level > 0 and changing it to level >= 0, which makes all skills visible
             static IEnumerable<CodeInstruction> Transpiler( IEnumerable<CodeInstruction> instructions ) {
-                // Put the instructions into a list for easier manipulation
-                List<CodeInstruction> codes = new List<CodeInstruction>( instructions );
                 if( configUnlockTree.Value ) {
-                    WobPlugin.Log( "Searching opcodes" );
-                    // Iterate through the instruction codes
-                    for( int i = 3; i < codes.Count; i++ ) {
-                        // Find the "ble" (Branch Less than or Equal) with the right method calls before it for the 'if' statement we are looking for
-                        if( codes[i].opcode == OpCodes.Ble && codes[i - 1].opcode == OpCodes.Ldc_I4_0
-                                && codes[i - 2].opcode == OpCodes.Call && ( codes[i - 2].operand as MethodInfo ).Name == "GetSkillObjLevel"
-                                && codes[i - 3].opcode == OpCodes.Callvirt && ( codes[i - 3].operand as MethodInfo ).Name == "get_SkillTreeType" ) {
-                            WobPlugin.Log( "Found matching opcode at " + i + ": " + codes[i].ToString() );
-                            // Change the check to "blt" (Branch Less Than) - only do the 'else' part that hides a skill if the level is less than 0
-                            codes[i].opcode = OpCodes.Blt;
-                        }
-                    }
+                    WobPlugin.Log( "SkillTreeWindowController.Initialize Transpiler Patch" );
+                    // Set up the transpiler handler's parameters
+                    WobTranspiler transpiler = new WobTranspiler( instructions,
+                            // Define the IL code instructions that should be matched
+                            new List<WobTranspiler.OpTestLine> {
+                                /*  0 */ new WobTranspiler.OpTestLine( OpCodes.Callvirt, name: "get_SkillTreeType" ), // skillTreeSlot.SkillTreeType
+                                /*  1 */ new WobTranspiler.OpTestLine( OpCodes.Call, name: "GetSkillObjLevel"      ), // SkillTreeManager.GetSkillObjLevel( skillTreeSlot.SkillTreeType )
+                                /*  2 */ new WobTranspiler.OpTestLine( OpCodes.Ldc_I4_0                            ), // 0
+                                /*  3 */ new WobTranspiler.OpTestLine( OpCodes.Ble                                 ), // >    [inverted]
+                            },
+                            // Define the actions to take when an occurrence is found
+                            new List<WobTranspiler.OpAction> {
+                                new WobTranspiler.OpAction_SetOpcode( 3, OpCodes.Blt ), // Change the "ble" (Branch Less than or Equal) check to "blt" (Branch Less Than) - only do the 'else' part that hides a skill if the level is less than 0
+                            } );
+                    // Perform the patching and return the modified instructions
+                    return transpiler.PatchAll();
+                } else {
+                    return instructions;
                 }
-                // Return the modified instructions to complete the patch
-                return codes.AsEnumerable();
             }
         }
     }

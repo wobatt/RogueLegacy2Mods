@@ -91,40 +91,6 @@ namespace Wob_TraitBan {
                 { "ShowEnemiesOnMap",       new ConfigItemBool( this.Config, "Traits", "ShowEnemiesOnMap",       "Eiditic Memory - Enemies are shown on map.",                                                                                      true ) },
                 { "Swearing",               new ConfigItemBool( this.Config, "Traits", "Swearing",               "Coprolalia - You swear when struck.",                                                                                             true ) },
                 { "WordScramble",           new ConfigItemBool( this.Config, "Traits", "WordScramble",           "Dyslexia - Words are scrambled.",                                                                                                 true ) },
-
-                // These have no in-game description, so don't use them
-              //{ "Alcoholic",              new ConfigItemBool( this.Config, "Traits", "Alcoholic",              "Lactose Intolerant - [NO DESCRIPTION] Maybe not fully implemented?",                                                              true ) },
-              //{ "BackwardSpell",          new ConfigItemBool( this.Config, "Traits", "BackwardSpell",          "Ambilevous/Flippy - [NO DESCRIPTION] Maybe not fully implemented?",                                                               true ) },
-              //{ "Bald",                   new ConfigItemBool( this.Config, "Traits", "Bald",                   "Bald - [NO DESCRIPTION] Maybe not fully implemented?",                                                                            true ) },
-              //{ "BiomeBigger",            new ConfigItemBool( this.Config, "Traits", "BiomeBigger",            "Claustrophobia - [NO DESCRIPTION] Maybe not fully implemented?",                                                                  true ) },
-              //{ "BiomeSmaller",           new ConfigItemBool( this.Config, "Traits", "BiomeSmaller",           "Agoraphobia - [NO DESCRIPTION] Maybe not fully implemented?",                                                                     true ) },
-              //{ "CameraZoomIn",           new ConfigItemBool( this.Config, "Traits", "CameraZoomIn",           "Macropesia - [NO DESCRIPTION] Maybe not fully implemented?",                                                                      true ) },
-              //{ "CameraZoomOut",          new ConfigItemBool( this.Config, "Traits", "CameraZoomOut",          "Eagle Eye - [NO DESCRIPTION] Maybe not fully implemented?",                                                                       true ) },
-              //{ "CantSeeChildren",        new ConfigItemBool( this.Config, "Traits", "CantSeeChildren",        "Prosopagnosia - [NO DESCRIPTION] Maybe not fully implemented?",                                                                   true ) },
-              //{ "ChickensAreEnemies",     new ConfigItemBool( this.Config, "Traits", "ChickensAreEnemies",     "Alektorophobia/Chicken - [NO DESCRIPTION] Maybe not fully implemented?",                                                          true ) },
-              //{ "CuteGame",               new ConfigItemBool( this.Config, "Traits", "CuteGame",               "Optimist - [NO DESCRIPTION] Maybe not fully implemented?",                                                                        true ) },
-              //{ "Dog",                    new ConfigItemBool( this.Config, "Traits", "Dog",                    "Lycanthropy - [NO DESCRIPTION] Maybe not fully implemented?",                                                                     true ) },
-              //{ "FakeEnemies",            new ConfigItemBool( this.Config, "Traits", "FakeEnemies",            "Hallucinations - [NO DESCRIPTION] Maybe not fully implemented?",                                                                  true ) },
-              //{ "FastTeleport",           new ConfigItemBool( this.Config, "Traits", "FastTeleport",           "Conductor - [NO DESCRIPTION] Maybe not fully implemented?",                                                                       true ) },
-              //{ "FindBoss",               new ConfigItemBool( this.Config, "Traits", "FindBoss",               "Big-Game Hunter - [NO DESCRIPTION] Maybe not fully implemented?",                                                                 true ) },
-              //{ "FoodSlow",               new ConfigItemBool( this.Config, "Traits", "FoodSlow",               "Soporific - [NO DESCRIPTION] Maybe not fully implemented?",                                                                       true ) },
-              //{ "ForcedChoice",           new ConfigItemBool( this.Config, "Traits", "ForcedChoice",           "Unhealthy Curiosity - [NO DESCRIPTION] Maybe not fully implemented?",                                                             true ) },
-              //{ "GameRunsFaster",         new ConfigItemBool( this.Config, "Traits", "GameRunsFaster",         "ADHD - [NO DESCRIPTION] Maybe not fully implemented?",                                                                            true ) },
-              //{ "HighBounce",             new ConfigItemBool( this.Config, "Traits", "HighBounce",             "Bubbly - [NO DESCRIPTION] Maybe not fully implemented?",                                                                          true ) },
-              //{ "KickResetMobility",      new ConfigItemBool( this.Config, "Traits", "KickResetMobility",      "Freerunner - [NO DESCRIPTION] Maybe not fully implemented?",                                                                      true ) },
-              //{ "LifeTimer",              new ConfigItemBool( this.Config, "Traits", "LifeTimer",              "Cardiomyopathy - [NO DESCRIPTION] Maybe not fully implemented?",                                                                  true ) },
-              //{ "MagnetRangeBoost",       new ConfigItemBool( this.Config, "Traits", "MagnetRangeBoost",       "Biomagnetic - [NO DESCRIPTION] Maybe not fully implemented?",                                                                     true ) },
-              //{ "NoMap",                  new ConfigItemBool( this.Config, "Traits", "NoMap",                  "Anterograde Amnesia - [NO DESCRIPTION] Maybe not fully implemented?",                                                             true ) },
-              //{ "NoProjectileIndicators", new ConfigItemBool( this.Config, "Traits", "NoProjectileIndicators", "Poor Periphery - [NO DESCRIPTION] Maybe not fully implemented?",                                                                  true ) },
-              //{ "OneChild",               new ConfigItemBool( this.Config, "Traits", "OneChild",               "Only child - [NO DESCRIPTION] Maybe not fully implemented?",                                                                      true ) },
-              //{ "RandomDamage",           new ConfigItemBool( this.Config, "Traits", "RandomDamage",           "Dungeon Master - [NO DESCRIPTION] Maybe not fully implemented?",                                                                  true ) },
-              //{ "RandomizeSpells",        new ConfigItemBool( this.Config, "Traits", "RandomizeSpells",        "Savant - [NO DESCRIPTION] Maybe not fully implemented?",                                                                          true ) },
-              //{ "RandomizeWeapons",       new ConfigItemBool( this.Config, "Traits", "RandomizeWeapons",       "Showboater - [NO DESCRIPTION] Maybe not fully implemented?",                                                                      true ) },
-              //{ "RandomSounds",           new ConfigItemBool( this.Config, "Traits", "RandomSounds",           "Schizophrenia - [NO DESCRIPTION] Maybe not fully implemented?",                                                                   true ) },
-              //{ "SlowTimeTrigger",        new ConfigItemBool( this.Config, "Traits", "SlowTimeTrigger",        "Hyper Concentration - [NO DESCRIPTION] Maybe not fully implemented?",                                                             true ) },
-              //{ "SummerHoliday",          new ConfigItemBool( this.Config, "Traits", "SummerHoliday",          "Surfer - [NO DESCRIPTION] Maybe not fully implemented?",                                                                          true ) },
-              //{ "WeaponSpellSwitch",      new ConfigItemBool( this.Config, "Traits", "WeaponSpellSwitch",      "Left-Handed - [NO DESCRIPTION] Maybe not fully implemented?",                                                                     true ) },
-              //{ "WinterHoliday",          new ConfigItemBool( this.Config, "Traits", "WinterHoliday",          "Festive - [NO DESCRIPTION] Maybe not fully implemented?",                                                                         true ) },
             };
             // Apply the patches if the mod is enabled
             WobPlugin.Patch();
@@ -156,21 +122,5 @@ namespace Wob_TraitBan {
                 }
             }
         }
-
-        // This patch simply dumps trair data to the debug log when the Manor skill tree is opened - useful for getting internal names and default values for the traits
-        /*[HarmonyPatch( typeof( SkillTreeWindowController ), nameof( SkillTreeWindowController.Initialize ) )]
-        static class SkillTreeWindowController_Initialize_Patch {
-            static void Postfix( SkillTreeWindowController __instance ) {
-                foreach( TraitType traitType in TraitType_RL.TypeArray ) {
-                    if( traitType != TraitType.None ) {
-                        TraitData traitData = TraitLibrary.GetTraitData( traitType );
-                        if( traitData != null ) {
-                            WobPlugin.Log( traitData.Name + "|" + traitData.GoldBonus + "|" + WobPlugin.GetTraitTitles( traitData ) );
-                            //WobPlugin.Log( traitData.Name + "|" + traitData.GoldBonus + "|" + WobPlugin.GetTraitTitles( traitData ) + "|" + LocalizationManager.GetString( traitData.Description, false, false ) + "|" + LocalizationManager.GetString( traitData.Description_2, false, false ) );
-                        }
-                    }
-                }
-            }
-        }*/
     }
 }

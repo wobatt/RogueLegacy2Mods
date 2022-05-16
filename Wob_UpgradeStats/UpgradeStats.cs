@@ -98,27 +98,26 @@ namespace Wob_UpgradeStats {
         [HarmonyPatch( typeof( LineageWindowController ), "OnOpen" )]
         static class LineageWindowController_OnOpen_Patch {
             static IEnumerable<CodeInstruction> Transpiler( IEnumerable<CodeInstruction> instructions ) {
-                // Put the instructions into a list for easier manipulation
-                List<CodeInstruction> codes = new List<CodeInstruction>( instructions );
-                WobPlugin.Log( "Searching opcodes" );
-                // Iterate through the instruction codes
-                for( int i = 0; i < codes.Count; i++ ) {
-                    // Search for the call to get the level of the reroll upgrade
-                    if( codes[i].opcode == OpCodes.Call && ( codes[i].operand as MethodInfo ).Name == "GetSkillObjLevel" ) {
-                        WobPlugin.Log( "Found matching opcode at " + i + ": " + codes[i].ToString() );
-                        // Replace the call with one that gets the upgrade itself
-                        codes[i].operand = AccessTools.Method( typeof( SkillTreeManager), "GetSkillTreeObj", new System.Type[] { typeof( SkillTreeType ) } );
-                        // Add a call to the upgrade's CurrentStatGain getter
-                        codes.Insert( i + 1, new CodeInstruction( OpCodes.Callvirt, AccessTools.Method( typeof( SkillTreeObj ), "get_CurrentStatGain" ) ) );
-                        // Cast the float return value to int
-                        codes.Insert( i + 2, new CodeInstruction( OpCodes.Conv_I4 ) );
-                    }
-                }
-                // Return the modified instructions to complete the patch
-                return codes.AsEnumerable();
+                WobPlugin.Log( "LineageWindowController.OnOpen Transpiler Patch" );
+                // Set up the transpiler handler's parameters
+                WobTranspiler transpiler = new WobTranspiler( instructions,
+                        // Define the IL code instructions that should be matched
+                        new List<WobTranspiler.OpTestLine> {
+                            /*  0 */ new WobTranspiler.OpTestLine( OpCodes.Call, name: "GetSkillObjLevel" ), // SkillTreeManager.GetSkillObjLevel( SkillTreeType.Randomize_Children )
+                        },
+                        // Define the actions to take when an occurrence is found
+                        new List<WobTranspiler.OpAction> {
+                            new WobTranspiler.OpAction_SetOperand( 0, AccessTools.Method( typeof( SkillTreeManager ), "GetSkillTreeObj", new System.Type[] { typeof( SkillTreeType ) } ) ), // Replace the call with one that gets the upgrade itself
+                            new WobTranspiler.OpAction_Insert( 1, new List<CodeInstruction>() {
+                                new CodeInstruction( OpCodes.Callvirt, AccessTools.Method( typeof( SkillTreeObj ), "get_CurrentStatGain" ) ), // Add a call to the upgrade's CurrentStatGain getter
+                                new CodeInstruction( OpCodes.Conv_I4 ), // Cast the float return value to int
+                            } ),
+                        } );
+                // Perform the patching and return the modified instructions
+                return transpiler.PatchAll();
             }
         }
-
+        
         // This patch simply dumps skill tree data to the debug log when the Manor skill tree is opened - useful for getting internal names and default values for the upgrades
         /*[HarmonyPatch( typeof( SkillTreeWindowController ), nameof( SkillTreeWindowController.Initialize ) )]
         static class SkillTreeWindowController_Initialize_Patch {

@@ -42,6 +42,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wob_SoulShop", "Wob_SoulSho
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wob_ResourceGain", "Wob_ResourceGain\Wob_ResourceGain.csproj", "{7B49714C-E29C-4019-96ED-A10D92D4DE64}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wob_HealthRegen", "Wob_HealthRegen\Wob_HealthRegen.csproj", "{DCF032EF-CC0F-4B13-8640-6C8DB3690C18}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		Wob_Common\Wob_Common.projitems*{02dc09fd-477f-4f12-ac33-eaeb42600a0c}*SharedItemsImports = 5
@@ -58,6 +60,7 @@ Global
 		Wob_Common\Wob_Common.projitems*{c2d09d20-e45b-434a-8e6e-16703a8b76db}*SharedItemsImports = 13
 		Wob_Common\Wob_Common.projitems*{d19541f1-bc51-455a-92d0-9cf1f7f05869}*SharedItemsImports = 5
 		Wob_Common\Wob_Common.projitems*{d98fea97-0dd4-4fdb-8555-e7e9495d3ddf}*SharedItemsImports = 5
+		Wob_Common\Wob_Common.projitems*{dcf032ef-cc0f-4b13-8640-6c8db3690c18}*SharedItemsImports = 5
 		Wob_Common\Wob_Common.projitems*{f97da655-bdb7-4581-a008-7ce14f6f4dc4}*SharedItemsImports = 5
 		Wob_Common\Wob_Common.projitems*{fc441149-7f22-4447-9cfe-20dcfc1273f4}*SharedItemsImports = 5
 		Wob_Common\Wob_Common.projitems*{ff26aba1-7f85-4ab9-a6b3-d5bfcd214679}*SharedItemsImports = 5
@@ -131,6 +134,10 @@ Global
 		{7B49714C-E29C-4019-96ED-A10D92D4DE64}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7B49714C-E29C-4019-96ED-A10D92D4DE64}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7B49714C-E29C-4019-96ED-A10D92D4DE64}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DCF032EF-CC0F-4B13-8640-6C8DB3690C18}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DCF032EF-CC0F-4B13-8640-6C8DB3690C18}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DCF032EF-CC0F-4B13-8640-6C8DB3690C18}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DCF032EF-CC0F-4B13-8640-6C8DB3690C18}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

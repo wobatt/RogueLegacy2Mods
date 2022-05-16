@@ -41,108 +41,123 @@ namespace Wob_SoulShop {
         [HarmonyPatch( typeof( SoulShopOmniUIDescriptionBoxEntry ), "DisplayDescriptionBox" )]
         static class SoulShopOmniUIDescriptionBoxEntry_DisplayDescriptionBox_Patch {
             static IEnumerable<CodeInstruction> Transpiler( IEnumerable<CodeInstruction> instructions ) {
-                // Put the instructions into a list for easier manipulation
-                List<CodeInstruction> codes = new List<CodeInstruction>( instructions );
-                WobPlugin.Log( "SoulShopOmniUIDescriptionBoxEntry.DisplayDescriptionBox: Searching opcodes" );
-                // Iterate through the instruction codes
-                for( int i = 0; i < codes.Count; i++ ) {
-                    if( codes[i].opcode == OpCodes.Ldc_I4 && (int)codes[i].operand == Souls_EV.SOULS_PER_LEVEL ) {
-                        WobPlugin.Log( "Found matching opcode at " + i + ": " + codes[i].ToString() );
-                        codes[i].operand = configSwapSouls.Value;
-                    }
-                }
-                // Return the modified instructions to complete the patch
-                return codes.AsEnumerable();
+                WobPlugin.Log( "SoulShopOmniUIDescriptionBoxEntry.DisplayDescriptionBox Transpiler Patch" );
+                // Set up the transpiler handler's parameters
+                WobTranspiler transpiler = new WobTranspiler( instructions,
+                        // Define the IL code instructions that should be matched
+                        new List<WobTranspiler.OpTestLine> {
+                            /*  0 */ new WobTranspiler.OpTestLine( OpCodes.Ldc_I4, Souls_EV.SOULS_PER_LEVEL ), // 150
+                            /*  1 */ new WobTranspiler.OpTestLine( OpCodeSet.StLoc                          ), // int num = 150
+                        },
+                        // Define the actions to take when an occurrence is found
+                        new List<WobTranspiler.OpAction> {
+                            new WobTranspiler.OpAction_SetOperand( 0, configSwapSouls.Value ), // Set the new number of souls
+                        } );
+                // Perform the patching and return the modified instructions
+                return transpiler.PatchAll();
             }
         }
 
         [HarmonyPatch( typeof( SoulShopOmniUIIncrementResourceButton ), "UpdateState" )]
         static class SoulShopOmniUIIncrementResourceButton_UpdateState_Patch {
             static IEnumerable<CodeInstruction> Transpiler( IEnumerable<CodeInstruction> instructions ) {
-                // Put the instructions into a list for easier manipulation
-                List<CodeInstruction> codes = new List<CodeInstruction>( instructions );
-                WobPlugin.Log( "SoulShopOmniUIIncrementResourceButton.UpdateState: Searching opcodes" );
-                // Iterate through the instruction codes
-                for( int i = 0; i < codes.Count; i++ ) {
-                    if( codes[i].opcode == OpCodes.Ldc_I4 && (int)codes[i].operand == Souls_EV.SOULS_PER_LEVEL ) {
-                        WobPlugin.Log( "Found matching opcode at " + i + ": " + codes[i].ToString() );
-                        codes[i].operand = configSwapSouls.Value;
-                    }
-                }
-                // Return the modified instructions to complete the patch
-                return codes.AsEnumerable();
+                WobPlugin.Log( "SoulShopOmniUIIncrementResourceButton.UpdateState Transpiler Patch" );
+                // Set up the transpiler handler's parameters
+                WobTranspiler transpiler = new WobTranspiler( instructions,
+                        // Define the IL code instructions that should be matched
+                        new List<WobTranspiler.OpTestLine> {
+                            /*  0 */ new WobTranspiler.OpTestLine( OpCodes.Ldsfld, name: "SoulTransferLevel" ), // SoulTransferLevel
+                            /*  1 */ new WobTranspiler.OpTestLine( OpCodes.Ldc_I4, Souls_EV.SOULS_PER_LEVEL  ), // 150
+                            /*  2 */ new WobTranspiler.OpTestLine( OpCodes.Mul                               ), // SoulTransferLevel * 150
+                        },
+                        // Define the actions to take when an occurrence is found
+                        new List<WobTranspiler.OpAction> {
+                            new WobTranspiler.OpAction_SetOperand( 1, configSwapSouls.Value ), // Set the new number of souls
+                        } );
+                // Perform the patching and return the modified instructions
+                return transpiler.PatchAll();
             }
         }
 
         [HarmonyPatch( typeof( SoulShopOmniUISoulSwapBuyButton ), "ConfirmTransfer" )]
         static class SoulShopOmniUISoulSwapBuyButton_ConfirmTransfer_Patch {
             static IEnumerable<CodeInstruction> Transpiler( IEnumerable<CodeInstruction> instructions ) {
-                // Put the instructions into a list for easier manipulation
-                List<CodeInstruction> codes = new List<CodeInstruction>( instructions );
-                WobPlugin.Log( "SoulShopOmniUISoulSwapBuyButton.ConfirmTransfer: Searching opcodes" );
-                // Iterate through the instruction codes
-                for( int i = 0; i < codes.Count - 1; i++ ) {
-                    if( codes[i].opcode == OpCodes.Ldc_I4 && (int)codes[i].operand == Souls_EV.SOULS_PER_LEVEL ) {
-                        WobPlugin.Log( "Found matching opcode at " + i + ": " + codes[i].ToString() );
-                        codes[i].operand = configSwapSouls.Value;
-                    }
-                }
-                // Return the modified instructions to complete the patch
-                return codes.AsEnumerable();
+                WobPlugin.Log( "SoulShopOmniUISoulSwapBuyButton.ConfirmTransfer Transpiler Patch" );
+                // Set up the transpiler handler's parameters
+                WobTranspiler transpiler = new WobTranspiler( instructions,
+                        // Define the IL code instructions that should be matched
+                        new List<WobTranspiler.OpTestLine> {
+                            /*  0 */ new WobTranspiler.OpTestLine( OpCodes.Ldc_I4, Souls_EV.SOULS_PER_LEVEL ), // 150
+                            /*  1 */ new WobTranspiler.OpTestLine( OpCodeSet.StLoc                          ), // int num = 150
+                        },
+                        // Define the actions to take when an occurrence is found
+                        new List<WobTranspiler.OpAction> {
+                            new WobTranspiler.OpAction_SetOperand( 0, configSwapSouls.Value ), // Set the new number of souls
+                        } );
+                // Perform the patching and return the modified instructions
+                return transpiler.PatchAll();
             }
         }
 
         [HarmonyPatch( typeof( SoulShopOmniUISoulSwapBuyButton ), "InitializeConfirmMenu" )]
         static class SoulShopOmniUISoulSwapBuyButton_InitializeConfirmMenu_Patch {
             static IEnumerable<CodeInstruction> Transpiler( IEnumerable<CodeInstruction> instructions ) {
-                // Put the instructions into a list for easier manipulation
-                List<CodeInstruction> codes = new List<CodeInstruction>( instructions );
-                WobPlugin.Log( "SoulShopOmniUISoulSwapBuyButton.InitializeConfirmMenu: Searching opcodes" );
-                // Iterate through the instruction codes
-                for( int i = 0; i < codes.Count - 1; i++ ) {
-                    if( codes[i].opcode == OpCodes.Ldc_I4 && (int)codes[i].operand == Souls_EV.SOULS_PER_LEVEL ) {
-                        WobPlugin.Log( "Found matching opcode at " + i + ": " + codes[i].ToString() );
-                        codes[i].operand = configSwapSouls.Value;
-                    }
-                }
-                // Return the modified instructions to complete the patch
-                return codes.AsEnumerable();
+                WobPlugin.Log( "SoulShopOmniUISoulSwapBuyButton.InitializeConfirmMenu Transpiler Patch" );
+                // Set up the transpiler handler's parameters
+                WobTranspiler transpiler = new WobTranspiler( instructions,
+                        // Define the IL code instructions that should be matched
+                        new List<WobTranspiler.OpTestLine> {
+                            /*  0 */ new WobTranspiler.OpTestLine( OpCodes.Ldc_I4, Souls_EV.SOULS_PER_LEVEL ), // 150
+                            /*  1 */ new WobTranspiler.OpTestLine( OpCodeSet.StLoc                          ), // int num = 150
+                        },
+                        // Define the actions to take when an occurrence is found
+                        new List<WobTranspiler.OpAction> {
+                            new WobTranspiler.OpAction_SetOperand( 0, configSwapSouls.Value ), // Set the new number of souls
+                        } );
+                // Perform the patching and return the modified instructions
+                return transpiler.PatchAll();
             }
         }
 
         [HarmonyPatch( typeof( SoulShopOmniUITransferResourceButton ), "ConfirmTransfer" )]
         static class SoulShopOmniUITransferResourceButton_ConfirmTransfer_Patch {
             static IEnumerable<CodeInstruction> Transpiler( IEnumerable<CodeInstruction> instructions ) {
-                // Put the instructions into a list for easier manipulation
-                List<CodeInstruction> codes = new List<CodeInstruction>( instructions );
-                WobPlugin.Log( "SoulShopOmniUITransferResourceButton.ConfirmTransfer: Searching opcodes" );
-                // Iterate through the instruction codes
-                for( int i = 0; i < codes.Count - 1; i++ ) {
-                    if( codes[i].opcode == OpCodes.Ldc_I4 && (int)codes[i].operand == Souls_EV.SOULS_PER_LEVEL ) {
-                        WobPlugin.Log( "Found matching opcode at " + i + ": " + codes[i].ToString() );
-                        codes[i].operand = configSwapSouls.Value;
-                    }
-                }
-                // Return the modified instructions to complete the patch
-                return codes.AsEnumerable();
+                WobPlugin.Log( "SoulShopOmniUITransferResourceButton.ConfirmTransfer Transpiler Patch" );
+                // Set up the transpiler handler's parameters
+                WobTranspiler transpiler = new WobTranspiler( instructions,
+                        // Define the IL code instructions that should be matched
+                        new List<WobTranspiler.OpTestLine> {
+                            /*  0 */ new WobTranspiler.OpTestLine( OpCodes.Ldsfld, name: "SoulTransferLevel" ), // SoulTransferLevel
+                            /*  1 */ new WobTranspiler.OpTestLine( OpCodes.Ldc_I4, Souls_EV.SOULS_PER_LEVEL  ), // 150
+                            /*  2 */ new WobTranspiler.OpTestLine( OpCodes.Mul                               ), // SoulTransferLevel * 150
+                        },
+                        // Define the actions to take when an occurrence is found
+                        new List<WobTranspiler.OpAction> {
+                            new WobTranspiler.OpAction_SetOperand( 1, configSwapSouls.Value ), // Set the new number of souls
+                        } );
+                // Perform the patching and return the modified instructions
+                return transpiler.PatchAll();
             }
         }
 
         [HarmonyPatch( typeof( SoulShopOmniUITransferResourceButton ), "InitializeConfirmMenu" )]
         static class SoulShopOmniUITransferResourceButton_InitializeConfirmMenu_Patch {
             static IEnumerable<CodeInstruction> Transpiler( IEnumerable<CodeInstruction> instructions ) {
-                // Put the instructions into a list for easier manipulation
-                List<CodeInstruction> codes = new List<CodeInstruction>( instructions );
-                WobPlugin.Log( "SoulShopOmniUITransferResourceButton.InitializeConfirmMenu: Searching opcodes" );
-                // Iterate through the instruction codes
-                for( int i = 0; i < codes.Count - 1; i++ ) {
-                    if( codes[i].opcode == OpCodes.Ldc_I4 && (int)codes[i].operand == Souls_EV.SOULS_PER_LEVEL ) {
-                        WobPlugin.Log( "Found matching opcode at " + i + ": " + codes[i].ToString() );
-                        codes[i].operand = configSwapSouls.Value;
-                    }
-                }
-                // Return the modified instructions to complete the patch
-                return codes.AsEnumerable();
+                WobPlugin.Log( "SoulShopOmniUITransferResourceButton.InitializeConfirmMenu Transpiler Patch" );
+                // Set up the transpiler handler's parameters
+                WobTranspiler transpiler = new WobTranspiler( instructions,
+                        // Define the IL code instructions that should be matched
+                        new List<WobTranspiler.OpTestLine> {
+                            /*  0 */ new WobTranspiler.OpTestLine( OpCodes.Ldsfld, name: "SoulTransferLevel" ), // SoulTransferLevel
+                            /*  1 */ new WobTranspiler.OpTestLine( OpCodes.Ldc_I4, Souls_EV.SOULS_PER_LEVEL  ), // 150
+                            /*  2 */ new WobTranspiler.OpTestLine( OpCodes.Mul                               ), // SoulTransferLevel * 150
+                        },
+                        // Define the actions to take when an occurrence is found
+                        new List<WobTranspiler.OpAction> {
+                            new WobTranspiler.OpAction_SetOperand( 1, configSwapSouls.Value ), // Set the new number of souls
+                        } );
+                // Perform the patching and return the modified instructions
+                return transpiler.PatchAll();
             }
         }
     }

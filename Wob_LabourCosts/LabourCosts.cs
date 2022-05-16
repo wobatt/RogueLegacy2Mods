@@ -47,24 +47,20 @@ namespace Wob_LabourCosts {
 
             // Change the starting level in the method, which sets whether the labour cost box is displayed
             static IEnumerable<CodeInstruction> Transpiler( IEnumerable<CodeInstruction> instructions ) {
-                // Put the instructions into a list for easier manipulation
-                List<CodeInstruction> codes = new List<CodeInstruction>( instructions );
-                WobPlugin.Log( "Searching opcodes" );
-                // Iterate through the instruction codes
-                for( int i = 1; i < codes.Count; i++ ) {
-                    // Search for instruction 'ldc.i4.s' which pushes an int8 onto the stack
-                    if( codes[i].opcode == OpCodes.Ldc_I4_S ) {
-                        WobPlugin.Log( "Found matching opcode at " + i + ": " + codes[i].ToString() );
-                        // Check if the previous instruction is the total upgrade level for comparing to
-                        if( codes[i-1].opcode == OpCodes.Call && ( codes[i-1].operand as MethodInfo ).Name == "GetTotalSkillObjLevel" ) {
-                            WobPlugin.Log( "Correct preceding instruction - patching" );
-                            // Set the operand to the new value from the config file
-                            codes[i].operand = configStartLevel.Value;
-                        }
-                    }
-                }
-                // Return the modified instructions to complete the patch
-                return codes.AsEnumerable();
+                WobPlugin.Log( "SkillTreeWindowController.UpdateLabourCosts Transpiler Patch" );
+                // Set up the transpiler handler's parameters
+                WobTranspiler transpiler = new WobTranspiler( instructions,
+                        // Define the IL code instructions that should be matched
+                        new List<WobTranspiler.OpTestLine> {
+                            /*  0 */ new WobTranspiler.OpTestLine( OpCodes.Call, name: "GetTotalSkillObjLevel" ), // SkillTreeManager.GetTotalSkillObjLevel()
+                            /*  1 */ new WobTranspiler.OpTestLine( OpCodes.Ldc_I4_S                            ), // > 20
+                        },
+                        // Define the actions to take when an occurrence is found
+                        new List<WobTranspiler.OpAction> {
+                            new WobTranspiler.OpAction_SetOperand( 1, configStartLevel.Value ), // Set the operand to the new level from the config file
+                        } );
+                // Perform the patching and return the modified instructions
+                return transpiler.PatchAll();
             }
         }
 
@@ -91,24 +87,20 @@ namespace Wob_LabourCosts {
 
             // Change the starting level in the method. This sets whether the labour cost box is displayed
             static IEnumerable<CodeInstruction> Transpiler( IEnumerable<CodeInstruction> instructions ) {
-                // Put the instructions into a list for easier manipulation
-                List<CodeInstruction> codes = new List<CodeInstruction>( instructions );
-                WobPlugin.Log( "Searching opcodes" );
-                // Iterate through the instruction codes
-                for( int i = 1; i < codes.Count; i++ ) {
-                    // Search for instruction 'ldc.i4.s' which pushes an int8 onto the stack
-                    if( codes[i].opcode == OpCodes.Ldc_I4_S ) {
-                        WobPlugin.Log( "Found matching opcode at " + i + ": " + codes[i].ToString() );
-                        // Check if the previous instruction is the total upgrade level for comparing to
-                        if( codes[i - 1].opcode == OpCodes.Call && ( codes[i - 1].operand as MethodInfo ).Name == "GetTotalSkillObjLevel" ) {
-                            WobPlugin.Log( "Correct preceding instruction - patching" );
-                            // Set the operand to the new value from the config file
-                            codes[i].operand = configStartLevel.Value;
-                        }
-                    }
-                }
-                // Return the modified instructions to complete the patch
-                return codes.AsEnumerable();
+                WobPlugin.Log( "SkillTreeWindowController.UnlockLabourCostAnimCoroutine Transpiler Patch" );
+                // Set up the transpiler handler's parameters
+                WobTranspiler transpiler = new WobTranspiler( instructions,
+                        // Define the IL code instructions that should be matched
+                        new List<WobTranspiler.OpTestLine> {
+                            /*  0 */ new WobTranspiler.OpTestLine( OpCodes.Call, name: "GetTotalSkillObjLevel" ), // SkillTreeManager.GetTotalSkillObjLevel()
+                            /*  1 */ new WobTranspiler.OpTestLine( OpCodes.Ldc_I4_S                            ), // > 20
+                        },
+                        // Define the actions to take when an occurrence is found
+                        new List<WobTranspiler.OpAction> {
+                            new WobTranspiler.OpAction_SetOperand( 1, configStartLevel.Value ), // Set the operand to the new level from the config file
+                        } );
+                // Perform the patching and return the modified instructions
+                return transpiler.PatchAll();
             }
         }
     }
