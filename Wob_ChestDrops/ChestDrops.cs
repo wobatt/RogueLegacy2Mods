@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Reflection.Emit;
 using BepInEx;
 using HarmonyLib;
@@ -22,20 +21,22 @@ namespace Wob_ChestDrops {
             // Patch to remove 'this.m_specialItemDropsList.Clear()' from the start of the method so we can add extra items
             static IEnumerable<CodeInstruction> Transpiler( IEnumerable<CodeInstruction> instructions ) {
                 WobPlugin.Log( "ChestObj.DropRewardFromRegularChest Transpiler Patch" );
-                // Set up the transpiler handler's parameters
-                WobTranspiler transpiler = new WobTranspiler( instructions,
+                // Set up the transpiler handler with the instruction list
+                WobTranspiler transpiler = new WobTranspiler( instructions );
+                // Perform the patching
+                transpiler.PatchAll(
                         // Define the IL code instructions that should be matched
-                        new List<WobTranspiler.OpTestLine> {
-                            /*  0 */ new WobTranspiler.OpTestLine( OpCodes.Ldarg_0                               ), // this
-                            /*  1 */ new WobTranspiler.OpTestLine( OpCodes.Ldfld, name: "m_specialItemDropsList" ), // this.m_specialItemDropsList
-                            /*  2 */ new WobTranspiler.OpTestLine( OpCodes.Callvirt, name: "Clear"               ), // this.m_specialItemDropsList.Clear()
+                        new List<WobTranspiler.OpTest> {
+                            /*  0 */ new WobTranspiler.OpTest( OpCodes.Ldarg_0                               ), // this
+                            /*  1 */ new WobTranspiler.OpTest( OpCodes.Ldfld, name: "m_specialItemDropsList" ), // this.m_specialItemDropsList
+                            /*  2 */ new WobTranspiler.OpTest( OpCodes.Callvirt, name: "Clear"               ), // this.m_specialItemDropsList.Clear()
                         },
                         // Define the actions to take when an occurrence is found
                         new List<WobTranspiler.OpAction> {
                             new WobTranspiler.OpAction_Remove( 0, 3 ), // Blank out the found instructions with nop instructions
                         } );
-                // Perform the patching and return the modified instructions
-                return transpiler.PatchAll();
+                // Return the modified instructions
+                return transpiler.GetResult();
             }
         }
 

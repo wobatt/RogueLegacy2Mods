@@ -9,7 +9,8 @@
     <Import_RootNamespace>Wob_Common</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="$(MSBuildThisFileDirectory)Common.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Transpilers.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)WobSettings.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)WobPlugin.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)WobTranspiler.cs" />
   </ItemGroup>
 </Project>

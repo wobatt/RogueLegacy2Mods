@@ -1,22 +1,18 @@
 ﻿using BepInEx;
 using HarmonyLib;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection.Emit;
 using Wob_Common;
 
 namespace Wob_HouseRules {
     [BepInPlugin("Wob.HouseRules", "House Rules Mod", "0.1.0")]
     public partial class HouseRules : BaseUnityPlugin {
-        // Configuration file entries, globally accessible for patches
-        public static ConfigItem<int> configMaxDifficulty;
-
         // Main method that kicks everything off
         private void Awake() {
             // Set up the logger and basic config items
             WobPlugin.Initialise( this, this.Logger );
             // Create/read the mod specific configuration options
-            configMaxDifficulty = new ConfigItem<int>( this.Config, "Options", "MaxDifficulty", "Maximum percentage that the enemy health and damage house rules will go up to", 1000, 200, int.MaxValue, x => { return (int)( System.Math.Floor( x / 5f ) * 5f ); } );
+            WobPlugin.Settings.Add( new WobSettings.Entry<int>( "MaxDifficulty", "Maximum percentage that the enemy health and damage house rules will go up to", 1000, bounds: (200, int.MaxValue), limiter: x => { return (int)( System.Math.Floor( x / 5f ) * 5f ); } ) );
             // Apply the patches if the mod is enabled
             WobPlugin.Patch();
         }
@@ -27,64 +23,66 @@ namespace Wob_HouseRules {
             // Change the minimum values of the house rule sliders
             static IEnumerable<CodeInstruction> Transpiler( IEnumerable<CodeInstruction> instructions ) {
                 WobPlugin.Log( "ChangeAssistStatModOptionItem.Initialize Transpiler Patch" );
-                // Set up the transpiler handler's parameters
-                WobTranspiler transpiler = new WobTranspiler( instructions,
+                // Set up the transpiler handler with the instruction list
+                WobTranspiler transpiler = new WobTranspiler( instructions );
+                // Perform the patching
+                transpiler.PatchAll(
                         // Define the IL code instructions that should be matched
-                        new List<WobTranspiler.OpTestLine> {
+                        new List<WobTranspiler.OpTest> {
                             // case ChangeAssistStatModOptionItem.StatType.EnemyHealth:
-                            /*  0 */ new WobTranspiler.OpTestLine( OpCodes.Ldarg_0                         ), // this
-                            /*  1 */ new WobTranspiler.OpTestLine( OpCodeSet.Ldc_I4                        ), // 50
-                            /*  2 */ new WobTranspiler.OpTestLine( OpCodes.Stfld, name: "m_minValue"       ), // this.m_minValue = 50
-                            /*  3 */ new WobTranspiler.OpTestLine( OpCodes.Ldarg_0                         ), // this
-                            /*  4 */ new WobTranspiler.OpTestLine( OpCodeSet.Ldc_I4                        ), // 200
-                            /*  5 */ new WobTranspiler.OpTestLine( OpCodes.Stfld, name: "m_maxValue"       ), // this.m_maxValue = 200
-                            /*  6 */ new WobTranspiler.OpTestLine( OpCodes.Ldarg_0                         ), // this
-                            /*  7 */ new WobTranspiler.OpTestLine( OpCodeSet.Ldc_I4                        ), // 5
-                            /*  8 */ new WobTranspiler.OpTestLine( OpCodes.Stfld, name: "m_incrementValue" ), // this.m_incrementValue = 5
-                            /*  9 */ new WobTranspiler.OpTestLine( OpCodes.Br                              ), // break
+                            /*  0 */ new WobTranspiler.OpTest( OpCodes.Ldarg_0                         ), // this
+                            /*  1 */ new WobTranspiler.OpTest( OpCodeSet.Ldc_I4                        ), // 50
+                            /*  2 */ new WobTranspiler.OpTest( OpCodes.Stfld, name: "m_minValue"       ), // this.m_minValue = 50
+                            /*  3 */ new WobTranspiler.OpTest( OpCodes.Ldarg_0                         ), // this
+                            /*  4 */ new WobTranspiler.OpTest( OpCodeSet.Ldc_I4                        ), // 200
+                            /*  5 */ new WobTranspiler.OpTest( OpCodes.Stfld, name: "m_maxValue"       ), // this.m_maxValue = 200
+                            /*  6 */ new WobTranspiler.OpTest( OpCodes.Ldarg_0                         ), // this
+                            /*  7 */ new WobTranspiler.OpTest( OpCodeSet.Ldc_I4                        ), // 5
+                            /*  8 */ new WobTranspiler.OpTest( OpCodes.Stfld, name: "m_incrementValue" ), // this.m_incrementValue = 5
+                            /*  9 */ new WobTranspiler.OpTest( OpCodes.Br                              ), // break
                             // case ChangeAssistStatModOptionItem.StatType.EnemyDamage:
-                            /* 10 */ new WobTranspiler.OpTestLine( OpCodes.Ldarg_0                         ), // this
-                            /* 11 */ new WobTranspiler.OpTestLine( OpCodeSet.Ldc_I4                        ), // 50
-                            /* 12 */ new WobTranspiler.OpTestLine( OpCodes.Stfld, name: "m_minValue"       ), // this.m_minValue = 50
-                            /* 13 */ new WobTranspiler.OpTestLine( OpCodes.Ldarg_0                         ), // this
-                            /* 14 */ new WobTranspiler.OpTestLine( OpCodeSet.Ldc_I4                        ), // 200
-                            /* 15 */ new WobTranspiler.OpTestLine( OpCodes.Stfld, name: "m_maxValue"       ), // this.m_maxValue = 200
-                            /* 16 */ new WobTranspiler.OpTestLine( OpCodes.Ldarg_0                         ), // this
-                            /* 17 */ new WobTranspiler.OpTestLine( OpCodeSet.Ldc_I4                        ), // 5
-                            /* 18 */ new WobTranspiler.OpTestLine( OpCodes.Stfld, name: "m_incrementValue" ), // this.m_incrementValue = 5
-                            /* 19 */ new WobTranspiler.OpTestLine( OpCodes.Br                              ), // break
+                            /* 10 */ new WobTranspiler.OpTest( OpCodes.Ldarg_0                         ), // this
+                            /* 11 */ new WobTranspiler.OpTest( OpCodeSet.Ldc_I4                        ), // 50
+                            /* 12 */ new WobTranspiler.OpTest( OpCodes.Stfld, name: "m_minValue"       ), // this.m_minValue = 50
+                            /* 13 */ new WobTranspiler.OpTest( OpCodes.Ldarg_0                         ), // this
+                            /* 14 */ new WobTranspiler.OpTest( OpCodeSet.Ldc_I4                        ), // 200
+                            /* 15 */ new WobTranspiler.OpTest( OpCodes.Stfld, name: "m_maxValue"       ), // this.m_maxValue = 200
+                            /* 16 */ new WobTranspiler.OpTest( OpCodes.Ldarg_0                         ), // this
+                            /* 17 */ new WobTranspiler.OpTest( OpCodeSet.Ldc_I4                        ), // 5
+                            /* 18 */ new WobTranspiler.OpTest( OpCodes.Stfld, name: "m_incrementValue" ), // this.m_incrementValue = 5
+                            /* 19 */ new WobTranspiler.OpTest( OpCodes.Br                              ), // break
                             // case ChangeAssistStatModOptionItem.StatType.AimTimeSlow:
-                            /* 20 */ new WobTranspiler.OpTestLine( OpCodes.Ldarg_0                         ), // this
-                            /* 21 */ new WobTranspiler.OpTestLine( OpCodeSet.Ldc_I4                        ), // 25
-                            /* 22 */ new WobTranspiler.OpTestLine( OpCodes.Stfld, name: "m_minValue"       ), // this.m_minValue = 25
-                            /* 23 */ new WobTranspiler.OpTestLine( OpCodes.Ldarg_0                         ), // this
-                            /* 24 */ new WobTranspiler.OpTestLine( OpCodeSet.Ldc_I4                        ), // 100
-                            /* 25 */ new WobTranspiler.OpTestLine( OpCodes.Stfld, name: "m_maxValue"       ), // this.m_maxValue = 100
-                            /* 26 */ new WobTranspiler.OpTestLine( OpCodes.Ldarg_0                         ), // this
-                            /* 27 */ new WobTranspiler.OpTestLine( OpCodeSet.Ldc_I4                        ), // 5
-                            /* 28 */ new WobTranspiler.OpTestLine( OpCodes.Stfld, name: "m_incrementValue" ), // this.m_incrementValue = 5
-                            /* 29 */ new WobTranspiler.OpTestLine( OpCodes.Br                              ), // break
+                            /* 20 */ new WobTranspiler.OpTest( OpCodes.Ldarg_0                         ), // this
+                            /* 21 */ new WobTranspiler.OpTest( OpCodeSet.Ldc_I4                        ), // 25
+                            /* 22 */ new WobTranspiler.OpTest( OpCodes.Stfld, name: "m_minValue"       ), // this.m_minValue = 25
+                            /* 23 */ new WobTranspiler.OpTest( OpCodes.Ldarg_0                         ), // this
+                            /* 24 */ new WobTranspiler.OpTest( OpCodeSet.Ldc_I4                        ), // 100
+                            /* 25 */ new WobTranspiler.OpTest( OpCodes.Stfld, name: "m_maxValue"       ), // this.m_maxValue = 100
+                            /* 26 */ new WobTranspiler.OpTest( OpCodes.Ldarg_0                         ), // this
+                            /* 27 */ new WobTranspiler.OpTest( OpCodeSet.Ldc_I4                        ), // 5
+                            /* 28 */ new WobTranspiler.OpTest( OpCodes.Stfld, name: "m_incrementValue" ), // this.m_incrementValue = 5
+                            /* 29 */ new WobTranspiler.OpTest( OpCodes.Br                              ), // break
                             // case ChangeAssistStatModOptionItem.StatType.BurdenRequirement:
-                            /* 30 */ new WobTranspiler.OpTestLine( OpCodes.Ldarg_0                         ), // this
-                            /* 31 */ new WobTranspiler.OpTestLine( OpCodeSet.Ldc_I4                        ), // 50
-                            /* 32 */ new WobTranspiler.OpTestLine( OpCodes.Stfld, name: "m_minValue"       ), // this.m_minValue = 50
-                            /* 33 */ new WobTranspiler.OpTestLine( OpCodes.Ldarg_0                         ), // this
-                            /* 34 */ new WobTranspiler.OpTestLine( OpCodeSet.Ldc_I4                        ), // 200
-                            /* 35 */ new WobTranspiler.OpTestLine( OpCodes.Stfld, name: "m_maxValue"       ), // this.m_maxValue = 200
-                            /* 36 */ new WobTranspiler.OpTestLine( OpCodes.Ldarg_0                         ), // this
-                            /* 37 */ new WobTranspiler.OpTestLine( OpCodeSet.Ldc_I4                        ), // 50
-                            /* 38 */ new WobTranspiler.OpTestLine( OpCodes.Stfld, name: "m_incrementValue" ), // this.m_incrementValue = 50
+                            /* 30 */ new WobTranspiler.OpTest( OpCodes.Ldarg_0                         ), // this
+                            /* 31 */ new WobTranspiler.OpTest( OpCodeSet.Ldc_I4                        ), // 50
+                            /* 32 */ new WobTranspiler.OpTest( OpCodes.Stfld, name: "m_minValue"       ), // this.m_minValue = 50
+                            /* 33 */ new WobTranspiler.OpTest( OpCodes.Ldarg_0                         ), // this
+                            /* 34 */ new WobTranspiler.OpTest( OpCodeSet.Ldc_I4                        ), // 200
+                            /* 35 */ new WobTranspiler.OpTest( OpCodes.Stfld, name: "m_maxValue"       ), // this.m_maxValue = 200
+                            /* 36 */ new WobTranspiler.OpTest( OpCodes.Ldarg_0                         ), // this
+                            /* 37 */ new WobTranspiler.OpTest( OpCodeSet.Ldc_I4                        ), // 50
+                            /* 38 */ new WobTranspiler.OpTest( OpCodes.Stfld, name: "m_incrementValue" ), // this.m_incrementValue = 50
                         },
                         // Define the actions to take when an occurrence is found
                         new List<WobTranspiler.OpAction> {
-                            new WobTranspiler.OpAction_SetOperand(  1, (sbyte)5                  ), // Set minimum enemy health
-                            new WobTranspiler.OpAction_SetOperand(  4, configMaxDifficulty.Value ), // Set maximum enemy health
-                            new WobTranspiler.OpAction_SetOperand( 11, (sbyte)0                  ), // Set minimum enemy damage
-                            new WobTranspiler.OpAction_SetOperand( 14, configMaxDifficulty.Value ), // Set maximum enemy damage
-                            new WobTranspiler.OpAction_SetOperand( 21, (sbyte)5                  ), // Set minimum aim time slow
+                            new WobTranspiler.OpAction_SetOperand(  1, (sbyte)5                                       ), // Set minimum enemy health
+                            new WobTranspiler.OpAction_SetOperand(  4, WobPlugin.Settings.Get( "MaxDifficulty", 200 ) ), // Set maximum enemy health
+                            new WobTranspiler.OpAction_SetOperand( 11, (sbyte)0                                       ), // Set minimum enemy damage
+                            new WobTranspiler.OpAction_SetOperand( 14, WobPlugin.Settings.Get( "MaxDifficulty", 200 ) ), // Set maximum enemy damage
+                            new WobTranspiler.OpAction_SetOperand( 21, (sbyte)5                                       ), // Set minimum aim time slow
                         } );
-                // Perform the patching and return the modified instructions
-                return transpiler.PatchFirst();
+                // Return the modified instructions
+                return transpiler.GetResult();
             }
         }
     }

@@ -26,11 +26,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wob_TraitBan", "Wob_TraitBa
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wob_SuperMagnet", "Wob_SuperMagnet\Wob_SuperMagnet.csproj", "{F97DA655-BDB7-4581-A008-7CE14F6F4DC4}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wob_TraitHPPenalties", "Wob_TraitNoHPPenalties\Wob_TraitHPPenalties.csproj", "{ACC17489-041E-4D45-8221-7BC774E21E88}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wob_FairyChests", "Wob_FairyChests\Wob_FairyChests.csproj", "{D19541F1-BC51-455A-92D0-9CF1F7F05869}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wob_Appreciation", "Wob_Appreciation\Wob_Appreciation.csproj", "{2020DC44-9F73-4EA8-891D-FE3A17B276C7}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wob_TalentCooldown", "Wob_TalentCooldown\Wob_TalentCooldown.csproj", "{3B136931-9495-404A-8DC2-3342677A4A7D}"
 EndProject
@@ -42,21 +38,22 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wob_ResourceGain", "Wob_Res
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wob_Regeneration", "Wob_Regeneration\Wob_Regeneration.csproj", "{27E7A31D-78FC-495D-9FCE-F09F59F2F1AA}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wob_TraitStats", "Wob_TraitStats\Wob_TraitStats.csproj", "{D2133398-E727-4D17-808E-AB0976D56A3F}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		Wob_Common\Wob_Common.projitems*{02dc09fd-477f-4f12-ac33-eaeb42600a0c}*SharedItemsImports = 5
 		Wob_Common\Wob_Common.projitems*{05ae1e02-c22e-4065-af11-bd327cc7086f}*SharedItemsImports = 5
 		Wob_Common\Wob_Common.projitems*{1eefb374-0d38-4dfd-a35b-f64d58eca764}*SharedItemsImports = 5
-		Wob_Common\Wob_Common.projitems*{2020dc44-9f73-4ea8-891d-fe3a17b276c7}*SharedItemsImports = 5
 		Wob_Common\Wob_Common.projitems*{27e7a31d-78fc-495d-9fce-f09f59f2f1aa}*SharedItemsImports = 5
 		Wob_Common\Wob_Common.projitems*{328de0e1-d8e6-4cf2-a01e-ac8e9df92f00}*SharedItemsImports = 5
 		Wob_Common\Wob_Common.projitems*{3b136931-9495-404a-8dc2-3342677a4a7d}*SharedItemsImports = 5
 		Wob_Common\Wob_Common.projitems*{74ce4b26-cb25-4724-beb8-ba3baf9b9afb}*SharedItemsImports = 5
 		Wob_Common\Wob_Common.projitems*{7b49714c-e29c-4019-96ed-a10d92d4de64}*SharedItemsImports = 5
 		Wob_Common\Wob_Common.projitems*{94d67f27-ecf4-4490-b5b3-b1e38669efed}*SharedItemsImports = 5
-		Wob_Common\Wob_Common.projitems*{acc17489-041e-4d45-8221-7bc774e21e88}*SharedItemsImports = 5
 		Wob_Common\Wob_Common.projitems*{c2d09d20-e45b-434a-8e6e-16703a8b76db}*SharedItemsImports = 13
 		Wob_Common\Wob_Common.projitems*{d19541f1-bc51-455a-92d0-9cf1f7f05869}*SharedItemsImports = 5
+		Wob_Common\Wob_Common.projitems*{d2133398-e727-4d17-808e-ab0976d56a3f}*SharedItemsImports = 5
 		Wob_Common\Wob_Common.projitems*{d98fea97-0dd4-4fdb-8555-e7e9495d3ddf}*SharedItemsImports = 5
 		Wob_Common\Wob_Common.projitems*{f97da655-bdb7-4581-a008-7ce14f6f4dc4}*SharedItemsImports = 5
 		Wob_Common\Wob_Common.projitems*{fc441149-7f22-4447-9cfe-20dcfc1273f4}*SharedItemsImports = 5
@@ -99,18 +96,10 @@ Global
 		{F97DA655-BDB7-4581-A008-7CE14F6F4DC4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F97DA655-BDB7-4581-A008-7CE14F6F4DC4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F97DA655-BDB7-4581-A008-7CE14F6F4DC4}.Release|Any CPU.Build.0 = Release|Any CPU
-		{ACC17489-041E-4D45-8221-7BC774E21E88}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{ACC17489-041E-4D45-8221-7BC774E21E88}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{ACC17489-041E-4D45-8221-7BC774E21E88}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{ACC17489-041E-4D45-8221-7BC774E21E88}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D19541F1-BC51-455A-92D0-9CF1F7F05869}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{D19541F1-BC51-455A-92D0-9CF1F7F05869}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D19541F1-BC51-455A-92D0-9CF1F7F05869}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D19541F1-BC51-455A-92D0-9CF1F7F05869}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2020DC44-9F73-4EA8-891D-FE3A17B276C7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2020DC44-9F73-4EA8-891D-FE3A17B276C7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2020DC44-9F73-4EA8-891D-FE3A17B276C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2020DC44-9F73-4EA8-891D-FE3A17B276C7}.Release|Any CPU.Build.0 = Release|Any CPU
 		{3B136931-9495-404A-8DC2-3342677A4A7D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{3B136931-9495-404A-8DC2-3342677A4A7D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3B136931-9495-404A-8DC2-3342677A4A7D}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -131,6 +120,10 @@ Global
 		{27E7A31D-78FC-495D-9FCE-F09F59F2F1AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{27E7A31D-78FC-495D-9FCE-F09F59F2F1AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{27E7A31D-78FC-495D-9FCE-F09F59F2F1AA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D2133398-E727-4D17-808E-AB0976D56A3F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D2133398-E727-4D17-808E-AB0976D56A3F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D2133398-E727-4D17-808E-AB0976D56A3F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D2133398-E727-4D17-808E-AB0976D56A3F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
