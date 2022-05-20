@@ -43,18 +43,6 @@ namespace Wob_Common {
             }
         }
 
-        private static AcceptableValueBase GetAcceptable<T>( T[] acceptedValues, (T min, T max) bounds ) where T : IComparable, IEquatable<T> {
-            AcceptableValueBase acceptableValues = null;
-            if( acceptedValues != null ) {
-                acceptableValues = new AcceptableValueList<T>( acceptedValues );
-            } else {
-                if( bounds.Item1.CompareTo( bounds.Item2 ) < 0 ) {
-                    acceptableValues = new AcceptableValueRange<T>( bounds.min, bounds.max );
-                }
-            }
-            return acceptableValues;
-        }
-
         public abstract class Entry {
             public string Key         { get; protected set; }
             public string Section     { get; protected set; }
@@ -70,19 +58,61 @@ namespace Wob_Common {
                 this.DataType = dataType;
             }
 
-            public abstract object GetValue();
+            protected abstract object GetValue();
 
             public T Get<T>( T defaultValue ) {
                 T value = defaultValue;
+                // Check the data type being requested matches the target data type
                 if( typeof( T ) == this.DataType ) {
+                    // Request and target are same data type, so return the value
                     value = (T)this.GetValue();
                 } else {
-                    WobPlugin.Log( "ERROR: Attempt to get setting " + this.Key + " as " + typeof( T ) + " but it is " + this.DataType, WobPlugin.ERROR );
+                    // Types don't match, so check the list of safe casts of numeric types
+                    if( safeCasts.TryGetValue( typeof( T ), out List<Type> safeCastList ) && safeCastList.Contains( this.DataType ) ) {
+                        // This is a safe cast, so return the value
+                        value = (T)Convert.ChangeType( this.GetValue(), typeof( T ) );
+                    } else {
+                        // Can't get the value, so log an error, and leave the return value as the default from the parameter
+                        WobPlugin.Log( "ERROR: Attempt to get setting " + this.Key + " as " + typeof( T ) + " but it is " + this.DataType, WobPlugin.ERROR );
+                    }
                 }
                 return value;
             }
+
+            private readonly Dictionary<Type, List<Type>> safeCasts = new Dictionary<Type, List<Type>>() {
+                // Integer types - can cast from any smaller integer type
+                { typeof( short   ), new List<Type> { typeof( sbyte ), typeof( byte ) } },
+                { typeof( ushort  ), new List<Type> { typeof( sbyte ), typeof( byte ) } },
+                { typeof( int     ), new List<Type> { typeof( sbyte ), typeof( byte ), typeof( short ), typeof( ushort ) } },
+                { typeof( uint    ), new List<Type> { typeof( sbyte ), typeof( byte ), typeof( short ), typeof( ushort ) } },
+                { typeof( long    ), new List<Type> { typeof( sbyte ), typeof( byte ), typeof( short ), typeof( ushort ), typeof( int ), typeof( uint ) } },
+                { typeof( ulong   ), new List<Type> { typeof( sbyte ), typeof( byte ), typeof( short ), typeof( ushort ), typeof( int ), typeof( uint ) } },
+                // Floating point types - cast from integers
+                { typeof( float   ), new List<Type> { typeof( sbyte ), typeof( byte ), typeof( short ), typeof( ushort ), typeof( int ), typeof( uint ), typeof( long ), typeof( ulong ) } },
+                { typeof( double  ), new List<Type> { typeof( sbyte ), typeof( byte ), typeof( short ), typeof( ushort ), typeof( int ), typeof( uint ), typeof( long ), typeof( ulong ), typeof( float ) } },
+                { typeof( decimal ), new List<Type> { typeof( sbyte ), typeof( byte ), typeof( short ), typeof( ushort ), typeof( int ), typeof( uint ), typeof( long ), typeof( ulong ) } },
+            };
         }
         
+        public class Enum<T> : Entry where T : Enum {
+            public T DefaultValue { get; protected set; }
+            protected ConfigEntry<T> configEntry;
+
+            public Enum( string name, string description, T value ) : this( DEFAULT_SECTION, name, description, value ) { }
+            public Enum( string section, string name, string description, T value ) : base( section, name, description, typeof( T ) ) {
+                this.DefaultValue = value;
+                this.Bind();
+            }
+
+            protected virtual void Bind() {
+                this.configEntry = configFile.Bind( this.Section, this.Name, this.DefaultValue, new ConfigDescription( this.Description ) );
+            }
+
+            protected override object GetValue() {
+                return this.configEntry.Value;
+            }
+        }
+
         public class Entry<T> : Entry where T : IComparable, IEquatable<T> {
             public T DefaultValue        { get; protected set; }
             public T[] AcceptedValues    { get; protected set; }
@@ -100,19 +130,35 @@ namespace Wob_Common {
             }
 
             protected virtual void Bind() {
-                this.configEntry = configFile.Bind( this.Section, this.Name, this.DefaultValue, new ConfigDescription( this.Description, GetAcceptable( this.AcceptedValues, this.Bounds ) ) );
+                this.configEntry = configFile.Bind( this.Section, this.Name, this.DefaultValue, new ConfigDescription( this.Description, this.GetAcceptable() ) );
                 if( this.Limiter != null ) {
                     this.configEntry.Value = this.Limiter( this.configEntry.Value );
                 }
             }
 
-            public override object GetValue() {
+            protected override object GetValue() {
                 return this.configEntry.Value;
             }
 
             public virtual T Get() {
                 return this.configEntry.Value;
             }
+
+            private static readonly List<Type> numericTypes = new List<Type> { typeof( sbyte ), typeof( byte ), typeof( short ), typeof( ushort ), typeof( int ), typeof( uint ), typeof( long ), typeof( ulong ), typeof( float ), typeof( double ), typeof( decimal ) };
+            protected AcceptableValueBase GetAcceptable() {
+                AcceptableValueBase acceptableValues = null;
+                if( this.AcceptedValues != null ) {
+                    acceptableValues = new AcceptableValueList<T>( this.AcceptedValues );
+                } else {
+                    if( numericTypes.Contains( typeof( T ) ) && this.Bounds.min.CompareTo( this.Bounds.max ) < 0 ) {
+                        acceptableValues = new AcceptableValueRange<T>( this.Bounds.min, this.Bounds.max );
+                    } else {
+                        WobPlugin.Log( "WARNING: No validation for " + this.Key );
+                    }
+                }
+                return acceptableValues;
+            }
+
         }
 
         public class EntryBool : Entry<bool> {
@@ -120,38 +166,52 @@ namespace Wob_Common {
             public EntryBool( string section, string name, string description, bool value ) : base( section, name, description, value, new bool[] { true, false } ) { }
         }
 
-        public abstract class ScaledEntry<T> : Entry<T> where T : IComparable, IEquatable<T> {
+        public class Scaled<T> : Entry<T> where T : IComparable, IEquatable<T> {
             public float Scaler { get; protected set; }
 
-            protected ScaledEntry( string section, string name, string description, T value, float scaler, T[] acceptedValues = null, (T min, T max) bounds = default, Func<T, T> limiter = null ) : base( section, name, description, value, acceptedValues, bounds, limiter ) {
+            public Scaled( string name, string description, T value, float scaler, T[] acceptedValues = null, (T min, T max) bounds = default, Func<T, T> limiter = null ) : this( DEFAULT_SECTION, name, description, value, scaler, acceptedValues, bounds, limiter ) { }
+            public Scaled( string section, string name, string description, T value, float scaler, T[] acceptedValues = null, (T min, T max) bounds = default, Func<T, T> limiter = null ) : base( section, name, description, value, acceptedValues, bounds, limiter ) {
                 this.DataType = typeof( float );
                 this.Scaler = scaler;
             }
 
             protected override void Bind() {
-                this.configEntry = WobPlugin.Config.Bind( this.Section, this.Name, this.DefaultValue, new ConfigDescription( this.Description, GetAcceptable( this.AcceptedValues, this.Bounds ) ) );
+                this.configEntry = configFile.Bind( this.Section, this.Name, this.DefaultValue, new ConfigDescription( this.Description, this.GetAcceptable() ) );
                 if( this.Limiter != null ) {
                     this.configEntry.Value = this.Limiter( this.configEntry.Value );
                 }
             }
 
-            public abstract override object GetValue();
+            protected override object GetValue() {
+                if( typeof( T ) == typeof( decimal ) ) {
+                    return ( (decimal)this.Scaler ) * ( (decimal)Convert.ChangeType( this.configEntry.Value, typeof( decimal ) ) );
+                }
+                if( typeof( T ) == typeof( double ) ) {
+                    return ( (double)this.Scaler ) * ( (double)Convert.ChangeType( this.configEntry.Value, typeof( double ) ) );
+                }
+                if( typeof( T ) == typeof( float ) || floatCasts.Contains( typeof( T ) ) ) {
+                    return this.Scaler * (float)Convert.ChangeType( this.configEntry.Value, typeof( float ) );
+                }
+                WobPlugin.Log( "ERROR: Could not multiply scaler by type " + typeof( T ), WobPlugin.ERROR );
+                return this.configEntry.Value;
+            }
+            private static readonly List<Type> floatCasts = new List<Type> { typeof( sbyte ), typeof( byte ), typeof( short ), typeof( ushort ), typeof( int ), typeof( uint ), typeof( long ), typeof( ulong ) };
         }
 
-        public class ScaledInt : ScaledEntry<int> {
+        public class ScaledInt : Scaled<int> {
             public ScaledInt( string name, string description, int value, float scaler, int[] acceptedValues = null, (int min, int max) bounds = default, Func<int, int> limiter = null ) : this( DEFAULT_SECTION, name, description, value, scaler, acceptedValues, bounds, limiter ) { }
             public ScaledInt( string section, string name, string description, int value, float scaler, int[] acceptedValues = null, (int min, int max) bounds = default, Func<int, int> limiter = null ) : base( section, name, description, value, scaler, acceptedValues, bounds, limiter ) { }
 
-            public override object GetValue() {
+            protected override object GetValue() {
                 return this.configEntry.Value * this.Scaler;
             }
         }
         
-        public class ScaledFloat : ScaledEntry<float> {
+        public class ScaledFloat : Scaled<float> {
             public ScaledFloat( string name, string description, float value, float scaler, float[] acceptedValues = null, (float min, float max) bounds = default, Func<float, float> limiter = null ) : this( DEFAULT_SECTION, name, description, value, scaler, acceptedValues, bounds, limiter ) { }
             public ScaledFloat( string section, string name, string description, float value, float scaler, float[] acceptedValues = null, (float min, float max) bounds = default, Func<float, float> limiter = null ) : base( section, name, description, value, scaler, acceptedValues, bounds, limiter ) { }
 
-            public override object GetValue() {
+            protected override object GetValue() {
                 return this.configEntry.Value * this.Scaler;
             }
         }

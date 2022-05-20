@@ -18,7 +18,6 @@ namespace Wob_TraitBan {
                 new WobSettings.EntryBool( "Traits", "BonusMagicStrength",     "Crippling Intellect - -50% Health and Weapon Damage. Mana regenerates over time.",                                                true ),
                 new WobSettings.EntryBool( "Traits", "BounceTerrain",          "Clownanthropy - 30% less Health, but you can Spin Kick off terrain.",                                                             true ),
                 new WobSettings.EntryBool( "Traits", "BreakPropsForMana",      "Minimalist/Breaker - Breaking things restores Mana.",                                                                             true ),
-                new WobSettings.EntryBool( "Traits", "CanNowAttack",           "Pacifier - -60% Health and you love to fight!",                                                                                   true ),
                 new WobSettings.EntryBool( "Traits", "CantAttack",             "Pacifist - -60% Health and you can't deal damage.",                                                                               true ),
                 new WobSettings.EntryBool( "Traits", "CheerOnKills",           "Diva - Everyone gets a spotlight but all eyes are on you.",                                                                       true ),
                 new WobSettings.EntryBool( "Traits", "ColorTrails",            "Synesthesia - Everything leaves behind color.",                                                                                   true ),
@@ -37,7 +36,6 @@ namespace Wob_TraitBan {
                 new WobSettings.EntryBool( "Traits", "GainDownStrike",         "Aerodynamic - Your Spinkick is replaced with Downstrike.",                                                                        true ),
                 new WobSettings.EntryBool( "Traits", "Gay",                    "Nature - Being true to being you. (No effect)",                                                                                   true ),
                 new WobSettings.EntryBool( "Traits", "HighJump",               "IIB Muscle Fibers/High Jumper - Hold [Jump] to Super Jump.",                                                                      true ),
-                new WobSettings.EntryBool( "Traits", "HorizontalDarkness",     "Tunnel Vision - Everything that is not on the same level as the player is black.",                                                true ),
                 new WobSettings.EntryBool( "Traits", "ItemsGoFlying",          "Dyspraxia/Butter Fingers - Items go flying!",                                                                                     true ),
                 new WobSettings.EntryBool( "Traits", "LongerCD",               "Chronic Fatigue Syndrome/Exhausted - All Spells and Talents have a cooldown.",                                                    true ),
                 new WobSettings.EntryBool( "Traits", "LowerGravity",           "Hollow Bones - You fall slowly.",                                                                                                 true ),
@@ -64,30 +62,10 @@ namespace Wob_TraitBan {
                 new WobSettings.EntryBool( "Traits", "SuperFart",              "Super IBS - Super Fart Talent that releases a cloud that inflicts 3 seconds of Burn on enemies and launches the player upwards.", true ),
                 new WobSettings.EntryBool( "Traits", "SuperHealer",            "Hypercoagulation/Super Healer - HP regenerates, but you lose some Max HP when hit.",                                              true ),
                 new WobSettings.EntryBool( "Traits", "TwinRelics",             "Compulsive Hoarder/Hoarder - All Relics are Twin Relics (when possible).",                                                        true ),
-                new WobSettings.EntryBool( "Traits", "UpsideDown",             "Vertigo - Everything is upside-down.",                                                                                            true ),
                 new WobSettings.EntryBool( "Traits", "Vampire",                "Vampirism - Gain 20% of your Weapon Damage as Health, but you take 125% more damage.",                                            true ),
                 new WobSettings.EntryBool( "Traits", "YouAreBlue",             "Methemoglobinemia/Blue - You are blue. (No effect)",                                                                              true ),
                 new WobSettings.EntryBool( "Traits", "YouAreLarge",            "Gigantism - You are gigantic.",                                                                                                   true ),
                 new WobSettings.EntryBool( "Traits", "YouAreSmall",            "Dwarfism - You are Tiny. (Required to access a Scar in Axis Mundi)",                                                              true ),
-                
-                // These are not listed on the wiki, or are listed as removed, so probably don't need them?
-                new WobSettings.EntryBool( "Traits", "AngryOnHit",             "I.E.D/Quick to Anger - Damage and movement speed bonus when hit.",                                                                true ),
-                new WobSettings.EntryBool( "Traits", "BlurryClose",            "Optical Migraine - Everything up close is blurry.",                                                                               true ),
-                new WobSettings.EntryBool( "Traits", "BlurryFar",              "Near-sighted - Everything far away is blurry.",                                                                                   true ),
-                new WobSettings.EntryBool( "Traits", "DarkScreen",             "Glaucoma - Darkness surrounds you.",                                                                                              true ),
-                new WobSettings.EntryBool( "Traits", "DisableAttackLock",      "Flexible - You can turn while attacking.",                                                                                        true ),
-                new WobSettings.EntryBool( "Traits", "FreeRelic",              "Treasure Hunter - Start with a random Relic.",                                                                                    true ),
-                new WobSettings.EntryBool( "Traits", "GameShake",              "Clonus - Game randomly shakes.",                                                                                                  true ),
-                new WobSettings.EntryBool( "Traits", "HalloweenHoliday",       "Medium - Everything is spooky!",                                                                                                  true ),
-                new WobSettings.EntryBool( "Traits", "InvulnDash",             "Evasive - Invincible while dashing, but you have 50% less hp, and dashing dodges has a cooldown.",                                true ),
-                new WobSettings.EntryBool( "Traits", "MushroomGrow",           "Fun-Guy/Fun-Gal/Mushroom Man/Mushroom Lady - You really like mushrooms.",                                                         true ),
-                new WobSettings.EntryBool( "Traits", "NoManaCap",              "IED/Overexerter - You can exceed your Mana Capacity but will take damage over time for it.",                                      true ),
-                new WobSettings.EntryBool( "Traits", "NotMovingSlowGame",      "Hyperreflexia - Time moves only when you move.",                                                                                  true ),
-                new WobSettings.EntryBool( "Traits", "Oversaturate",           "Tetrachromat - All colours are deeper",                                                                                           true ),
-                new WobSettings.EntryBool( "Traits", "Retro",                  "Antiquarian - Everything is retro.",                                                                                              true ),
-                new WobSettings.EntryBool( "Traits", "ShowEnemiesOnMap",       "Eiditic Memory - Enemies are shown on map.",                                                                                      true ),
-                new WobSettings.EntryBool( "Traits", "Swearing",               "Coprolalia - You swear when struck.",                                                                                             true ),
-                new WobSettings.EntryBool( "Traits", "WordScramble",           "Dyslexia - Words are scrambled.",                                                                                                 true ),
             } );
             // Apply the patches if the mod is enabled
             WobPlugin.Patch();
@@ -96,21 +74,25 @@ namespace Wob_TraitBan {
         [HarmonyPatch( typeof( TraitType_RL ), nameof( TraitType_RL.TypeArray ), MethodType.Getter )]
         static class TraitType_RL_TypeArray_Patch {
             private static bool runOnce = false;
-
             static void Prefix() {
+                // Only need to run this once, as the new settings are written into the trait data for the session
                 if( !runOnce ) {
-                    List<TraitType> typeList = new List<TraitType>( (TraitType[])Traverse.Create( typeof( TraitType_RL ) ).Field( "m_typeArray" ).GetValue() );
-                    for( int i = typeList.Count - 1; i >= 0; i-- ) {
-                        TraitData traitData = TraitLibrary.GetTraitData( typeList[i] );
+                    // Get the list of traits from the private field
+                    TraitType[] m_typeArray = (TraitType[])Traverse.Create( typeof( TraitType_RL ) ).Field( "m_typeArray" ).GetValue();
+                    // Go through each type in the array
+                    foreach( TraitType traitType in m_typeArray ) {
+                        // Get the trait data that includes rarity info
+                        TraitData traitData = TraitLibrary.GetTraitData( traitType );
                         if( traitData != null ) {
+                            // Check that the rarity is within the range looked at during character generation
                             // Get the value of the setting that has the same name as the internal name of the trait
-                            if( !WobPlugin.Settings.Get( "Traits", traitData.Name, true ) ) {
-                                typeList.RemoveAt( i );
+                            if( ( traitData.Rarity >= 1 && traitData.Rarity <= 3 ) && !WobPlugin.Settings.Get( "Traits", traitData.Name, true ) ) {
+                                // The game seems to use values of 91, 92 and 93 for the rarity of diabled traits, so I will stick to this convention, though any value > 3 would work
+                                traitData.Rarity += 90;
                                 WobPlugin.Log( "Banning trait " + traitData.Name );
                             }
                         }
                     }
-                    Traverse.Create( typeof( TraitType_RL ) ).Field( "m_typeArray" ).SetValue( typeList.ToArray() );
                     runOnce = true;
                 }
             }

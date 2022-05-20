@@ -11,9 +11,9 @@ namespace Wob_ResourceGain {
             WobPlugin.Initialise( this, this.Logger );
             // Create/read the mod specific configuration options
             WobPlugin.Settings.Add( new WobSettings.Entry[] {
-                new WobSettings.ScaledInt( "GoldGain",   "Gain +X% gold on all characters", 0, 0.01f, bounds: (0, int.MaxValue) ),
-                new WobSettings.ScaledInt( "OreGain",    "Gain +X% ore",                    0, 0.01f, bounds: (0, int.MaxValue) ),
-                new WobSettings.ScaledInt( "AetherGain", "Gain +X% aether",                 0, 0.01f, bounds: (0, int.MaxValue) ),
+                new WobSettings.Scaled<int>( "GoldGain",   "Gain +X% gold on all characters", 0, 0.01f, bounds: (0, 1000000) ),
+                new WobSettings.Scaled<int>( "OreGain",    "Gain +X% ore",                    0, 0.01f, bounds: (0, 1000000) ),
+                new WobSettings.Scaled<int>( "AetherGain", "Gain +X% aether",                 0, 0.01f, bounds: (0, 1000000) ),
             } );
             // Apply the patches if the mod is enabled
             WobPlugin.Patch();
@@ -22,21 +22,21 @@ namespace Wob_ResourceGain {
         [HarmonyPatch( typeof( SkillTreeLogicHelper ), nameof( SkillTreeLogicHelper.GetGoldGainMod ) )]
         static class SkillTreeLogicHelper_GetGoldGainMod_Patch {
             static void Postfix( ref float __result ) {
-                __result += WobPlugin.Settings.Get( "GoldGain", 0 );
+                __result += WobPlugin.Settings.Get( "GoldGain", 0f );
             }
         }
 
         [HarmonyPatch( typeof( SkillTreeLogicHelper ), nameof( SkillTreeLogicHelper.GetEquipmentOreMod ) )]
         static class SkillTreeLogicHelper_GetEquipmentOreMod_Patch {
             static void Postfix( ref float __result ) {
-                __result += WobPlugin.Settings.Get( "OreGain", 0 );
+                __result += WobPlugin.Settings.Get( "OreGain", 0f );
             }
         }
 
         [HarmonyPatch( typeof( SkillTreeLogicHelper ), nameof( SkillTreeLogicHelper.GetRuneOreMod ) )]
         static class SkillTreeLogicHelper_GetRuneOreMod_Patch {
             static void Postfix( ref float __result ) {
-                __result += WobPlugin.Settings.Get( "AetherGain", 0 );
+                __result += WobPlugin.Settings.Get( "AetherGain", 0f );
             }
         }
     }

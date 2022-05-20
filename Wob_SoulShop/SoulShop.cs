@@ -15,8 +15,8 @@ namespace Wob_SoulShop {
             WobPlugin.Initialise( this, this.Logger );
             // Create/read the mod specific configuration options
             WobPlugin.Settings.Add( new WobSettings.Entry[] {
-                new WobSettings.Entry<float>( "SwapScaler", "Multiply Strange Transaction costs by this value", 1f,  bounds: (0f, 100f)        ),
-                new WobSettings.Entry<int>(   "SwapSouls",  "Number of souls given by Strange Transaction",     150, bounds: (1, int.MaxValue) ),
+                new WobSettings.Entry<float>( "SwapScaler", "Multiply Strange Transaction costs by this value", 1f,  bounds: (0f, 100f)   ),
+                new WobSettings.Entry<int>(   "SwapSouls",  "Number of souls given by Strange Transaction",     150, bounds: (1, 1000000) ),
             } );
             // Apply the patches if the mod is enabled
             WobPlugin.Patch();

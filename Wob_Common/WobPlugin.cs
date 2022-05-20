@@ -1,5 +1,4 @@
 ﻿using BepInEx;
-using BepInEx.Configuration;
 using HarmonyLib;
 using System.Collections.Generic;
 using System.Reflection;
@@ -11,7 +10,6 @@ namespace Wob_Common {
         private static BepInEx.Logging.ManualLogSource bepInExLog;
 
         // Static reference to the config file
-        public static ConfigFile Config { get; private set; }
         public static WobSettings Settings { get; private set; }
 
         // These hold the values read from the config file
@@ -22,18 +20,14 @@ namespace Wob_Common {
         public static void Initialise( BaseUnityPlugin plugin, BepInEx.Logging.ManualLogSource log ) {
             // Save a reference to the logger to be used later
             bepInExLog = log;
-
             // Save a reference to the config file
-            Config = plugin.Config;
             Settings = new WobSettings( plugin.Config );
+            // Create the basic settings used in all mods
             Settings.Add( new List<WobSettings.Entry> {
                 new WobSettings.EntryBool( "General", "Enabled", "Enable this mod",   true  ),
                 new WobSettings.EntryBool( "General", "IsDebug", "Enable debug logs", false ),
             } );
-
-            // Basic settings used in all mods
-            //Enabled = new ConfigItemBool( "General", "Enabled", "Enable this mod",   true  ).Value;
-            //Debug   = new ConfigItemBool( "General", "IsDebug", "Enable debug logs", false ).Value;
+            // Read the basic settings and put the values in properties for easier access
             Enabled = Settings.Get( "General", "Enabled", true );
             Debug   = Settings.Get( "General", "IsDebug", true );
         }

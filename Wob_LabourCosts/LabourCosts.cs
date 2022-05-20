@@ -17,8 +17,8 @@ namespace Wob_LabourCosts {
             // Create/read the mod specific configuration options
             WobPlugin.Settings.Add( new WobSettings.Entry[] {
                 new WobSettings.Entry<sbyte>( "StartLevel", "Level after which labour costs start.",                     20,  bounds: (0, sbyte.MaxValue) ),
-                new WobSettings.Entry<float>( "PerLevel",   "Cost increase per level. Set to 0 to remove labour costs.", 14f, bounds: (0, float.MaxValue) ),
-                new WobSettings.Entry<int>(   "RoundTo",    "Round down calculated cost to this significance.",          5,   bounds: (1, int.MaxValue)   ),
+                new WobSettings.Entry<float>( "PerLevel",   "Cost increase per level. Set to 0 to remove labour costs.", 14f, bounds: (0, 1000000f)       ),
+                new WobSettings.Entry<int>(   "RoundTo",    "Round down calculated cost to this significance.",          5,   bounds: (1, 1000000)        ),
             } );
             // Apply the patches if the mod is enabled
             WobPlugin.Patch();

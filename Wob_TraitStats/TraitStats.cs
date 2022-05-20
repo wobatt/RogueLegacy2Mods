@@ -16,40 +16,40 @@ namespace Wob_TraitStats {
 			// Create/read the mod specific configuration options
 			WobPlugin.Settings.Add( new WobSettings.Entry[] {
 				// Positive health modifiers
-				new WobSettings.ScaledInt(    "Trait_MegaHealth",          "Health",       "Health modifier for Hero Complex - +100% Health but you can't heal, ever.",                                                                          100,   0.01f, bounds: (-99, int.MaxValue)  ),
+				new WobSettings.Scaled<int>(   "Trait_MegaHealth",          "Health",       "Health modifier for Hero Complex - +100% Health but you can't heal, ever.",                                                                          100,   0.01f, bounds: (-99, 1000000) ),
 				// Negative health modifiers
-				new WobSettings.ScaledInt(    "Trait_BonusMagicStrength",  "Health",       "Health modifier for Crippling Intellect - -50% Health and -50% Weapon Damage. Mana regenerates over time.",                                          -50,   0.01f, bounds: (-99, int.MaxValue)  ),
-				new WobSettings.ScaledInt(    "Trait_BounceTerrain",       "Health",       "Health modifier for Clownanthropy - -30% Health, but you can Spin Kick off terrain.",                                                                -30,   0.01f, bounds: (-99, int.MaxValue)  ),
-				new WobSettings.ScaledInt(    "Trait_CanNowAttack",        "Health",       "Health modifier for Pacifier - -60% Health and you love to fight!",                                                                                  -60,   0.01f, bounds: (-99, int.MaxValue)  ),
-				new WobSettings.ScaledInt(    "Trait_CantAttack",          "Health",       "Health modifier for Pacifist - -60% Health and you can't deal damage.",                                                                              -60,   0.01f, bounds: (-99, int.MaxValue)  ),
-				new WobSettings.ScaledInt(    "Trait_DamageBoost",         "Health",       "Health modifier for Combative - +50% Weapon Damage, -25% Health.",                                                                                   -25,   0.01f, bounds: (-99, int.MaxValue)  ),
-				new WobSettings.ScaledInt(    "Trait_InvulnDash",          "Health",       "Health modifier for Evasive - Invincible while dashing, but you have -50% Health, and dashing dodges has a cooldown.",                               -50,   0.01f, bounds: (-99, int.MaxValue)  ),
-				new WobSettings.ScaledInt(    "Trait_MagicBoost",          "Health",       "Health modifier for Bookish - +50% Magic Damage and +50 Mana Capacity. -25% Health.",                                                                -25,   0.01f, bounds: (-99, int.MaxValue)  ),
-				new WobSettings.ScaledInt(    "Trait_OmniDash",            "Health",       "Health modifier for Superfluid - -20% Health, but you can dash in ANY direction.",                                                                   -20,   0.01f, bounds: (-99, int.MaxValue)  ),
-				new WobSettings.ScaledInt(    "Trait_RevealAllChests",     "Health",       "Health modifier for Spelunker - -10% Health but you can see all chests on the map!",                                                                 -10,   0.01f, bounds: (-99, int.MaxValue)  ),
-				new WobSettings.ScaledInt(    "Trait_SmallHitbox",         "Health",       "Health modifier for Disattuned/Only Heart - -25% health, but you can only be hit in the heart.",                                                     -25,   0.01f, bounds: (-99, int.MaxValue)  ),
+				new WobSettings.Scaled<int>(   "Trait_BonusMagicStrength",  "Health",       "Health modifier for Crippling Intellect - -50% Health and -50% Weapon Damage. Mana regenerates over time.",                                          -50,   0.01f, bounds: (-99, 1000000) ),
+				new WobSettings.Scaled<int>(   "Trait_BounceTerrain",       "Health",       "Health modifier for Clownanthropy - -30% Health, but you can Spin Kick off terrain.",                                                                -30,   0.01f, bounds: (-99, 1000000) ),
+				new WobSettings.Scaled<int>(   "Trait_CanNowAttack",        "Health",       "Health modifier for Pacifier - -60% Health and you love to fight!",                                                                                  -60,   0.01f, bounds: (-99, 1000000) ),
+				new WobSettings.Scaled<int>(   "Trait_CantAttack",          "Health",       "Health modifier for Pacifist - -60% Health and you can't deal damage.",                                                                              -60,   0.01f, bounds: (-99, 1000000) ),
+				new WobSettings.Scaled<int>(   "Trait_DamageBoost",         "Health",       "Health modifier for Combative - +50% Weapon Damage, -25% Health.",                                                                                   -25,   0.01f, bounds: (-99, 1000000) ),
+				new WobSettings.Scaled<int>(   "Trait_InvulnDash",          "Health",       "Health modifier for Evasive - Invincible while dashing, but you have -50% Health, and dashing dodges has a cooldown.",                               -50,   0.01f, bounds: (-99, 1000000) ),
+				new WobSettings.Scaled<int>(   "Trait_MagicBoost",          "Health",       "Health modifier for Bookish - +50% Magic Damage and +50 Mana Capacity. -25% Health.",                                                                -25,   0.01f, bounds: (-99, 1000000) ),
+				new WobSettings.Scaled<int>(   "Trait_OmniDash",            "Health",       "Health modifier for Superfluid - -20% Health, but you can dash in ANY direction.",                                                                   -20,   0.01f, bounds: (-99, 1000000) ),
+				new WobSettings.Scaled<int>(   "Trait_RevealAllChests",     "Health",       "Health modifier for Spelunker - -10% Health but you can see all chests on the map!",                                                                 -10,   0.01f, bounds: (-99, 1000000) ),
+				new WobSettings.Scaled<int>(   "Trait_SmallHitbox",         "Health",       "Health modifier for Disattuned/Only Heart - -25% health, but you can only be hit in the heart.",                                                     -25,   0.01f, bounds: (-99, 1000000) ),
 				// Health loss per hit modifiers
-				new WobSettings.ScaledFloat(  "Trait_SuperHealer",         "LossPerHit",   "Max health percent lost per hit for Hypercoagulation/Super Healer - HP regenerates, but you lose some Max HP when hit.",                             6.25f, 0.01f, bounds: (0f, 100f)           ),
+				new WobSettings.Scaled<float>( "Trait_SuperHealer",         "LossPerHit",   "Max health percent lost per hit for Hypercoagulation/Super Healer - HP regenerates, but you lose some Max HP when hit.",                             6.25f, 0.01f, bounds: (0f,  100f   ) ),
 				// Max mana modifiers
-				new WobSettings.ScaledInt(    "Trait_MagicBoost",          "MaxMana",      "Max mana modifier for Bookish - +50% Magic Damage and +50 Mana Capacity. -30% Health.",                                                              50,    0.01f, bounds: (-99, int.MaxValue)  ),
+				new WobSettings.Scaled<int>(   "Trait_MagicBoost",          "MaxMana",      "Max mana modifier for Bookish - +50% Magic Damage and +50 Mana Capacity. -30% Health.",                                                              50,    0.01f, bounds: (-99, 1000000) ),
 				// Mana from taking damage modifiers
-				new WobSettings.ScaledInt(    "Trait_ManaFromHurt",        "ManaRegen",    "Mana gain from damage for Masochism - Gain 50% of your mana when hit, but can't regain mana from attacks.",                                          50,    0.01f, bounds: (0,   int.MaxValue)  ),
+				new WobSettings.Scaled<int>(   "Trait_ManaFromHurt",        "ManaRegen",    "Mana gain from damage for Masochism - Gain 50% of your mana when hit, but can't regain mana from attacks.",                                          50,    0.01f, bounds: (0,   1000000) ),
 				// Vampiric regen modifiers
-				new WobSettings.ScaledInt(    "Trait_Vampire",             "DamageRegen",  "Health from damage modifier for Vampirism - Gain 20% of your Weapon Damage as Health, but you take 125% more damage.",                               20,    0.01f, bounds: (0,   int.MaxValue)  ),
+				new WobSettings.Scaled<int>(   "Trait_Vampire",             "DamageRegen",  "Health from damage modifier for Vampirism - Gain 20% of your Weapon Damage as Health, but you take 125% more damage.",                               20,    0.01f, bounds: (0,   1000000) ),
 				// Damage taken modifiers
-				new WobSettings.ScaledInt(    "Trait_Vampire",             "DamageTaken",  "Damage taken modifier for Vampirism - Gain 20% of your Weapon Damage as Health, but you take 125% more damage.",                                     125,   0.01f, bounds: (-99, int.MaxValue)  ),
+				new WobSettings.Scaled<int>(   "Trait_Vampire",             "DamageTaken",  "Damage taken modifier for Vampirism - Gain 20% of your Weapon Damage as Health, but you take 125% more damage.",                                     125,   0.01f, bounds: (-99, 1000000) ),
 				// Weapon damage modifiers
-				new WobSettings.ScaledInt(    "Trait_BonusMagicStrength",  "WeaponDamage", "Weapon damage modifier for Crippling Intellect - -50% Health and -50% Weapon Damage. Mana regenerates over time.",                                   -50,   0.01f, bounds: (-99, int.MaxValue)  ),
-				new WobSettings.ScaledInt(    "Trait_DamageBoost",         "WeaponDamage", "Weapon damage modifier for Combative - +50% Weapon Damage, -25% Health.",                                                                            50,    0.01f, bounds: (-99, int.MaxValue)  ),
+				new WobSettings.Scaled<int>(   "Trait_BonusMagicStrength",  "WeaponDamage", "Weapon damage modifier for Crippling Intellect - -50% Health and -50% Weapon Damage. Mana regenerates over time.",                                   -50,   0.01f, bounds: (-99, 1000000) ),
+				new WobSettings.Scaled<int>(   "Trait_DamageBoost",         "WeaponDamage", "Weapon damage modifier for Combative - +50% Weapon Damage, -25% Health.",                                                                            50,    0.01f, bounds: (-99, 1000000) ),
 				// Magic damage modifiers
-				new WobSettings.ScaledInt(    "Trait_BonusMagicStrength",  "MagicDamage",  "Magic damage modifier for Crippling Intellect - -50% Health and -50% Weapon Damage. Mana regenerates over time.",                                    0,     0.01f, bounds: (-99, int.MaxValue)  ),
-				new WobSettings.ScaledInt(    "Trait_MagicBoost",          "MagicDamage",  "Magic damage modifier for Bookish - +50% Magic Damage and +50 Mana Capacity. -30% Health.",                                                          50,    0.01f, bounds: (-99, int.MaxValue)  ),
+				new WobSettings.Scaled<int>(   "Trait_BonusMagicStrength",  "MagicDamage",  "Magic damage modifier for Crippling Intellect - -50% Health and -50% Weapon Damage. Mana regenerates over time.",                                    0,     0.01f, bounds: (-99, 1000000) ),
+				new WobSettings.Scaled<int>(   "Trait_MagicBoost",          "MagicDamage",  "Magic damage modifier for Bookish - +50% Magic Damage and +50 Mana Capacity. -30% Health.",                                                          50,    0.01f, bounds: (-99, 1000000) ),
 				// Spell damage modifiers
-				new WobSettings.ScaledInt(    "Trait_ManaCostAndDamageUp", "SpellDamage",  "Spell damage modifier for Emotional Dysregularity/Overcompensation - Mana costs and spell damage are increased by 100%.",                            100,   0.01f, bounds: (-99, int.MaxValue)  ),
+				new WobSettings.Scaled<int>(   "Trait_ManaCostAndDamageUp", "SpellDamage",  "Spell damage modifier for Emotional Dysregularity/Overcompensation - Mana costs and spell damage are increased by 100%.",                            100,   0.01f, bounds: (-99, 1000000) ),
 				// Spell cost modifiers
-				new WobSettings.ScaledInt(    "Trait_ManaCostAndDamageUp", "SpellCost",    "Spell cost modifier for Emotional Dysregularity/Overcompensation - Mana costs and spell damage are increased by 100%.",                              100,   0.01f, bounds: (-99, int.MaxValue)  ),
+				new WobSettings.Scaled<int>(   "Trait_ManaCostAndDamageUp", "SpellCost",    "Spell cost modifier for Emotional Dysregularity/Overcompensation - Mana costs and spell damage are increased by 100%.",                              100,   0.01f, bounds: (-99, 1000000) ),
 				// Disarm time
-				new WobSettings.Entry<float>( "Trait_DisarmOnHurt",        "DisarmTime",   "Seconds of being disarmed for FND/Shocked - Taking damage inflicts Disarmed, meaning the player cannot attack or use spells for 2 seconds.",         2f,           bounds: (0f,  3600f)         ),
+				new WobSettings.Entry<float>(  "Trait_DisarmOnHurt",        "DisarmTime",   "Seconds of being disarmed for FND/Shocked - Taking damage inflicts Disarmed, meaning the player cannot attack or use spells for 2 seconds.",         2f,           bounds: (0f,  3600f  ) ),
 			} );
 			
 			// Apply the patches if the mod is enabled
@@ -57,7 +57,7 @@ namespace Wob_TraitStats {
         }
 
 		// Method that checks if a trait is active on the current heir, and gets the new modifier from settings if it is
-		private static float GetMod( TraitType traitType, string modType, float defaultMod ) {
+		private static float GetActiveMod( TraitType traitType, string modType, float defaultMod ) {
 			float modifier = 0f;
 			if( TraitManager.IsTraitActive( traitType ) ) {
 				modifier = WobPlugin.Settings.Get( "Trait_" + traitType.ToString(), "Health", defaultMod );
@@ -76,18 +76,18 @@ namespace Wob_TraitStats {
 				// I have no idea what this trait is, but it is in the original method so I'm including it here
 				if( TraitManager.IsTraitActive( TraitType.BonusHealth ) ) { healthMod += 0.1f; }
 				// Positive modifiers
-				healthMod += GetMod( TraitType.MegaHealth,         "Health", 1f    );
+				healthMod += GetActiveMod( TraitType.MegaHealth,         "Health", 1f    );
 				// Negative modifiers
-				healthMod += GetMod( TraitType.BonusMagicStrength, "Health", -0.5f  );
-				healthMod += GetMod( TraitType.BounceTerrain,      "Health", -0.3f  );
-				healthMod += GetMod( TraitType.CanNowAttack,       "Health", -0.6f  );
-				healthMod += GetMod( TraitType.CantAttack,         "Health", -0.6f  );
-				healthMod += GetMod( TraitType.DamageBoost,        "Health", -0.25f );
-				healthMod += GetMod( TraitType.InvulnDash,         "Health", -0.5f  );
-				healthMod += GetMod( TraitType.MagicBoost,         "Health", -0.25f );
-				healthMod += GetMod( TraitType.OmniDash,           "Health", -0.2f  );
-				healthMod += GetMod( TraitType.RevealAllChests,    "Health", -0.1f  );
-				healthMod += GetMod( TraitType.SmallHitbox,        "Health", -0.25f );
+				healthMod += GetActiveMod( TraitType.BonusMagicStrength, "Health", -0.5f  );
+				healthMod += GetActiveMod( TraitType.BounceTerrain,      "Health", -0.3f  );
+				healthMod += GetActiveMod( TraitType.CanNowAttack,       "Health", -0.6f  );
+				healthMod += GetActiveMod( TraitType.CantAttack,         "Health", -0.6f  );
+				healthMod += GetActiveMod( TraitType.DamageBoost,        "Health", -0.25f );
+				healthMod += GetActiveMod( TraitType.InvulnDash,         "Health", -0.5f  );
+				healthMod += GetActiveMod( TraitType.MagicBoost,         "Health", -0.25f );
+				healthMod += GetActiveMod( TraitType.OmniDash,           "Health", -0.2f  );
+				healthMod += GetActiveMod( TraitType.RevealAllChests,    "Health", -0.1f  );
+				healthMod += GetActiveMod( TraitType.SmallHitbox,        "Health", -0.25f );
 				// Return the calculated value, overriding the original method
 				__instance.TraitMaxHealthMod = healthMod;
 			}
@@ -99,7 +99,7 @@ namespace Wob_TraitStats {
 			static void Postfix( PlayerController __instance ) {
 				float manaMod = 0f;
 				// Positive modifiers
-				manaMod += GetMod( TraitType.MagicBoost, "MaxMana", 0.5f );
+				manaMod += GetActiveMod( TraitType.MagicBoost, "MaxMana", 0.5f );
 				// Return the calculated value, overriding the original method
 				__instance.TraitMaxManaMod = manaMod;
 			}
@@ -110,7 +110,7 @@ namespace Wob_TraitStats {
 		static class StatusEffectController_StartStatusEffect_Patch {
 			static bool Prefix( StatusEffectType statusEffectType, ref float duration, IDamageObj caster ) {
 				if( statusEffectType == StatusEffectType.Player_Disarmed && caster == null ) {
-					duration = GetMod( TraitType.DisarmOnHurt, "DisarmTime", 2f );
+					duration = GetActiveMod( TraitType.DisarmOnHurt, "DisarmTime", 2f );
 					return duration > 0;
 				}
 				return true;
@@ -350,10 +350,11 @@ namespace Wob_TraitStats {
 		// Apply spell cost modifiers
 		[HarmonyPatch( typeof( BaseAbility_RL ), nameof( BaseAbility_RL.ActualCost ), MethodType.Getter )]
 		static class BaseAbility_RL_ActualCost_Patch {
+			// Multiply the cost by the modifier + 1 (100% + additional % from config)
 			static void Postfix( ref int __result ) {
-				__result = Mathf.RoundToInt( __result * ( 1f + GetMod( TraitType.ManaCostAndDamageUp, "SpellCost", 1f ) ) );
+				__result = Mathf.RoundToInt( __result * ( 1f + GetActiveMod( TraitType.ManaCostAndDamageUp, "SpellCost", 1f ) ) );
 			}
-
+			// Patch to set the multiplier in the original method to 1, effectively removing it so we can apply a new modifier in the postfix patch
 			static IEnumerable<CodeInstruction> Transpiler( IEnumerable<CodeInstruction> instructions ) {
 				WobPlugin.Log( "BaseAbility_RL.ActualCost Transpiler Patch" );
 				// Set up the transpiler handler with the instruction list

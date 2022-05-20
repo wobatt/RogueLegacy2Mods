@@ -12,7 +12,7 @@ namespace Wob_HouseRules {
             // Set up the logger and basic config items
             WobPlugin.Initialise( this, this.Logger );
             // Create/read the mod specific configuration options
-            WobPlugin.Settings.Add( new WobSettings.Entry<int>( "MaxDifficulty", "Maximum percentage that the enemy health and damage house rules will go up to", 1000, bounds: (200, int.MaxValue), limiter: x => { return (int)( System.Math.Floor( x / 5f ) * 5f ); } ) );
+            WobPlugin.Settings.Add( new WobSettings.Entry<int>( "MaxDifficulty", "Maximum percentage that the enemy health and damage house rules will go up to", 1000, bounds: (200, 1000000), limiter: x => { return (int)( System.Math.Floor( x / 5f ) * 5f ); } ) );
             // Apply the patches if the mod is enabled
             WobPlugin.Patch();
         }

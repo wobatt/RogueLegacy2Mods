@@ -9,34 +9,34 @@ namespace Wob_Common {
     // Class to hold sets of OpCodes for use in transpiler tests
     internal static class OpCodeSet {
         // Most of these are to combine int32 and int8 variants, as what dnSpy/ILSpy display and what the transpiler detects are not always the same
-        public static readonly OpCode[] Beq = { OpCodes.Beq, OpCodes.Beq_S };
-        public static readonly OpCode[] Bge = { OpCodes.Bge, OpCodes.Bge_S };
-        public static readonly OpCode[] Bge_Un = { OpCodes.Bge_Un, OpCodes.Bge_Un_S };
-        public static readonly OpCode[] Bgt = { OpCodes.Bgt, OpCodes.Bgt_S };
-        public static readonly OpCode[] Bgt_Un = { OpCodes.Bgt_Un, OpCodes.Bgt_Un_S };
-        public static readonly OpCode[] Ble = { OpCodes.Ble, OpCodes.Ble_S };
-        public static readonly OpCode[] Ble_Un = { OpCodes.Ble_Un, OpCodes.Ble_Un_S };
-        public static readonly OpCode[] Blt = { OpCodes.Blt, OpCodes.Blt_S };
-        public static readonly OpCode[] Blt_Un = { OpCodes.Blt_Un, OpCodes.Blt_Un_S };
-        public static readonly OpCode[] Bne_Un = { OpCodes.Bne_Un, OpCodes.Bne_Un_S };
-        public static readonly OpCode[] Br = { OpCodes.Br, OpCodes.Br_S };
+        public static readonly OpCode[] Beq     = { OpCodes.Beq, OpCodes.Beq_S };
+        public static readonly OpCode[] Bge     = { OpCodes.Bge, OpCodes.Bge_S };
+        public static readonly OpCode[] Bge_Un  = { OpCodes.Bge_Un, OpCodes.Bge_Un_S };
+        public static readonly OpCode[] Bgt     = { OpCodes.Bgt, OpCodes.Bgt_S };
+        public static readonly OpCode[] Bgt_Un  = { OpCodes.Bgt_Un, OpCodes.Bgt_Un_S };
+        public static readonly OpCode[] Ble     = { OpCodes.Ble, OpCodes.Ble_S };
+        public static readonly OpCode[] Ble_Un  = { OpCodes.Ble_Un, OpCodes.Ble_Un_S };
+        public static readonly OpCode[] Blt     = { OpCodes.Blt, OpCodes.Blt_S };
+        public static readonly OpCode[] Blt_Un  = { OpCodes.Blt_Un, OpCodes.Blt_Un_S };
+        public static readonly OpCode[] Bne_Un  = { OpCodes.Bne_Un, OpCodes.Bne_Un_S };
+        public static readonly OpCode[] Br      = { OpCodes.Br, OpCodes.Br_S };
         public static readonly OpCode[] Brfalse = { OpCodes.Brfalse, OpCodes.Brfalse_S };
-        public static readonly OpCode[] Brtrue = { OpCodes.Brtrue, OpCodes.Brtrue_S };
-        public static readonly OpCode[] Ldarg = { OpCodes.Ldarg, OpCodes.Ldarg_S, OpCodes.Ldarg_0, OpCodes.Ldarg_1, OpCodes.Ldarg_2, OpCodes.Ldarg_3 };
-        public static readonly OpCode[] Ldarga = { OpCodes.Ldarga, OpCodes.Ldarga_S };
-        public static readonly OpCode[] Ldc_I4 = { OpCodes.Ldc_I4, OpCodes.Ldc_I4_S, OpCodes.Ldc_I4_0, OpCodes.Ldc_I4_1, OpCodes.Ldc_I4_2, OpCodes.Ldc_I4_3, OpCodes.Ldc_I4_4, OpCodes.Ldc_I4_5, OpCodes.Ldc_I4_6, OpCodes.Ldc_I4_7, OpCodes.Ldc_I4_8, OpCodes.Ldc_I4_M1 };
-        public static readonly OpCode[] Ldloc = { OpCodes.Ldloc, OpCodes.Ldloc_S, OpCodes.Ldloc_0, OpCodes.Ldloc_1, OpCodes.Ldloc_2, OpCodes.Ldloc_3 };
-        public static readonly OpCode[] Ldloca = { OpCodes.Ldloca, OpCodes.Ldloca_S };
-        public static readonly OpCode[] Leave = { OpCodes.Leave, OpCodes.Leave_S };
-        public static readonly OpCode[] Starg = { OpCodes.Starg, OpCodes.Starg_S };
-        public static readonly OpCode[] Stloc = { OpCodes.Stloc, OpCodes.Stloc_S, OpCodes.Stloc_0, OpCodes.Stloc_1, OpCodes.Stloc_2, OpCodes.Stloc_3 };
+        public static readonly OpCode[] Brtrue  = { OpCodes.Brtrue, OpCodes.Brtrue_S };
+        public static readonly OpCode[] Ldarg   = { OpCodes.Ldarg, OpCodes.Ldarg_S, OpCodes.Ldarg_0, OpCodes.Ldarg_1, OpCodes.Ldarg_2, OpCodes.Ldarg_3 };
+        public static readonly OpCode[] Ldarga  = { OpCodes.Ldarga, OpCodes.Ldarga_S };
+        public static readonly OpCode[] Ldc_I4  = { OpCodes.Ldc_I4, OpCodes.Ldc_I4_S, OpCodes.Ldc_I4_0, OpCodes.Ldc_I4_1, OpCodes.Ldc_I4_2, OpCodes.Ldc_I4_3, OpCodes.Ldc_I4_4, OpCodes.Ldc_I4_5, OpCodes.Ldc_I4_6, OpCodes.Ldc_I4_7, OpCodes.Ldc_I4_8, OpCodes.Ldc_I4_M1 };
+        public static readonly OpCode[] Ldloc   = { OpCodes.Ldloc, OpCodes.Ldloc_S, OpCodes.Ldloc_0, OpCodes.Ldloc_1, OpCodes.Ldloc_2, OpCodes.Ldloc_3 };
+        public static readonly OpCode[] Ldloca  = { OpCodes.Ldloca, OpCodes.Ldloca_S };
+        public static readonly OpCode[] Leave   = { OpCodes.Leave, OpCodes.Leave_S };
+        public static readonly OpCode[] Starg   = { OpCodes.Starg, OpCodes.Starg_S };
+        public static readonly OpCode[] Stloc   = { OpCodes.Stloc, OpCodes.Stloc_S, OpCodes.Stloc_0, OpCodes.Stloc_1, OpCodes.Stloc_2, OpCodes.Stloc_3 };
         // Boolean literals are 0 (false) or 1 (true), so this is for them 
         public static readonly OpCode[] Ldc_I4_Bool = { OpCodes.Ldc_I4_0, OpCodes.Ldc_I4_1 };
         // These are grouped by operand type, mostly used in my transpiler class
-        public static readonly OpCode[] OperandType_FieldInfo = { OpCodes.Ldfld, OpCodes.Ldsfld, OpCodes.Stfld, OpCodes.Stsfld };
-        public static readonly OpCode[] OperandType_MethodInfo = { OpCodes.Call, OpCodes.Callvirt, OpCodes.Ldftn, OpCodes.Ldvirtftn };
+        public static readonly OpCode[] OperandType_FieldInfo       = { OpCodes.Ldfld, OpCodes.Ldsfld, OpCodes.Stfld, OpCodes.Stsfld };
+        public static readonly OpCode[] OperandType_MethodInfo      = { OpCodes.Call, OpCodes.Callvirt, OpCodes.Ldftn, OpCodes.Ldvirtftn };
         public static readonly OpCode[] OperandType_ConstructorInfo = { OpCodes.Newobj };
-        public static readonly OpCode[] OperandType_Type = { OpCodes.Isinst };
+        public static readonly OpCode[] OperandType_Type            = { OpCodes.Isinst };
     }
 
     // Class for making transpilers easier and more readable

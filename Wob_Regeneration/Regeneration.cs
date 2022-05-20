@@ -32,7 +32,7 @@ namespace Wob_Regeneration {
         [HarmonyPatch( typeof( RuneLogicHelper ), nameof( RuneLogicHelper.GetMaxManaFlat ) )]
         static class RuneLogicHelper_GetMaxManaFlat_Patch {
             static void Postfix( ref int __result ) {
-                __result += WobPlugin.Settings.Get( "ManaMax", 0 );
+                __result += WobPlugin.Settings.Get( "MaxMana", 0 );
             }
         }
 
