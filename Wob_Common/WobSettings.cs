@@ -68,7 +68,7 @@ namespace Wob_Common {
                     value = (T)this.GetValue();
                 } else {
                     // Types don't match, so check the list of safe casts of numeric types
-                    if( safeCasts.TryGetValue( typeof( T ), out List<Type> safeCastList ) && safeCastList.Contains( this.DataType ) ) {
+                    if( safeCasts.TryGetValue( typeof( T ), out HashSet<Type> safeCastList ) && safeCastList.Contains( this.DataType ) ) {
                         // This is a safe cast, so return the value
                         value = (T)Convert.ChangeType( this.GetValue(), typeof( T ) );
                     } else {
@@ -79,18 +79,18 @@ namespace Wob_Common {
                 return value;
             }
 
-            private readonly Dictionary<Type, List<Type>> safeCasts = new Dictionary<Type, List<Type>>() {
+            private readonly Dictionary<Type, HashSet<Type>> safeCasts = new Dictionary<Type, HashSet<Type>>() {
                 // Integer types - can cast from any smaller integer type
-                { typeof( short   ), new List<Type> { typeof( sbyte ), typeof( byte ) } },
-                { typeof( ushort  ), new List<Type> { typeof( sbyte ), typeof( byte ) } },
-                { typeof( int     ), new List<Type> { typeof( sbyte ), typeof( byte ), typeof( short ), typeof( ushort ) } },
-                { typeof( uint    ), new List<Type> { typeof( sbyte ), typeof( byte ), typeof( short ), typeof( ushort ) } },
-                { typeof( long    ), new List<Type> { typeof( sbyte ), typeof( byte ), typeof( short ), typeof( ushort ), typeof( int ), typeof( uint ) } },
-                { typeof( ulong   ), new List<Type> { typeof( sbyte ), typeof( byte ), typeof( short ), typeof( ushort ), typeof( int ), typeof( uint ) } },
+                { typeof( short   ), new HashSet<Type> { typeof( sbyte ), typeof( byte ) } },
+                { typeof( ushort  ), new HashSet<Type> { typeof( sbyte ), typeof( byte ) } },
+                { typeof( int     ), new HashSet<Type> { typeof( sbyte ), typeof( byte ), typeof( short ), typeof( ushort ) } },
+                { typeof( uint    ), new HashSet<Type> { typeof( sbyte ), typeof( byte ), typeof( short ), typeof( ushort ) } },
+                { typeof( long    ), new HashSet<Type> { typeof( sbyte ), typeof( byte ), typeof( short ), typeof( ushort ), typeof( int ), typeof( uint ) } },
+                { typeof( ulong   ), new HashSet<Type> { typeof( sbyte ), typeof( byte ), typeof( short ), typeof( ushort ), typeof( int ), typeof( uint ) } },
                 // Floating point types - cast from integers
-                { typeof( float   ), new List<Type> { typeof( sbyte ), typeof( byte ), typeof( short ), typeof( ushort ), typeof( int ), typeof( uint ), typeof( long ), typeof( ulong ) } },
-                { typeof( double  ), new List<Type> { typeof( sbyte ), typeof( byte ), typeof( short ), typeof( ushort ), typeof( int ), typeof( uint ), typeof( long ), typeof( ulong ), typeof( float ) } },
-                { typeof( decimal ), new List<Type> { typeof( sbyte ), typeof( byte ), typeof( short ), typeof( ushort ), typeof( int ), typeof( uint ), typeof( long ), typeof( ulong ) } },
+                { typeof( float   ), new HashSet<Type> { typeof( sbyte ), typeof( byte ), typeof( short ), typeof( ushort ), typeof( int ), typeof( uint ), typeof( long ), typeof( ulong ) } },
+                { typeof( double  ), new HashSet<Type> { typeof( sbyte ), typeof( byte ), typeof( short ), typeof( ushort ), typeof( int ), typeof( uint ), typeof( long ), typeof( ulong ), typeof( float ) } },
+                { typeof( decimal ), new HashSet<Type> { typeof( sbyte ), typeof( byte ), typeof( short ), typeof( ushort ), typeof( int ), typeof( uint ), typeof( long ), typeof( ulong ) } },
             };
         }
         
@@ -144,7 +144,7 @@ namespace Wob_Common {
                 return this.configEntry.Value;
             }
 
-            private static readonly List<Type> numericTypes = new List<Type> { typeof( sbyte ), typeof( byte ), typeof( short ), typeof( ushort ), typeof( int ), typeof( uint ), typeof( long ), typeof( ulong ), typeof( float ), typeof( double ), typeof( decimal ) };
+            private static readonly HashSet<Type> numericTypes = new HashSet<Type> { typeof( sbyte ), typeof( byte ), typeof( short ), typeof( ushort ), typeof( int ), typeof( uint ), typeof( long ), typeof( ulong ), typeof( float ), typeof( double ), typeof( decimal ) };
             protected AcceptableValueBase GetAcceptable() {
                 AcceptableValueBase acceptableValues = null;
                 if( this.AcceptedValues != null ) {
@@ -195,26 +195,7 @@ namespace Wob_Common {
                 WobPlugin.Log( "ERROR: Could not multiply scaler by type " + typeof( T ), WobPlugin.ERROR );
                 return this.configEntry.Value;
             }
-            private static readonly List<Type> floatCasts = new List<Type> { typeof( sbyte ), typeof( byte ), typeof( short ), typeof( ushort ), typeof( int ), typeof( uint ), typeof( long ), typeof( ulong ) };
+            private static readonly HashSet<Type> floatCasts = new HashSet<Type> { typeof( sbyte ), typeof( byte ), typeof( short ), typeof( ushort ), typeof( int ), typeof( uint ), typeof( long ), typeof( ulong ) };
         }
-
-        public class ScaledInt : Scaled<int> {
-            public ScaledInt( string name, string description, int value, float scaler, int[] acceptedValues = null, (int min, int max) bounds = default, Func<int, int> limiter = null ) : this( DEFAULT_SECTION, name, description, value, scaler, acceptedValues, bounds, limiter ) { }
-            public ScaledInt( string section, string name, string description, int value, float scaler, int[] acceptedValues = null, (int min, int max) bounds = default, Func<int, int> limiter = null ) : base( section, name, description, value, scaler, acceptedValues, bounds, limiter ) { }
-
-            protected override object GetValue() {
-                return this.configEntry.Value * this.Scaler;
-            }
-        }
-        
-        public class ScaledFloat : Scaled<float> {
-            public ScaledFloat( string name, string description, float value, float scaler, float[] acceptedValues = null, (float min, float max) bounds = default, Func<float, float> limiter = null ) : this( DEFAULT_SECTION, name, description, value, scaler, acceptedValues, bounds, limiter ) { }
-            public ScaledFloat( string section, string name, string description, float value, float scaler, float[] acceptedValues = null, (float min, float max) bounds = default, Func<float, float> limiter = null ) : base( section, name, description, value, scaler, acceptedValues, bounds, limiter ) { }
-
-            protected override object GetValue() {
-                return this.configEntry.Value * this.Scaler;
-            }
-        }
-
     }
 }

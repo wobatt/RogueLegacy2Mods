@@ -7,10 +7,10 @@ using UnityEngine;
 using Wob_Common;
 
 namespace Wob_SoulShop {
-    [BepInPlugin( "Wob.SoulShop", "Soul Shop Mod", "0.1.0" )]
+    [BepInPlugin( "Wob.SoulShop", "Soul Shop Mod", "1.0.0" )]
     public partial class SoulShop : BaseUnityPlugin {
         // Main method that kicks everything off
-        private void Awake() {
+        protected void Awake() {
             // Set up the logger and basic config items
             WobPlugin.Initialise( this, this.Logger );
             // Create/read the mod specific configuration options
@@ -23,9 +23,9 @@ namespace Wob_SoulShop {
         }
 
         [HarmonyPatch( typeof( Souls_EV ), nameof( Souls_EV.GetSoulSwapCost ) )]
-        static class Souls_EV_GetSoulSwapCost_Patch {
+        internal static class Souls_EV_GetSoulSwapCost_Patch {
             private static bool runOnce = false;
-            static void Prefix() {
+            internal static void Prefix() {
                 if( !runOnce ) {
                     for( int i = 0; i < Souls_EV.ORE_AETHER_TO_SOUL_COST_LEVELS.Length; i++ ) {
                         Souls_EV.ORE_AETHER_TO_SOUL_COST_LEVELS[i] = Math.Max( 1, Mathf.RoundToInt( Souls_EV.ORE_AETHER_TO_SOUL_COST_LEVELS[i] * WobPlugin.Settings.Get( "SwapScaler", 1f ) ) );
@@ -36,8 +36,8 @@ namespace Wob_SoulShop {
         }
 
         [HarmonyPatch( typeof( SoulShopOmniUIDescriptionBoxEntry ), "DisplayDescriptionBox" )]
-        static class SoulShopOmniUIDescriptionBoxEntry_DisplayDescriptionBox_Patch {
-            static IEnumerable<CodeInstruction> Transpiler( IEnumerable<CodeInstruction> instructions ) {
+        internal static class SoulShopOmniUIDescriptionBoxEntry_DisplayDescriptionBox_Patch {
+            internal static IEnumerable<CodeInstruction> Transpiler( IEnumerable<CodeInstruction> instructions ) {
                 WobPlugin.Log( "SoulShopOmniUIDescriptionBoxEntry.DisplayDescriptionBox Transpiler Patch" );
                 // Set up the transpiler handler with the instruction list
                 WobTranspiler transpiler = new WobTranspiler( instructions );
@@ -58,8 +58,8 @@ namespace Wob_SoulShop {
         }
 
         [HarmonyPatch( typeof( SoulShopOmniUIIncrementResourceButton ), "UpdateState" )]
-        static class SoulShopOmniUIIncrementResourceButton_UpdateState_Patch {
-            static IEnumerable<CodeInstruction> Transpiler( IEnumerable<CodeInstruction> instructions ) {
+        internal static class SoulShopOmniUIIncrementResourceButton_UpdateState_Patch {
+            internal static IEnumerable<CodeInstruction> Transpiler( IEnumerable<CodeInstruction> instructions ) {
                 WobPlugin.Log( "SoulShopOmniUIIncrementResourceButton.UpdateState Transpiler Patch" );
                 // Set up the transpiler handler with the instruction list
                 WobTranspiler transpiler = new WobTranspiler( instructions );
@@ -81,8 +81,8 @@ namespace Wob_SoulShop {
         }
 
         [HarmonyPatch( typeof( SoulShopOmniUISoulSwapBuyButton ), "ConfirmTransfer" )]
-        static class SoulShopOmniUISoulSwapBuyButton_ConfirmTransfer_Patch {
-            static IEnumerable<CodeInstruction> Transpiler( IEnumerable<CodeInstruction> instructions ) {
+        internal static class SoulShopOmniUISoulSwapBuyButton_ConfirmTransfer_Patch {
+            internal static IEnumerable<CodeInstruction> Transpiler( IEnumerable<CodeInstruction> instructions ) {
                 WobPlugin.Log( "SoulShopOmniUISoulSwapBuyButton.ConfirmTransfer Transpiler Patch" );
                 // Set up the transpiler handler with the instruction list
                 WobTranspiler transpiler = new WobTranspiler( instructions );
@@ -103,8 +103,8 @@ namespace Wob_SoulShop {
         }
 
         [HarmonyPatch( typeof( SoulShopOmniUISoulSwapBuyButton ), "InitializeConfirmMenu" )]
-        static class SoulShopOmniUISoulSwapBuyButton_InitializeConfirmMenu_Patch {
-            static IEnumerable<CodeInstruction> Transpiler( IEnumerable<CodeInstruction> instructions ) {
+        internal static class SoulShopOmniUISoulSwapBuyButton_InitializeConfirmMenu_Patch {
+            internal static IEnumerable<CodeInstruction> Transpiler( IEnumerable<CodeInstruction> instructions ) {
                 WobPlugin.Log( "SoulShopOmniUISoulSwapBuyButton.InitializeConfirmMenu Transpiler Patch" );
                 // Set up the transpiler handler with the instruction list
                 WobTranspiler transpiler = new WobTranspiler( instructions );
@@ -125,8 +125,8 @@ namespace Wob_SoulShop {
         }
 
         [HarmonyPatch( typeof( SoulShopOmniUITransferResourceButton ), "ConfirmTransfer" )]
-        static class SoulShopOmniUITransferResourceButton_ConfirmTransfer_Patch {
-            static IEnumerable<CodeInstruction> Transpiler( IEnumerable<CodeInstruction> instructions ) {
+        internal static class SoulShopOmniUITransferResourceButton_ConfirmTransfer_Patch {
+            internal static IEnumerable<CodeInstruction> Transpiler( IEnumerable<CodeInstruction> instructions ) {
                 WobPlugin.Log( "SoulShopOmniUITransferResourceButton.ConfirmTransfer Transpiler Patch" );
                 // Set up the transpiler handler with the instruction list
                 WobTranspiler transpiler = new WobTranspiler( instructions );
@@ -148,8 +148,8 @@ namespace Wob_SoulShop {
         }
 
         [HarmonyPatch( typeof( SoulShopOmniUITransferResourceButton ), "InitializeConfirmMenu" )]
-        static class SoulShopOmniUITransferResourceButton_InitializeConfirmMenu_Patch {
-            static IEnumerable<CodeInstruction> Transpiler( IEnumerable<CodeInstruction> instructions ) {
+        internal static class SoulShopOmniUITransferResourceButton_InitializeConfirmMenu_Patch {
+            internal static IEnumerable<CodeInstruction> Transpiler( IEnumerable<CodeInstruction> instructions ) {
                 WobPlugin.Log( "SoulShopOmniUITransferResourceButton.InitializeConfirmMenu Transpiler Patch" );
                 // Set up the transpiler handler with the instruction list
                 WobTranspiler transpiler = new WobTranspiler( instructions );

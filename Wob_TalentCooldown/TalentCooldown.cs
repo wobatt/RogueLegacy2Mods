@@ -3,10 +3,10 @@ using HarmonyLib;
 using Wob_Common;
 
 namespace Wob_TalentCooldown {
-    [BepInPlugin( "Wob.TalentCooldown", "Talent Cooldown Mod", "0.1.0" )]
+    [BepInPlugin( "Wob.TalentCooldown", "Talent Cooldown Mod", "1.0.0" )]
     public partial class TalentCooldown : BaseUnityPlugin {
         // Main method that kicks everything off
-        private void Awake() {
+        protected void Awake() {
             // Set up the logger and basic config items
             WobPlugin.Initialise( this, this.Logger );
             // Create/read the mod specific configuration options
@@ -19,8 +19,8 @@ namespace Wob_TalentCooldown {
         }
 
         [HarmonyPatch( typeof( AbilityLibrary ), nameof( AbilityLibrary.Initialize ) )]
-        static class AbilityLibrary_Initialize_Patch {
-            static void Postfix() {
+        internal static class AbilityLibrary_Initialize_Patch {
+            internal static void Postfix() {
                 foreach( AbilityType talentType in AbilityType_RL.TalentAbilityArray ) {
                     BaseAbility_RL talent = AbilityLibrary.GetAbility( talentType );
                     if( talent != null ) {

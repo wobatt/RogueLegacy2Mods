@@ -5,10 +5,10 @@ using System.Reflection.Emit;
 using Wob_Common;
 
 namespace Wob_UnlockSkillTree {
-    [BepInPlugin( "Wob.UnlockSkillTree", "Unlock Skill Tree Mod", "0.1.1" )]
+    [BepInPlugin( "Wob.UnlockSkillTree", "Unlock Skill Tree Mod", "1.0.0" )]
     public partial class UnlockSkillTree : BaseUnityPlugin {
         // Main method that kicks everything off
-        private void Awake() {
+        protected void Awake() {
             // Set up the logger and basic config items
             WobPlugin.Initialise( this, this.Logger );
             // Create/read the mod specific configuration options
@@ -22,8 +22,8 @@ namespace Wob_UnlockSkillTree {
 
         // Patch for the method that gets the level when a skill is unlocked
         [HarmonyPatch( typeof( SkillTreeObj ), nameof( SkillTreeObj.UnlockLevel ), MethodType.Getter )]
-        static class SkillTreeObj_UnlockLevel_Patch {
-            static void Postfix( ref int __result ) {
+        internal static class SkillTreeObj_UnlockLevel_Patch {
+            internal static void Postfix( ref int __result ) {
                 if( WobPlugin.Settings.Get( "UnlockLevel", false ) ) {
                     // Always return 0 (unlocked)
                     __result = 0;
@@ -33,10 +33,10 @@ namespace Wob_UnlockSkillTree {
 
         // Patch for the method that controls whether a skill is initially hidden or visible
         [HarmonyPatch( typeof( SkillTreeWindowController ), nameof( SkillTreeWindowController.Initialize ) )]
-        static class SkillTreeWindowController_Initialize_Patch {
+        internal static class SkillTreeWindowController_Initialize_Patch {
             // When the skill tree initialises, it looks for all skills with level > 0 and makes them visible, then all skills they connect to and also makes them visible
             // We are looking for the check of level > 0 and changing it to level >= 0, which makes all skills visible
-            static IEnumerable<CodeInstruction> Transpiler( IEnumerable<CodeInstruction> instructions ) {
+            internal static IEnumerable<CodeInstruction> Transpiler( IEnumerable<CodeInstruction> instructions ) {
                 if( WobPlugin.Settings.Get( "UnlockTree", false ) ) {
                     WobPlugin.Log( "SkillTreeWindowController.Initialize Transpiler Patch" );
                     // Set up the transpiler handler with the instruction list

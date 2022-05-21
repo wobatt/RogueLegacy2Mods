@@ -5,10 +5,10 @@ using System.Reflection.Emit;
 using Wob_Common;
 
 namespace Wob_HouseRules {
-    [BepInPlugin("Wob.HouseRules", "House Rules Mod", "0.1.0")]
+    [BepInPlugin("Wob.HouseRules", "House Rules Mod", "1.0.0" )]
     public partial class HouseRules : BaseUnityPlugin {
         // Main method that kicks everything off
-        private void Awake() {
+        protected void Awake() {
             // Set up the logger and basic config items
             WobPlugin.Initialise( this, this.Logger );
             // Create/read the mod specific configuration options
@@ -19,9 +19,9 @@ namespace Wob_HouseRules {
 
         // Patch for the method that gets the gold cost for a specific upgrade with labour costs included
         [HarmonyPatch( typeof( ChangeAssistStatModOptionItem ), nameof( ChangeAssistStatModOptionItem.Initialize ) )]
-        static class ChangeAssistStatModOptionItem_Initialize_Patch {
+        internal static class ChangeAssistStatModOptionItem_Initialize_Patch {
             // Change the minimum values of the house rule sliders
-            static IEnumerable<CodeInstruction> Transpiler( IEnumerable<CodeInstruction> instructions ) {
+            internal static IEnumerable<CodeInstruction> Transpiler( IEnumerable<CodeInstruction> instructions ) {
                 WobPlugin.Log( "ChangeAssistStatModOptionItem.Initialize Transpiler Patch" );
                 // Set up the transpiler handler with the instruction list
                 WobTranspiler transpiler = new WobTranspiler( instructions );

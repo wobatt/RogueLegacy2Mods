@@ -24,12 +24,12 @@ namespace Wob_Common {
             Settings = new WobSettings( plugin.Config );
             // Create the basic settings used in all mods
             Settings.Add( new List<WobSettings.Entry> {
-                new WobSettings.EntryBool( "General", "Enabled", "Enable this mod",   true  ),
-                new WobSettings.EntryBool( "General", "IsDebug", "Enable debug logs", false ),
+                new WobSettings.EntryBool( "Basic", "Enabled", "Enable this mod",   true  ),
+                new WobSettings.EntryBool( "Basic", "IsDebug", "Enable debug logs", false ),
             } );
             // Read the basic settings and put the values in properties for easier access
-            Enabled = Settings.Get( "General", "Enabled", true );
-            Debug   = Settings.Get( "General", "IsDebug", true );
+            Enabled = Settings.Get( "Basic", "Enabled", true );
+            Debug   = Settings.Get( "Basic", "IsDebug", true );
         }
 
         // Check if the mod is enabled, and if so apply the patches

@@ -5,10 +5,10 @@ using System.Reflection.Emit;
 using Wob_Common;
 
 namespace Wob_UpgradeStats {
-    [BepInPlugin( "Wob.UpgradeStats", "Upgrade Stat Gains Mod", "0.2" )]
+    [BepInPlugin( "Wob.UpgradeStats", "Upgrade Stat Gains Mod", "1.0.0" )]
     public partial class UpgradeStats : BaseUnityPlugin {
         // Main method that kicks everything off
-        private void Awake() {
+        protected void Awake() {
             // Set up the logger and basic config items
             WobPlugin.Initialise( this, this.Logger );
             // Create/read the mod specific configuration options
@@ -68,8 +68,8 @@ namespace Wob_UpgradeStats {
 
         // Change the stat gain just before the firest level stat gain is read
         [HarmonyPatch( typeof( SkillTreeObj ), nameof( SkillTreeObj.FirstLevelStatGain ), MethodType.Getter )]
-        static class SkillTreeObj_FirstLevelStatGain_Patch {
-            static void Prefix( SkillTreeObj __instance ) {
+        internal static class SkillTreeObj_FirstLevelStatGain_Patch {
+            internal static void Prefix( SkillTreeObj __instance ) {
                 // Putting this in a variable just to shorten the name and make the rest of this easier to read
                 SkillTreeData skill = __instance.SkillTreeData;
                 // Search the config for a setting that has the same name as the internal name of the skill
@@ -88,8 +88,8 @@ namespace Wob_UpgradeStats {
         // Reroll for heirs seems to ignore the stat gain and just use the upgrade level - this is to fix that
         // Patch for the method that controls initial setup of the UI elements for character selection, including reroll
         [HarmonyPatch( typeof( LineageWindowController ), "OnOpen" )]
-        static class LineageWindowController_OnOpen_Patch {
-            static IEnumerable<CodeInstruction> Transpiler( IEnumerable<CodeInstruction> instructions ) {
+        internal static class LineageWindowController_OnOpen_Patch {
+            internal static IEnumerable<CodeInstruction> Transpiler( IEnumerable<CodeInstruction> instructions ) {
                 WobPlugin.Log( "LineageWindowController.OnOpen Transpiler Patch" );
                 // Set up the transpiler handler with the instruction list
                 WobTranspiler transpiler = new WobTranspiler( instructions );
@@ -111,18 +111,5 @@ namespace Wob_UpgradeStats {
                 return transpiler.GetResult();
             }
         }
-        
-        // This patch simply dumps skill tree data to the debug log when the Manor skill tree is opened - useful for getting internal names and default values for the upgrades
-        /*[HarmonyPatch( typeof( SkillTreeWindowController ), nameof( SkillTreeWindowController.Initialize ) )]
-        static class SkillTreeWindowController_Initialize_Patch {
-            static void Postfix( SkillTreeWindowController __instance ) {
-                foreach( SkillTreeType skillTreeType in SkillTreeType_RL.TypeArray ) {
-                    if( skillTreeType != SkillTreeType.None ) {
-                        SkillTreeData skillData = SkillTreeManager.GetSkillTreeObj( skillTreeType ).SkillTreeData;
-                        WobPlugin.Log( skillData.Name + "|" + skillData.FirstLevelStatGain + "|" + skillData.AdditionalLevelStatGain + "|" + skillData.MaxLevel + "|" + skillData.OverloadLevelCap + "|" + LocalizationManager.GetString( skillData.Title, false, false ) );
-                    }
-                }
-            }
-        }*/
     }
 }

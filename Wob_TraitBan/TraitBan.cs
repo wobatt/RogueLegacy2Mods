@@ -4,10 +4,10 @@ using System.Collections.Generic;
 using Wob_Common;
 
 namespace Wob_TraitBan {
-    [BepInPlugin( "Wob.TraitBan", "Trait Ban Mod", "0.2" )]
+    [BepInPlugin( "Wob.TraitBan", "Trait Ban Mod", "1.0.0" )]
     public partial class TraitBan : BaseUnityPlugin {
         // Main method that kicks everything off
-        private void Awake() {
+        protected void Awake() {
             // Set up the logger and basic config items
             WobPlugin.Initialise( this, this.Logger );
             // Create/read the mod specific configuration options
@@ -72,9 +72,9 @@ namespace Wob_TraitBan {
         }
 
         [HarmonyPatch( typeof( TraitType_RL ), nameof( TraitType_RL.TypeArray ), MethodType.Getter )]
-        static class TraitType_RL_TypeArray_Patch {
+        internal static class TraitType_RL_TypeArray_Patch {
             private static bool runOnce = false;
-            static void Prefix() {
+            internal static void Prefix() {
                 // Only need to run this once, as the new settings are written into the trait data for the session
                 if( !runOnce ) {
                     // Get the list of traits from the private field

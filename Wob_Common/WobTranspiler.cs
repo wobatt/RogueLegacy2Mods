@@ -9,34 +9,34 @@ namespace Wob_Common {
     // Class to hold sets of OpCodes for use in transpiler tests
     internal static class OpCodeSet {
         // Most of these are to combine int32 and int8 variants, as what dnSpy/ILSpy display and what the transpiler detects are not always the same
-        public static readonly OpCode[] Beq     = { OpCodes.Beq, OpCodes.Beq_S };
-        public static readonly OpCode[] Bge     = { OpCodes.Bge, OpCodes.Bge_S };
-        public static readonly OpCode[] Bge_Un  = { OpCodes.Bge_Un, OpCodes.Bge_Un_S };
-        public static readonly OpCode[] Bgt     = { OpCodes.Bgt, OpCodes.Bgt_S };
-        public static readonly OpCode[] Bgt_Un  = { OpCodes.Bgt_Un, OpCodes.Bgt_Un_S };
-        public static readonly OpCode[] Ble     = { OpCodes.Ble, OpCodes.Ble_S };
-        public static readonly OpCode[] Ble_Un  = { OpCodes.Ble_Un, OpCodes.Ble_Un_S };
-        public static readonly OpCode[] Blt     = { OpCodes.Blt, OpCodes.Blt_S };
-        public static readonly OpCode[] Blt_Un  = { OpCodes.Blt_Un, OpCodes.Blt_Un_S };
-        public static readonly OpCode[] Bne_Un  = { OpCodes.Bne_Un, OpCodes.Bne_Un_S };
-        public static readonly OpCode[] Br      = { OpCodes.Br, OpCodes.Br_S };
-        public static readonly OpCode[] Brfalse = { OpCodes.Brfalse, OpCodes.Brfalse_S };
-        public static readonly OpCode[] Brtrue  = { OpCodes.Brtrue, OpCodes.Brtrue_S };
-        public static readonly OpCode[] Ldarg   = { OpCodes.Ldarg, OpCodes.Ldarg_S, OpCodes.Ldarg_0, OpCodes.Ldarg_1, OpCodes.Ldarg_2, OpCodes.Ldarg_3 };
-        public static readonly OpCode[] Ldarga  = { OpCodes.Ldarga, OpCodes.Ldarga_S };
-        public static readonly OpCode[] Ldc_I4  = { OpCodes.Ldc_I4, OpCodes.Ldc_I4_S, OpCodes.Ldc_I4_0, OpCodes.Ldc_I4_1, OpCodes.Ldc_I4_2, OpCodes.Ldc_I4_3, OpCodes.Ldc_I4_4, OpCodes.Ldc_I4_5, OpCodes.Ldc_I4_6, OpCodes.Ldc_I4_7, OpCodes.Ldc_I4_8, OpCodes.Ldc_I4_M1 };
-        public static readonly OpCode[] Ldloc   = { OpCodes.Ldloc, OpCodes.Ldloc_S, OpCodes.Ldloc_0, OpCodes.Ldloc_1, OpCodes.Ldloc_2, OpCodes.Ldloc_3 };
-        public static readonly OpCode[] Ldloca  = { OpCodes.Ldloca, OpCodes.Ldloca_S };
-        public static readonly OpCode[] Leave   = { OpCodes.Leave, OpCodes.Leave_S };
-        public static readonly OpCode[] Starg   = { OpCodes.Starg, OpCodes.Starg_S };
-        public static readonly OpCode[] Stloc   = { OpCodes.Stloc, OpCodes.Stloc_S, OpCodes.Stloc_0, OpCodes.Stloc_1, OpCodes.Stloc_2, OpCodes.Stloc_3 };
+        public static readonly HashSet<OpCode> Beq     = new HashSet<OpCode> { OpCodes.Beq, OpCodes.Beq_S };
+        public static readonly HashSet<OpCode> Bge     = new HashSet<OpCode> { OpCodes.Bge, OpCodes.Bge_S };
+        public static readonly HashSet<OpCode> Bge_Un  = new HashSet<OpCode> { OpCodes.Bge_Un, OpCodes.Bge_Un_S };
+        public static readonly HashSet<OpCode> Bgt     = new HashSet<OpCode> { OpCodes.Bgt, OpCodes.Bgt_S };
+        public static readonly HashSet<OpCode> Bgt_Un  = new HashSet<OpCode> { OpCodes.Bgt_Un, OpCodes.Bgt_Un_S };
+        public static readonly HashSet<OpCode> Ble     = new HashSet<OpCode> { OpCodes.Ble, OpCodes.Ble_S };
+        public static readonly HashSet<OpCode> Ble_Un  = new HashSet<OpCode> { OpCodes.Ble_Un, OpCodes.Ble_Un_S };
+        public static readonly HashSet<OpCode> Blt     = new HashSet<OpCode> { OpCodes.Blt, OpCodes.Blt_S };
+        public static readonly HashSet<OpCode> Blt_Un  = new HashSet<OpCode> { OpCodes.Blt_Un, OpCodes.Blt_Un_S };
+        public static readonly HashSet<OpCode> Bne_Un  = new HashSet<OpCode> { OpCodes.Bne_Un, OpCodes.Bne_Un_S };
+        public static readonly HashSet<OpCode> Br      = new HashSet<OpCode> { OpCodes.Br, OpCodes.Br_S };
+        public static readonly HashSet<OpCode> Brfalse = new HashSet<OpCode> { OpCodes.Brfalse, OpCodes.Brfalse_S };
+        public static readonly HashSet<OpCode> Brtrue  = new HashSet<OpCode> { OpCodes.Brtrue, OpCodes.Brtrue_S };
+        public static readonly HashSet<OpCode> Ldarg   = new HashSet<OpCode> { OpCodes.Ldarg, OpCodes.Ldarg_S, OpCodes.Ldarg_0, OpCodes.Ldarg_1, OpCodes.Ldarg_2, OpCodes.Ldarg_3 };
+        public static readonly HashSet<OpCode> Ldarga  = new HashSet<OpCode> { OpCodes.Ldarga, OpCodes.Ldarga_S };
+        public static readonly HashSet<OpCode> Ldc_I4  = new HashSet<OpCode> { OpCodes.Ldc_I4, OpCodes.Ldc_I4_S, OpCodes.Ldc_I4_0, OpCodes.Ldc_I4_1, OpCodes.Ldc_I4_2, OpCodes.Ldc_I4_3, OpCodes.Ldc_I4_4, OpCodes.Ldc_I4_5, OpCodes.Ldc_I4_6, OpCodes.Ldc_I4_7, OpCodes.Ldc_I4_8, OpCodes.Ldc_I4_M1 };
+        public static readonly HashSet<OpCode> Ldloc   = new HashSet<OpCode> { OpCodes.Ldloc, OpCodes.Ldloc_S, OpCodes.Ldloc_0, OpCodes.Ldloc_1, OpCodes.Ldloc_2, OpCodes.Ldloc_3 };
+        public static readonly HashSet<OpCode> Ldloca  = new HashSet<OpCode> { OpCodes.Ldloca, OpCodes.Ldloca_S };
+        public static readonly HashSet<OpCode> Leave   = new HashSet<OpCode> { OpCodes.Leave, OpCodes.Leave_S };
+        public static readonly HashSet<OpCode> Starg   = new HashSet<OpCode> { OpCodes.Starg, OpCodes.Starg_S };
+        public static readonly HashSet<OpCode> Stloc   = new HashSet<OpCode> { OpCodes.Stloc, OpCodes.Stloc_S, OpCodes.Stloc_0, OpCodes.Stloc_1, OpCodes.Stloc_2, OpCodes.Stloc_3 };
         // Boolean literals are 0 (false) or 1 (true), so this is for them 
-        public static readonly OpCode[] Ldc_I4_Bool = { OpCodes.Ldc_I4_0, OpCodes.Ldc_I4_1 };
+        public static readonly HashSet<OpCode> Ldc_I4_Bool = new HashSet<OpCode> { OpCodes.Ldc_I4_0, OpCodes.Ldc_I4_1 };
         // These are grouped by operand type, mostly used in my transpiler class
-        public static readonly OpCode[] OperandType_FieldInfo       = { OpCodes.Ldfld, OpCodes.Ldsfld, OpCodes.Stfld, OpCodes.Stsfld };
-        public static readonly OpCode[] OperandType_MethodInfo      = { OpCodes.Call, OpCodes.Callvirt, OpCodes.Ldftn, OpCodes.Ldvirtftn };
-        public static readonly OpCode[] OperandType_ConstructorInfo = { OpCodes.Newobj };
-        public static readonly OpCode[] OperandType_Type            = { OpCodes.Isinst };
+        public static readonly HashSet<OpCode> OperandType_FieldInfo       = new HashSet<OpCode> { OpCodes.Ldfld, OpCodes.Ldsfld, OpCodes.Stfld, OpCodes.Stsfld };
+        public static readonly HashSet<OpCode> OperandType_MethodInfo      = new HashSet<OpCode> { OpCodes.Call, OpCodes.Callvirt, OpCodes.Ldftn, OpCodes.Ldvirtftn };
+        public static readonly HashSet<OpCode> OperandType_ConstructorInfo = new HashSet<OpCode> { OpCodes.Newobj };
+        public static readonly HashSet<OpCode> OperandType_Type            = new HashSet<OpCode> { OpCodes.Isinst };
     }
 
     // Class for making transpilers easier and more readable
@@ -142,14 +142,14 @@ namespace Wob_Common {
 
         // Class for a test against a single instruction
         public class OpTest {
-            private readonly OpCode[] opcodes;
+            private readonly HashSet<OpCode> opcodes;
             private readonly object operand;
             private readonly Type type;
             private readonly string name;
 
             // Constructors taking all conditions that the instruction must satisfy to pass the test - params are null for no checks
-            public OpTest( OpCode opcode, object operand = null, Type type = null, string name = null ) : this( new OpCode[] { opcode }, operand, type, name ) { }
-            public OpTest( OpCode[] opcodes, object operand = null, Type type = null, string name = null ) {
+            public OpTest( OpCode opcode, object operand = null, Type type = null, string name = null ) : this( new HashSet<OpCode> { opcode }, operand, type, name ) { }
+            public OpTest( HashSet<OpCode> opcodes, object operand = null, Type type = null, string name = null ) {
                 this.opcodes = opcodes;
                 this.operand = operand;
                 this.type = type;
@@ -163,26 +163,16 @@ namespace Wob_Common {
 
             // Compare operands - needs to be instruction OpCode dependant as these define the type of the operand
             private bool HasOperand( CodeInstruction code ) {
-                // 32-bit integer
-                if( code.opcode == OpCodes.Ldc_I4 ) {                                 return ( (int)code.operand )             == ( (int)this.operand );             }
-                // 8-bit integer
-                if( code.opcode == OpCodes.Ldc_I4_S ) {                               return ( (sbyte)code.operand )           == ( (sbyte)this.operand );           }
-                // 64-bit integer
-                if( code.opcode == OpCodes.Ldc_I8 ) {                                 return ( (long)code.operand )            == ( (long)this.operand );            }
-                // 32-bit float
-                if( code.opcode == OpCodes.Ldc_R4 ) {                                 return ( (float)code.operand )           == ( (float)this.operand );           }
-                // 64-bit float
-                if( code.opcode == OpCodes.Ldc_R8 ) {                                 return ( (double)code.operand )          == ( (double)this.operand );          }
-                // String
-                if( code.opcode == OpCodes.Ldstr ) {                                  return ( (string)code.operand )          == ( (string)this.operand );          }
-                // Fields
-                if( OpCodeSet.OperandType_FieldInfo.Contains( code.opcode ) ) {       return ( (FieldInfo)code.operand )       == ( (FieldInfo)this.operand );       }
-                // Methods
-                if( OpCodeSet.OperandType_MethodInfo.Contains( code.opcode ) ) {      return ( (MethodInfo)code.operand )      == ( (MethodInfo)this.operand );      }
-                // Constructors
-                if( OpCodeSet.OperandType_ConstructorInfo.Contains( code.opcode ) ) { return ( (ConstructorInfo)code.operand ) == ( (ConstructorInfo)this.operand ); }
-                // Types
-                if( OpCodeSet.OperandType_Type.Contains( code.opcode ) ) {            return ( (Type)code.operand )            == ( (Type)this.operand );            }
+                /* 32-bit integer */ if( code.opcode == OpCodes.Ldc_I4 ) {                                 return ( (int)code.operand )             == ( (int)this.operand );             }
+                /* 8-bit integer  */ if( code.opcode == OpCodes.Ldc_I4_S ) {                               return ( (sbyte)code.operand )           == ( (sbyte)this.operand );           }
+                /* 64-bit integer */ if( code.opcode == OpCodes.Ldc_I8 ) {                                 return ( (long)code.operand )            == ( (long)this.operand );            }
+                /* 32-bit float   */ if( code.opcode == OpCodes.Ldc_R4 ) {                                 return ( (float)code.operand )           == ( (float)this.operand );           }
+                /* 64-bit float   */ if( code.opcode == OpCodes.Ldc_R8 ) {                                 return ( (double)code.operand )          == ( (double)this.operand );          }
+                /* String         */ if( code.opcode == OpCodes.Ldstr ) {                                  return ( (string)code.operand )          == ( (string)this.operand );          }
+                /* Fields         */ if( OpCodeSet.OperandType_FieldInfo.Contains( code.opcode ) ) {       return ( (FieldInfo)code.operand )       == ( (FieldInfo)this.operand );       }
+                /* Methods        */ if( OpCodeSet.OperandType_MethodInfo.Contains( code.opcode ) ) {      return ( (MethodInfo)code.operand )      == ( (MethodInfo)this.operand );      }
+                /* Constructors   */ if( OpCodeSet.OperandType_ConstructorInfo.Contains( code.opcode ) ) { return ( (ConstructorInfo)code.operand ) == ( (ConstructorInfo)this.operand ); }
+                /* Types          */ if( OpCodeSet.OperandType_Type.Contains( code.opcode ) ) {            return ( (Type)code.operand )            == ( (Type)this.operand );            }
                 // No implemented yet - log it then return no match
                 WobPlugin.Log( "ERROR: No operand comparison implemented for " + code.opcode, WobPlugin.ERROR );
                 return false;
@@ -190,14 +180,10 @@ namespace Wob_Common {
 
             // Compare the declaring type on instructions
             private bool HasType( CodeInstruction code ) {
-                // Fields
-                if( OpCodeSet.OperandType_FieldInfo.Contains( code.opcode ) ) {       return ( (FieldInfo)code.operand ).DeclaringType == this.type;       }
-                // Methods
-                if( OpCodeSet.OperandType_MethodInfo.Contains( code.opcode ) ) {      return ( (MethodInfo)code.operand ).DeclaringType == this.type;      }
-                // Constructors
-                if( OpCodeSet.OperandType_ConstructorInfo.Contains( code.opcode ) ) { return ( (ConstructorInfo)code.operand ).DeclaringType == this.type; }
-                // Types
-                if( OpCodeSet.OperandType_Type.Contains( code.opcode ) ) {            return ( (Type)code.operand ) == this.type;                          }
+                /* Fields         */ if( OpCodeSet.OperandType_FieldInfo.Contains( code.opcode ) ) {       return ( (FieldInfo)code.operand ).DeclaringType == this.type;       }
+                /* Methods        */ if( OpCodeSet.OperandType_MethodInfo.Contains( code.opcode ) ) {      return ( (MethodInfo)code.operand ).DeclaringType == this.type;      }
+                /* Constructors   */ if( OpCodeSet.OperandType_ConstructorInfo.Contains( code.opcode ) ) { return ( (ConstructorInfo)code.operand ).DeclaringType == this.type; }
+                /* Types          */ if( OpCodeSet.OperandType_Type.Contains( code.opcode ) ) {            return ( (Type)code.operand ) == this.type;                          }
                 // No implemented yet - log it then return no match
                 WobPlugin.Log( "ERROR: No type comparison implemented for " + code.opcode, WobPlugin.ERROR );
                 return false;
@@ -205,12 +191,9 @@ namespace Wob_Common {
 
             // Compare the name of fields and methods on instructions
             private bool HasName( CodeInstruction code ) {
-                // Fields
-                if( OpCodeSet.OperandType_FieldInfo.Contains( code.opcode ) ) {       return ( (FieldInfo)code.operand ).Name == this.name;       }
-                // Methods
-                if( OpCodeSet.OperandType_MethodInfo.Contains( code.opcode ) ) {      return ( (MethodInfo)code.operand ).Name == this.name;      }
-                // Constructors
-                if( OpCodeSet.OperandType_ConstructorInfo.Contains( code.opcode ) ) { return ( (ConstructorInfo)code.operand ).Name == this.name; }
+                /* Fields         */ if( OpCodeSet.OperandType_FieldInfo.Contains( code.opcode ) ) {       return ( (FieldInfo)code.operand ).Name == this.name;       }
+                /* Methods        */ if( OpCodeSet.OperandType_MethodInfo.Contains( code.opcode ) ) {      return ( (MethodInfo)code.operand ).Name == this.name;      }
+                /* Constructors   */ if( OpCodeSet.OperandType_ConstructorInfo.Contains( code.opcode ) ) { return ( (ConstructorInfo)code.operand ).Name == this.name; }
                 // No implemented yet - log it then return no match
                 WobPlugin.Log( "ERROR: No name comparison implemented for " + code.opcode, WobPlugin.ERROR );
                 return false;

@@ -9,7 +9,7 @@ namespace Wob_ChestDrops {
     [BepInPlugin( "Wob.ChestDrops", "Chest Drops Mod", "0.1.0" )]
     public partial class ChestDrops : BaseUnityPlugin {
         // Main method that kicks everything off
-        private void Awake() {
+        protected void Awake() {
             // Set up the logger and basic config items
             WobPlugin.Initialise( this, this.Logger );
             // Apply the patches if the mod is enabled
@@ -17,9 +17,9 @@ namespace Wob_ChestDrops {
         }
 
         [HarmonyPatch( typeof( ChestObj ), "DropRewardFromRegularChest" )]
-        static class ChestObj_DropRewardFromRegularChest_Patch {
+        internal static class ChestObj_DropRewardFromRegularChest_Patch {
             // Patch to remove 'this.m_specialItemDropsList.Clear()' from the start of the method so we can add extra items
-            static IEnumerable<CodeInstruction> Transpiler( IEnumerable<CodeInstruction> instructions ) {
+            internal static IEnumerable<CodeInstruction> Transpiler( IEnumerable<CodeInstruction> instructions ) {
                 WobPlugin.Log( "ChestObj.DropRewardFromRegularChest Transpiler Patch" );
                 // Set up the transpiler handler with the instruction list
                 WobTranspiler transpiler = new WobTranspiler( instructions );
@@ -43,23 +43,22 @@ namespace Wob_ChestDrops {
         private static readonly List<ISpecialItemDrop> drops = new List<ISpecialItemDrop>();
 
         [HarmonyPatch( typeof( ChestObj ), "GetSpecialItemTypeToDrop" )]
-        static class ChestObj_GetSpecialItemTypeToDrop_Patch {
+        internal static class ChestObj_GetSpecialItemTypeToDrop_Patch {
             // Patch to add the extra drops
-            static void Postfix( ChestObj __instance, ref SpecialItemType __result ) {
+            internal static void Postfix( ChestObj __instance, ref SpecialItemType __result ) {
                 if( __instance.ChestType == ChestType.Bronze || __instance.ChestType == ChestType.Silver || __instance.ChestType == ChestType.Gold || __instance.ChestType == ChestType.Fairy ) {
                     WobPlugin.Log( __instance.ChestType + " chest at level " + __instance.Level );
                     drops.Clear();
-                    // Try to get a rune and add it to the drop list
-                    AddSpecialItem( drops, GetSpecialItem( __instance, SpecialItemType.Rune ) );
-                    // Get another if this isn't a basic chest or if we haven't got any items yet
-                    if( __instance.ChestType != ChestType.Bronze || drops.Count == 0 ) {
+                    if( __instance.ChestType != ChestType.Bronze ) {
+                        // Try to get a rune and add it to the drop list
+                        AddSpecialItem( drops, GetSpecialItem( __instance, SpecialItemType.Rune ) );
                         // Try to get a blueprint and add it to the drop list
                         AddSpecialItem( drops, GetSpecialItem( __instance, SpecialItemType.Blueprint ) );
-                    }
-                    // Get another if this isn't a basic chest or if we haven't got any items yet
-                    if( __instance.ChestType != ChestType.Bronze || drops.Count == 0 ) {
                         // Try to get a challenge empathy and add it to the drop list
                         AddSpecialItem( drops, GetSpecialItem( __instance, SpecialItemType.Challenge ) );
+                    } else {
+                        // Try to get a single drop of a random type
+                        AddSpecialItem( drops, GetRandomSpecialItem( __instance ) );
                     }
                     if( drops.Count > 0 ) {
                         // Change the method's return value
@@ -89,6 +88,24 @@ namespace Wob_ChestDrops {
                 return specialItem;
             }
 
+            // Helper method to get a drop of a random type from those available
+            private static ISpecialItemDrop GetRandomSpecialItem( ChestObj chest ) {
+                // List of items the random drop could be
+                List<ISpecialItemDrop> specialItems = new List<ISpecialItemDrop>();
+                // Try to get a rune and add it to the list
+                AddSpecialItem( specialItems, GetSpecialItem( chest, SpecialItemType.Rune ) );
+                // Try to get a blueprint and add it to the list
+                AddSpecialItem( specialItems, GetSpecialItem( chest, SpecialItemType.Blueprint ) );
+                // Try to get a challenge empathy and add it to the list
+                AddSpecialItem( specialItems, GetSpecialItem( chest, SpecialItemType.Challenge ) );
+                ISpecialItemDrop itemDrop = null;
+                if( specialItems.Count > 0 ) {
+                    // Get a random item from the list
+                    itemDrop = specialItems[UnityEngine.Random.Range( 0, specialItems.Count )];
+                }
+                return itemDrop;
+            }
+
             // Helper method to add a drop only if not null
             private static void AddSpecialItem( List<ISpecialItemDrop> dropsList, ISpecialItemDrop specialItem ) {
                 if( specialItem != null ) {
@@ -98,9 +115,9 @@ namespace Wob_ChestDrops {
         }
 
         [HarmonyPatch( typeof( ChestObj ), "CalculateSpecialItemDropObj" )]
-        static class ChestObj_CalculateSpecialItemDropObj_Patch {
+        internal static class ChestObj_CalculateSpecialItemDropObj_Patch {
             // Patch to add the extra drops
-            static void Postfix( ChestObj __instance, ref ISpecialItemDrop __result ) {
+            internal static void Postfix( ChestObj __instance, ref ISpecialItemDrop __result ) {
                 // Get a reference to the drops list
                 List<ISpecialItemDrop> m_specialItemDropsList = (List<ISpecialItemDrop>)Traverse.Create( __instance ).Field( "m_specialItemDropsList" ).GetValue();
                 // Clear the list, to replace the original clear we removed

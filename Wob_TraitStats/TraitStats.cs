@@ -6,11 +6,11 @@ using UnityEngine;
 using Wob_Common;
 
 namespace Wob_TraitStats {
-    [BepInPlugin( "Wob.TraitStats", "Trait Stats Mod", "0.1.0" )]
+    [BepInPlugin( "Wob.TraitStats", "Trait Stats Mod", "1.0.0" )]
 	// The function of these plugins is replaced by this one
 	public partial class TraitStats : BaseUnityPlugin {
 		// Main method that kicks everything off
-		private void Awake() {
+		protected void Awake() {
             // Set up the logger and basic config items
             WobPlugin.Initialise( this, this.Logger );
 			// Create/read the mod specific configuration options
@@ -70,8 +70,8 @@ namespace Wob_TraitStats {
 
 		// Apply max health modifiers
 		[HarmonyPatch( typeof( PlayerController ), "InitializeTraitHealthMods" )]
-        static class PlayerController_InitializeTraitHealthMods_Patch {
-            static void Postfix( PlayerController __instance ) {
+        internal static class PlayerController_InitializeTraitHealthMods_Patch {
+            internal static void Postfix( PlayerController __instance ) {
 				float healthMod = 0f;
 				// I have no idea what this trait is, but it is in the original method so I'm including it here
 				if( TraitManager.IsTraitActive( TraitType.BonusHealth ) ) { healthMod += 0.1f; }
@@ -96,7 +96,7 @@ namespace Wob_TraitStats {
 		// Apply max mana modifiers
 		[HarmonyPatch( typeof( PlayerController ), "InitializeTraitMaxManaMods" )]
 		static class PlayerController_InitializeTraitMaxManaMods_Patch {
-			static void Postfix( PlayerController __instance ) {
+			internal static void Postfix( PlayerController __instance ) {
 				float manaMod = 0f;
 				// Positive modifiers
 				manaMod += GetActiveMod( TraitType.MagicBoost, "MaxMana", 0.5f );
@@ -120,7 +120,7 @@ namespace Wob_TraitStats {
 		// Apply weapon and magic damage modifiers
 		[HarmonyPatch( typeof( ProjectileManager ), nameof( ProjectileManager.ApplyProjectileDamage ) )]
 		static class ProjectileManager_ApplyProjectileDamage_Patch {
-			static IEnumerable<CodeInstruction> Transpiler( IEnumerable<CodeInstruction> instructions ) {
+			internal static IEnumerable<CodeInstruction> Transpiler( IEnumerable<CodeInstruction> instructions ) {
 				WobPlugin.Log( "ProjectileManager.ApplyProjectileDamage Transpiler Patch" );
 				// Set up the transpiler handler with the instruction list
 				WobTranspiler transpiler = new WobTranspiler( instructions );
@@ -230,7 +230,7 @@ namespace Wob_TraitStats {
 		// Apply damage taken modifiers
 		[HarmonyPatch( typeof( EnemyHitResponse ), "CharacterDamaged" )]
 		static class EnemyHitResponse_CharacterDamaged_Patch {
-			static IEnumerable<CodeInstruction> Transpiler( IEnumerable<CodeInstruction> instructions ) {
+			internal static IEnumerable<CodeInstruction> Transpiler( IEnumerable<CodeInstruction> instructions ) {
 				WobPlugin.Log( "EnemyHitResponse.CharacterDamaged Transpiler Patch" );
 				// Set up the transpiler handler with the instruction list
 				WobTranspiler transpiler = new WobTranspiler( instructions );
@@ -273,7 +273,7 @@ namespace Wob_TraitStats {
 		// Apply damage taken modifiers
 		[HarmonyPatch( typeof( PlayerController ), nameof( PlayerController.CalculateDamageTaken ) )]
 		static class PlayerController_CalculateDamageTaken_Patch {
-			static IEnumerable<CodeInstruction> Transpiler( IEnumerable<CodeInstruction> instructions ) {
+			internal static IEnumerable<CodeInstruction> Transpiler( IEnumerable<CodeInstruction> instructions ) {
 				WobPlugin.Log( "PlayerController.CalculateDamageTaken Transpiler Patch" );
 				// Set up the transpiler handler with the instruction list
 				WobTranspiler transpiler = new WobTranspiler( instructions );
@@ -300,7 +300,7 @@ namespace Wob_TraitStats {
 		// Apply damage taken modifiers
 		[HarmonyPatch( typeof( ManaRegen ), "OnPlayerHit" )]
 		static class ManaRegen_OnPlayerHit_Patch {
-			static IEnumerable<CodeInstruction> Transpiler( IEnumerable<CodeInstruction> instructions ) {
+			internal static IEnumerable<CodeInstruction> Transpiler( IEnumerable<CodeInstruction> instructions ) {
 				WobPlugin.Log( "ManaRegen.OnPlayerHit Transpiler Patch" );
 				// Set up the transpiler handler with the instruction list
 				WobTranspiler transpiler = new WobTranspiler( instructions );
@@ -325,7 +325,7 @@ namespace Wob_TraitStats {
 		// Apply max health loss per hit modifiers
 		[HarmonyPatch( typeof( SuperHealer_Trait ), "OnPlayerHit" )]
 		static class SuperHealer_Trait_OnPlayerHit_Patch {
-			static IEnumerable<CodeInstruction> Transpiler( IEnumerable<CodeInstruction> instructions ) {
+			internal static IEnumerable<CodeInstruction> Transpiler( IEnumerable<CodeInstruction> instructions ) {
 				WobPlugin.Log( "SuperHealer_Trait.OnPlayerHit Transpiler Patch" );
 				// Set up the transpiler handler with the instruction list
 				WobTranspiler transpiler = new WobTranspiler( instructions );
@@ -351,11 +351,11 @@ namespace Wob_TraitStats {
 		[HarmonyPatch( typeof( BaseAbility_RL ), nameof( BaseAbility_RL.ActualCost ), MethodType.Getter )]
 		static class BaseAbility_RL_ActualCost_Patch {
 			// Multiply the cost by the modifier + 1 (100% + additional % from config)
-			static void Postfix( ref int __result ) {
+			internal static void Postfix( ref int __result ) {
 				__result = Mathf.RoundToInt( __result * ( 1f + GetActiveMod( TraitType.ManaCostAndDamageUp, "SpellCost", 1f ) ) );
 			}
 			// Patch to set the multiplier in the original method to 1, effectively removing it so we can apply a new modifier in the postfix patch
-			static IEnumerable<CodeInstruction> Transpiler( IEnumerable<CodeInstruction> instructions ) {
+			internal static IEnumerable<CodeInstruction> Transpiler( IEnumerable<CodeInstruction> instructions ) {
 				WobPlugin.Log( "BaseAbility_RL.ActualCost Transpiler Patch" );
 				// Set up the transpiler handler with the instruction list
 				WobTranspiler transpiler = new WobTranspiler( instructions );

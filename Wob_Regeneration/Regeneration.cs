@@ -5,10 +5,10 @@ using HarmonyLib;
 using Wob_Common;
 
 namespace Wob_Regeneration {
-    [BepInPlugin( "Wob.Regeneration", "Regeneration Mod", "0.3.0" )]
+    [BepInPlugin( "Wob.Regeneration", "Regeneration Mod", "1.0.0" )]
     public partial class Regeneration : BaseUnityPlugin {
         // Main method that kicks everything off
-        private void Awake() {
+        protected void Awake() {
             // Set up the logger and basic config items
             WobPlugin.Initialise( this, this.Logger );
             // Create/read the mod specific configuration options
@@ -30,15 +30,15 @@ namespace Wob_Regeneration {
 
         // Patch to add extra max mana - this method gets the max mana added by runes, just add a flat amount to its return value
         [HarmonyPatch( typeof( RuneLogicHelper ), nameof( RuneLogicHelper.GetMaxManaFlat ) )]
-        static class RuneLogicHelper_GetMaxManaFlat_Patch {
-            static void Postfix( ref int __result ) {
+        internal static class RuneLogicHelper_GetMaxManaFlat_Patch {
+            internal static void Postfix( ref int __result ) {
                 __result += WobPlugin.Settings.Get( "MaxMana", 0 );
             }
         }
 
         // Patch to the method that controls mana regen
         [HarmonyPatch( typeof( ManaRegen ), "Update" )]
-        static class ManaRegen_Update_Health_Patch {
+        internal static class ManaRegen_Update_Health_Patch {
             // Counter for number of frames - every X ticks add Y health
             private static int tick = 0;
             // Increment counter and return amount of health to regen
@@ -46,7 +46,7 @@ namespace Wob_Regeneration {
                 tick = ( tick + 1 ) % WobPlugin.Settings.Get( "HealthRegenTicks", 30 );
                 return tick == 0 ? WobPlugin.Settings.Get( "HealthRegenAdd", 1 ) : 0;
             }
-            static void Prefix( ManaRegen __instance ) {
+            internal static void Prefix( ManaRegen __instance ) {
                 // Continue if we are enabling regen
                 if( WobPlugin.Settings.Get( "HealthRegenEnabled", false ) ) {
                     // Get a reference to the private field where current player info is stored
@@ -75,7 +75,7 @@ namespace Wob_Regeneration {
 
         // Patch to the method that controls mana regen
         [HarmonyPatch( typeof( ManaRegen ), "Update" )]
-        static class ManaRegen_Update_Mana_Patch {
+        internal static class ManaRegen_Update_Mana_Patch {
             // Counter for number of frames - every X ticks add Y mana
             private static int tick = 0;
             // Increment counter and return amount of mana to regen
@@ -83,7 +83,7 @@ namespace Wob_Regeneration {
                 tick = ( tick + 1 ) % WobPlugin.Settings.Get( "ManaRegenTicks", 1 );
                 return tick == 0 ? WobPlugin.Settings.Get( "ManaRegenAdd", 1 ) : 0;
             }
-            static void Prefix( ManaRegen __instance ) {
+            internal static void Prefix( ManaRegen __instance ) {
                 // The default is to only use regen if the trait 'Crippling Intellect' is present, so check for it
                 bool regenTrait = TraitManager.IsTraitActive( TraitType.BonusMagicStrength );
                 // Continue if we are always enabling regen or the trait is present
@@ -114,8 +114,8 @@ namespace Wob_Regeneration {
 
         // Patch to the method that controls mana regen - just removing effects of original method
         [HarmonyPatch( typeof( ManaRegen ), "Update" )]
-        static class ManaRegen_Update_Transpiler_Patch {
-            static IEnumerable<CodeInstruction> Transpiler( IEnumerable<CodeInstruction> instructions ) {
+        internal static class ManaRegen_Update_Transpiler_Patch {
+            internal static IEnumerable<CodeInstruction> Transpiler( IEnumerable<CodeInstruction> instructions ) {
                 WobPlugin.Log( "ManaRegen.Update Transpiler Patch" );
                 // Set up the transpiler handler with the instruction list
                 WobTranspiler transpiler = new WobTranspiler( instructions );

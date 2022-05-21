@@ -6,7 +6,7 @@ using UnityEngine;
 using Wob_Common;
 
 namespace Wob_CharGen {
-	[BepInPlugin( "Wob.CharGen", "Character Generation Mod", "0.1.0" )]
+	[BepInPlugin( "Wob.CharGen", "Character Generation Mod", "1.0.0" )]
 	public partial class CharGen : BaseUnityPlugin {
 		public enum TraitName {
 			Random,
@@ -67,7 +67,7 @@ namespace Wob_CharGen {
 		}
 
 		// Main method that kicks everything off
-		private void Awake() {
+		protected void Awake() {
 			// Set up the logger and basic config items
 			WobPlugin.Initialise( this, this.Logger );
 			// Create/read the mod specific configuration options
@@ -85,7 +85,7 @@ namespace Wob_CharGen {
 		// The patch itself - just call my version of random generation, and overwrite the original return value with mine
 		[HarmonyPatch( typeof( CharacterCreator ), nameof( CharacterCreator.GetRandomTraits ) )]
 		static class CharacterCreator_GetRandomTraits_Patch {
-			static void Postfix( bool forceRandomizeKit, ref Vector2Int __result ) {
+			internal static void Postfix( bool forceRandomizeKit, ref Vector2Int __result ) {
 				__result = GetRandomTraits( forceRandomizeKit );
 			}
 		}

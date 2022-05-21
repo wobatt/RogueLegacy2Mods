@@ -3,10 +3,10 @@ using HarmonyLib;
 using Wob_Common;
 
 namespace Wob_TraitGold {
-    [BepInPlugin( "Wob.TraitGold", "Trait Gold Bonus Mod", "0.2" )]
+    [BepInPlugin( "Wob.TraitGold", "Trait Gold Bonus Mod", "1.0.0" )]
     public partial class TraitGold : BaseUnityPlugin {
         // Main method that kicks everything off
-        private void Awake() {
+        protected void Awake() {
             // Set up the logger and basic config items
             WobPlugin.Initialise( this, this.Logger );
             // Create/read the mod specific configuration options
@@ -73,8 +73,8 @@ namespace Wob_TraitGold {
 
         // Patch for the method that gets the gold increase for a trait
         [HarmonyPatch( typeof( TraitManager ), nameof( TraitManager.GetActualTraitGoldGain ) )]
-        static class TraitManager_GetActualTraitGoldGain_Patch {
-            static void Postfix( TraitType traitType, ref float __result ) {
+        internal static class TraitManager_GetActualTraitGoldGain_Patch {
+            internal static void Postfix( TraitType traitType, ref float __result ) {
                 // Check that traits should be giving gold
                 if( SkillTreeManager.GetSkillObjLevel( SkillTreeType.Traits_Give_Gold ) > 0 ) {
                     // Get the data for the trait being looked at - this is from the original method parameter
