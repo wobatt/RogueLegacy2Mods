@@ -1,38 +1,55 @@
 ﻿using BepInEx;
+using BepInEx.Configuration;
+using BepInEx.Logging;
 using HarmonyLib;
 using System.Collections.Generic;
 using System.Reflection;
 
 namespace Wob_Common {
     internal static class WobPlugin {
-        public const bool ERROR = true;
-        // Static reference to the BepInEx logger for debugging
-        private static BepInEx.Logging.ManualLogSource bepInExLog;
+        /// <summary>
+        /// Static reference to the BepInEx logger for debugging
+        /// </summary>
+        private static ManualLogSource bepInExLog;
 
-        // Static reference to the config file
-        public static WobSettings Settings { get; private set; }
+        /// <summary>
+        /// Reference to the plugin's config file.
+        /// </summary>
+        internal static ConfigFile Config { get; private set; }
 
-        // These hold the values read from the config file
+        /// <summary>
+        /// Property to state if the mod is enabled, set from the value in the config file.
+        /// </summary>
         public static bool Enabled { get; private set; }
-        private static bool Debug { get; set; } = true;
+        
+        /// <summary>
+        /// Property to state if the mod should print debug info to the log file, set from the value in the config file.
+        /// </summary>
+        public static bool Debug { get; private set; } = true;
 
-        // Set up the log for debugging and create/read the basic mod settings
-        public static void Initialise( BaseUnityPlugin plugin, BepInEx.Logging.ManualLogSource log ) {
+        /// <summary>
+        /// Set up the log for debugging and create/read the basic mod settings in the config file.
+        /// </summary>
+        /// <param name="plugin">Reference to the plugin's main object.</param>
+        /// <param name="log">Reference to the BepInEx log for debug output.</param>
+        public static void Initialise( BaseUnityPlugin plugin, ManualLogSource log ) {
             // Save a reference to the logger to be used later
             bepInExLog = log;
             // Save a reference to the config file
-            Settings = new WobSettings( plugin.Config );
+            Config = plugin.Config;
             // Create the basic settings used in all mods
-            Settings.Add( new List<WobSettings.Entry> {
-                new WobSettings.EntryBool( "Basic", "Enabled", "Enable this mod",   true  ),
-                new WobSettings.EntryBool( "Basic", "IsDebug", "Enable debug logs", false ),
+            WobSettings.Add( new List<WobSettings.Entry> {
+                new WobSettings.Boolean( "Basic", "Enabled", "Enable this mod",   true  ),
+                new WobSettings.Boolean( "Basic", "IsDebug", "Enable debug logs", false ),
             } );
             // Read the basic settings and put the values in properties for easier access
-            Enabled = Settings.Get( "Basic", "Enabled", true );
-            Debug   = Settings.Get( "Basic", "IsDebug", true );
+            Enabled = WobSettings.Get( "Basic", "Enabled", true );
+            Debug   = WobSettings.Get( "Basic", "IsDebug", true );
         }
 
-        // Check if the mod is enabled, and if so apply the patches
+        /// <summary>
+        /// Check if the mod is enabled, and if so tell Harmony to apply the patches.
+        /// </summary>
         public static void Patch() {
             if( Enabled ) {
                 // Perform the patching
@@ -45,24 +62,17 @@ namespace Wob_Common {
             }
         }
 
-        // Send a message to the BepInEx log file
+        /// <summary>
+        /// Send a message to the BepInEx log file.
+        /// </summary>
+        /// <param name="message">The text to be added to the log file.</param>
+        /// <param name="error">If <see langword="true"/>, this overrides the debug flag to print serious errors to the log. Use sparingly.</param>
         public static void Log( string message, bool error = false ) {
             if( Debug || error ) {
                 // Simply pass the message through - the BepInEx logger takes care of adding the mod name, etc.
                 bepInExLog.LogMessage( message );
             }
         }
-
-        // Helper to get the UI names of a trait
-        public static string GetTraitTitles( TraitData traitData ) {
-            // Each trait has 4 possible names - scientific/non-scientific and male/female character
-            // First get all 4 variants
-            string tScientificM = LocalizationManager.GetString( traitData.Title, false, false );
-            string tScientificF = LocalizationManager.GetString( traitData.Title, true, false );
-            string tNonScientificM = LocalizationManager.GetString( traitData.Title.Replace( "_1", "_2" ), false, false );
-            string tNonScientificF = LocalizationManager.GetString( traitData.Title.Replace( "_1", "_2" ), true, false );
-            // Build a return string, suppressing variants if they are the same as one already added
-            return tScientificM + ( tScientificM == tScientificF ? "" : "/" + tScientificF ) + ( tScientificM == tNonScientificM ? "" : "/" + tNonScientificM ) + ( ( tNonScientificM == tNonScientificF || tScientificF == tNonScientificF ) ? "" : "/" + tNonScientificF );
-        }
+        public const bool ERROR = true;
     }
 }

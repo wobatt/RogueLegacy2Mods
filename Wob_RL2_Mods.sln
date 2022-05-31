@@ -46,7 +46,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wob__Test", "Wob__Test\Wob_
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wob_BonusDamage", "Wob_BonusDamage\Wob_BonusDamage.csproj", "{98C3B5E6-40A4-48E0-8C71-D6BFC5EC7213}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wob_ClassStats", "Wob_ClassStats\Wob_ClassStats.csproj", "{0CFFDF8E-D3DA-4FC2-911E-006BD63A871C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wob_ClassStats", "Wob_ClassStats\Wob_ClassStats.csproj", "{0CFFDF8E-D3DA-4FC2-911E-006BD63A871C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wob_RelicStats", "Wob_RelicStats\Wob_RelicStats.csproj", "{253D44E7-C792-4A0D-8071-81B54C72C14C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -67,7 +69,6 @@ Global
 		{74CE4B26-CB25-4724-BEB8-BA3BAF9B9AFB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{74CE4B26-CB25-4724-BEB8-BA3BAF9B9AFB}.Release|Any CPU.Build.0 = Release|Any CPU
 		{FC441149-7F22-4447-9CFE-20DCFC1273F4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{FC441149-7F22-4447-9CFE-20DCFC1273F4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FC441149-7F22-4447-9CFE-20DCFC1273F4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FC441149-7F22-4447-9CFE-20DCFC1273F4}.Release|Any CPU.Build.0 = Release|Any CPU
 		{05AE1E02-C22E-4065-AF11-BD327CC7086F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -79,7 +80,6 @@ Global
 		{1EEFB374-0D38-4DFD-A35B-F64D58ECA764}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1EEFB374-0D38-4DFD-A35B-F64D58ECA764}.Release|Any CPU.Build.0 = Release|Any CPU
 		{02DC09FD-477F-4F12-AC33-EAEB42600A0C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{02DC09FD-477F-4F12-AC33-EAEB42600A0C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{02DC09FD-477F-4F12-AC33-EAEB42600A0C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{02DC09FD-477F-4F12-AC33-EAEB42600A0C}.Release|Any CPU.Build.0 = Release|Any CPU
 		{F97DA655-BDB7-4581-A008-7CE14F6F4DC4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -130,6 +130,10 @@ Global
 		{0CFFDF8E-D3DA-4FC2-911E-006BD63A871C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0CFFDF8E-D3DA-4FC2-911E-006BD63A871C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0CFFDF8E-D3DA-4FC2-911E-006BD63A871C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{253D44E7-C792-4A0D-8071-81B54C72C14C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{253D44E7-C792-4A0D-8071-81B54C72C14C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{253D44E7-C792-4A0D-8071-81B54C72C14C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{253D44E7-C792-4A0D-8071-81B54C72C14C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -142,6 +146,7 @@ Global
 		Wob_Common\Wob_Common.projitems*{05ae1e02-c22e-4065-af11-bd327cc7086f}*SharedItemsImports = 5
 		Wob_Common\Wob_Common.projitems*{0cffdf8e-d3da-4fc2-911e-006bd63a871c}*SharedItemsImports = 5
 		Wob_Common\Wob_Common.projitems*{1eefb374-0d38-4dfd-a35b-f64d58eca764}*SharedItemsImports = 5
+		Wob_Common\Wob_Common.projitems*{253d44e7-c792-4a0d-8071-81b54c72c14c}*SharedItemsImports = 5
 		Wob_Common\Wob_Common.projitems*{27e7a31d-78fc-495d-9fce-f09f59f2f1aa}*SharedItemsImports = 5
 		Wob_Common\Wob_Common.projitems*{328de0e1-d8e6-4cf2-a01e-ac8e9df92f00}*SharedItemsImports = 5
 		Wob_Common\Wob_Common.projitems*{3b136931-9495-404a-8dc2-3342677a4a7d}*SharedItemsImports = 5

@@ -29,22 +29,22 @@ namespace Wob_BonusDamage {
             // Set up the logger and basic config items
             WobPlugin.Initialise( this, this.Logger );
             // Create/read the mod specific configuration options
-            WobPlugin.Settings.Add( new WobSettings.Entry[] {
-                new WobSettings.Scaled<float>( "Tier1Bonus",    "Deal this % bonus damage to all tier 1 (basic) variant enemies",     0f,  0.01f, bounds: (0f, 1000000f) ),
-                new WobSettings.Scaled<float>( "Tier2Bonus",    "Deal this % bonus damage to all tier 2 (advanced) variant enemies",  0f,  0.01f, bounds: (0f, 1000000f) ),
-                new WobSettings.Scaled<float>( "Tier3Bonus",    "Deal this % bonus damage to all tier 3 (commander) variant enemies", 0f,  0.01f, bounds: (0f, 1000000f) ),
-                new WobSettings.Scaled<float>( "MinibossBonus", "Deal this % bonus damage to all minibosses",                         0f,  0.01f, bounds: (0f, 1000000f) ),
-                new WobSettings.Scaled<float>( "BossBonus",     "Deal this % bonus damage to all bosses",                             0f,  0.01f, bounds: (0f, 1000000f) ),
-                new WobSettings.Scaled<float>( "InsightBonus",  "Deal this % bonus damage to a boss for resolving their insight",     15f, 0.01f, bounds: (0f, 1000000f) ),
+            WobSettings.Add( new WobSettings.Entry[] {
+                new WobSettings.Num<float>( "Tier1Bonus",    "Deal this % bonus damage to all tier 1 (basic) variant enemies",     0f,  0.01f, bounds: (0f, 1000000f) ),
+                new WobSettings.Num<float>( "Tier2Bonus",    "Deal this % bonus damage to all tier 2 (advanced) variant enemies",  0f,  0.01f, bounds: (0f, 1000000f) ),
+                new WobSettings.Num<float>( "Tier3Bonus",    "Deal this % bonus damage to all tier 3 (commander) variant enemies", 0f,  0.01f, bounds: (0f, 1000000f) ),
+                new WobSettings.Num<float>( "MinibossBonus", "Deal this % bonus damage to all minibosses",                         0f,  0.01f, bounds: (0f, 1000000f) ),
+                new WobSettings.Num<float>( "BossBonus",     "Deal this % bonus damage to all bosses",                             0f,  0.01f, bounds: (0f, 1000000f) ),
+                new WobSettings.Num<float>( "InsightBonus",  "Deal this % bonus damage to a boss for resolving their insight",     15f, 0.01f, bounds: (0f, 1000000f) ),
             } );
             // Cache the settings into a dictionary based on the EnemyRank enum
-            rankBonus.Add( (int)EnemyRank.Basic,    WobPlugin.Settings.Get( "Tier1Bonus",    0f ) );
-            rankBonus.Add( (int)EnemyRank.Advanced, WobPlugin.Settings.Get( "Tier2Bonus",    0f ) );
-            rankBonus.Add( (int)EnemyRank.Expert,   WobPlugin.Settings.Get( "Tier3Bonus",    0f ) );
-            rankBonus.Add( (int)EnemyRank.Miniboss, WobPlugin.Settings.Get( "MinibossBonus", 0f ) );
+            rankBonus.Add( (int)EnemyRank.Basic,    WobSettings.Get( "Tier1Bonus",    0f ) );
+            rankBonus.Add( (int)EnemyRank.Advanced, WobSettings.Get( "Tier2Bonus",    0f ) );
+            rankBonus.Add( (int)EnemyRank.Expert,   WobSettings.Get( "Tier3Bonus",    0f ) );
+            rankBonus.Add( (int)EnemyRank.Miniboss, WobSettings.Get( "MinibossBonus", 0f ) );
             // Bosses don't have a unique EnemyRank, so use one outside the range in the enum
             EnemyRank_Boss = Enum.GetValues( typeof( EnemyRank ) ).Cast<int>().Min() - 1;
-            rankBonus.Add( EnemyRank_Boss, WobPlugin.Settings.Get( "BossBonus", 0f ) );
+            rankBonus.Add( EnemyRank_Boss, WobSettings.Get( "BossBonus", 0f ) );
             // Apply the patches if the mod is enabled
             WobPlugin.Patch();
         }
@@ -66,7 +66,7 @@ namespace Wob_BonusDamage {
                         },
                         // Define the actions to take when an occurrence is found
                         new List<WobTranspiler.OpAction> {
-                            new WobTranspiler.OpAction_SetOperand( 0, ( WobPlugin.Settings.Get( "InsightBonus", 0.15f ) + 1f ) ),
+                            new WobTranspiler.OpAction_SetOperand( 0, ( WobSettings.Get( "InsightBonus", 0.15f ) + 1f ) ),
                         } );
                 // Return the modified instructions
                 return transpiler.GetResult();

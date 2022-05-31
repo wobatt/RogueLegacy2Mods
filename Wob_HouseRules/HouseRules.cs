@@ -12,7 +12,7 @@ namespace Wob_HouseRules {
             // Set up the logger and basic config items
             WobPlugin.Initialise( this, this.Logger );
             // Create/read the mod specific configuration options
-            WobPlugin.Settings.Add( new WobSettings.Entry<int>( "MaxDifficulty", "Maximum percentage that the enemy health and damage house rules will go up to", 1000, bounds: (200, 1000000), limiter: x => { return (int)( System.Math.Floor( x / 5f ) * 5f ); } ) );
+            WobSettings.Add( new WobSettings.Num<int>( "MaxDifficulty", "Maximum percentage that the enemy health and damage house rules will go up to", 1000, bounds: (200, 1000000), limiter: x => { return (int)( System.Math.Floor( x / 5f ) * 5f ); } ) );
             // Apply the patches if the mod is enabled
             WobPlugin.Patch();
         }
@@ -76,9 +76,9 @@ namespace Wob_HouseRules {
                         // Define the actions to take when an occurrence is found
                         new List<WobTranspiler.OpAction> {
                             new WobTranspiler.OpAction_SetOperand(  1, (sbyte)5                                       ), // Set minimum enemy health
-                            new WobTranspiler.OpAction_SetOperand(  4, WobPlugin.Settings.Get( "MaxDifficulty", 200 ) ), // Set maximum enemy health
+                            new WobTranspiler.OpAction_SetOperand(  4, WobSettings.Get( "MaxDifficulty", 200 ) ), // Set maximum enemy health
                             new WobTranspiler.OpAction_SetOperand( 11, (sbyte)0                                       ), // Set minimum enemy damage
-                            new WobTranspiler.OpAction_SetOperand( 14, WobPlugin.Settings.Get( "MaxDifficulty", 200 ) ), // Set maximum enemy damage
+                            new WobTranspiler.OpAction_SetOperand( 14, WobSettings.Get( "MaxDifficulty", 200 ) ), // Set maximum enemy damage
                             new WobTranspiler.OpAction_SetOperand( 21, (sbyte)5                                       ), // Set minimum aim time slow
                         } );
                 // Return the modified instructions

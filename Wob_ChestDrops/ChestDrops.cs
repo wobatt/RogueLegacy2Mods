@@ -1,17 +1,37 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection.Emit;
 using BepInEx;
 using HarmonyLib;
+using UnityEngine;
 using Wob_Common;
 
 namespace Wob_ChestDrops {
-    [BepInPlugin( "Wob.ChestDrops", "Chest Drops Mod", "0.1.0" )]
+    [BepInPlugin( "Wob.ChestDrops", "Chest Drops Mod", "0.2.0" )]
     public partial class ChestDrops : BaseUnityPlugin {
+        private static readonly WobSettings.KeyHelper<ChestType> keys = new WobSettings.KeyHelper<ChestType>( "Chest_" );
+        private enum DefaultDrop {
+            Gold = SpecialItemType.Gold,
+            Ore  = SpecialItemType.Ore,
+        }
+        private static readonly Dictionary<ChestType, (string Config, string Name, int Max, DefaultDrop Default)> chests = new Dictionary<ChestType, (string Config, string Name, int Max, DefaultDrop Default)>() {
+            { ChestType.Bronze, ("Bronze", "Basic Chests",  1, DefaultDrop.Gold) },
+            { ChestType.Silver, ("Silver", "Silver Chests", 5, DefaultDrop.Gold) },
+            { ChestType.Gold,   ("Gold",   "Gold Chests",   5, DefaultDrop.Gold) },
+            { ChestType.Fairy,  ("Fairy",  "Fairy Chests",  5, DefaultDrop.Ore ) },
+        };
+
         // Main method that kicks everything off
         protected void Awake() {
             // Set up the logger and basic config items
             WobPlugin.Initialise( this, this.Logger );
+            // Create/read the mod specific configuration options
+            foreach( ChestType chestType in chests.Keys ) {
+                keys.Add( chestType, chests[chestType].Config );
+                WobSettings.Add( new WobSettings.Num<int>(          keys.Get( chestType, "MaxDrops" ), chests[chestType].Name + ": Maximum number of drops", chests[chestType].Max, bounds: (0, 5) ) );
+                WobSettings.Add( new WobSettings.Enum<DefaultDrop>( keys.Get( chestType, "Default"  ), chests[chestType].Name + ": Drop type if no items",   chests[chestType].Default             ) );
+            }
             // Apply the patches if the mod is enabled
             WobPlugin.Patch();
         }
@@ -49,69 +69,92 @@ namespace Wob_ChestDrops {
                 if( __instance.ChestType == ChestType.Bronze || __instance.ChestType == ChestType.Silver || __instance.ChestType == ChestType.Gold || __instance.ChestType == ChestType.Fairy ) {
                     WobPlugin.Log( __instance.ChestType + " chest at level " + __instance.Level );
                     drops.Clear();
-                    if( __instance.ChestType != ChestType.Bronze ) {
-                        // Try to get a rune and add it to the drop list
-                        AddSpecialItem( drops, GetSpecialItem( __instance, SpecialItemType.Rune ) );
-                        // Try to get a blueprint and add it to the drop list
-                        AddSpecialItem( drops, GetSpecialItem( __instance, SpecialItemType.Blueprint ) );
-                        // Try to get a challenge empathy and add it to the drop list
-                        AddSpecialItem( drops, GetSpecialItem( __instance, SpecialItemType.Challenge ) );
-                    } else {
-                        // Try to get a single drop of a random type
-                        AddSpecialItem( drops, GetRandomSpecialItem( __instance ) );
+                    int maxDrops = WobSettings.Get( keys.Get( __instance.ChestType, "MaxDrops" ), chests[__instance.ChestType].Max );
+                    if( maxDrops > 0 ) {
+                        List<ISpecialItemDrop> options = new List<ISpecialItemDrop>();
+                        GetRunes( __instance.Level, options );
+                        GetEquipment( __instance.Level, ChestType_RL.GetChestRarity( __instance.ChestType ), options );
+                        GetChallenges( options );
+                        if( options.Count > 0 ) {
+                            while( options.Count > maxDrops ) {
+                                options.RemoveAt( UnityEngine.Random.Range( 0, options.Count ) );
+                            }
+                            drops.AddRange( options );
+                        }
                     }
                     if( drops.Count > 0 ) {
                         // Change the method's return value
                         __result = drops.Last().SpecialItemType;
                         WobPlugin.Log( "    Returning drop of " + drops.Last().SpecialItemType );
                     } else {
-                        __result = ( __instance.ChestType == ChestType.Fairy ? SpecialItemType.Ore : SpecialItemType.Gold );
+                        __result = (SpecialItemType)WobSettings.Get( keys.Get( __instance.ChestType, "Default" ), chests[__instance.ChestType].Default );
                         WobPlugin.Log( "    No drops available" );
                     }
                 }
             }
 
-            // Helper method to calculate a random item
-            private static ISpecialItemDrop GetSpecialItem( ChestObj chest, SpecialItemType specialItemType ) {
-                ISpecialItemDrop specialItem = null;
-                switch( specialItemType ) {
-                    case SpecialItemType.Rune:
-                        specialItem = SpecialItemDropUtility.GetRuneDrop( chest.Level );
-                        break;
-                    case SpecialItemType.Blueprint:
-                        specialItem = SpecialItemDropUtility.GetBlueprintDrop( chest.Level, ChestType_RL.GetChestRarity( chest.ChestType ) );
-                        break;
-                    case SpecialItemType.Challenge:
-                        specialItem = SpecialItemDropUtility.GetChallengeDrop();
-                        break;
+            private static void GetEquipment( int chestLevel, int chestRarityLevel, List<ISpecialItemDrop> options ) {
+                int foundCount = 0;
+                float minEquipmentLevelScale = EquipmentManager.GetMinEquipmentLevelScale();
+                foreach( EquipmentCategoryType equipmentCategoryType in EquipmentType_RL.CategoryTypeArray ) {
+                    if( equipmentCategoryType != EquipmentCategoryType.None ) {
+                        foreach( EquipmentType equipmentType in EquipmentType_RL.TypeArray ) {
+                            if( equipmentType != EquipmentType.None ) {
+                                EquipmentObj equipment = EquipmentManager.GetEquipment( equipmentCategoryType, equipmentType );
+                                if( equipment != null && equipment.EquipmentData != null && !equipment.EquipmentData.Disabled ) {
+                                    int scalingItemLevel = ( equipment.FoundState == FoundState.NotFound ) ? 0 : ( EquipmentManager.GetUpgradeBlueprintsFound( equipment.CategoryType, equipment.EquipmentType, true ) + 1 ) * equipment.EquipmentData.ScalingItemLevel;
+                                    if( !equipment.HasMaxBlueprints && ( chestRarityLevel >= equipment.EquipmentData.ChestRarityRequirement ) && ( chestLevel >= ( equipment.EquipmentData.ChestLevelRequirement + minEquipmentLevelScale + scalingItemLevel ) ) ) {
+                                        options.Add( new BlueprintDrop( equipment.CategoryType, equipment.EquipmentType ) );
+                                        foundCount++;
+                                        if( foundCount >= 5 ) { return; }
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
-                return specialItem;
             }
 
-            // Helper method to get a drop of a random type from those available
-            private static ISpecialItemDrop GetRandomSpecialItem( ChestObj chest ) {
-                // List of items the random drop could be
-                List<ISpecialItemDrop> specialItems = new List<ISpecialItemDrop>();
-                // Try to get a rune and add it to the list
-                AddSpecialItem( specialItems, GetSpecialItem( chest, SpecialItemType.Rune ) );
-                // Try to get a blueprint and add it to the list
-                AddSpecialItem( specialItems, GetSpecialItem( chest, SpecialItemType.Blueprint ) );
-                // Try to get a challenge empathy and add it to the list
-                AddSpecialItem( specialItems, GetSpecialItem( chest, SpecialItemType.Challenge ) );
-                ISpecialItemDrop itemDrop = null;
-                if( specialItems.Count > 0 ) {
-                    // Get a random item from the list
-                    itemDrop = specialItems[UnityEngine.Random.Range( 0, specialItems.Count )];
+            private static void GetRunes( int chestLevel, List<ISpecialItemDrop> options ) {
+                int foundCount = 0;
+                float minRuneLevelScale = RuneManager.GetMinRuneLevelScale();
+                foreach( RuneType runeType in RuneType_RL.TypeArray ) {
+                    if( runeType != RuneType.None ) {
+                        RuneObj rune = RuneManager.GetRune(runeType);
+                        if( rune != null && rune.RuneData != null && !rune.RuneData.Disabled ) {
+                            int scalingItemLevel = ( rune.FoundState == FoundState.NotFound ) ? 0 : ( RuneManager.GetUpgradeBlueprintsFound( runeType, true ) + 1 ) * rune.RuneData.ScalingItemLevel;
+                            if( !rune.HasMaxBlueprints && ( chestLevel >= ( rune.RuneData.BaseItemLevel + minRuneLevelScale + scalingItemLevel ) ) && ( SpecialItemDropUtility_HasHeirloom( runeType ) ) ) {
+                                options.Add( new RuneDrop( runeType ) );
+                                foundCount++;
+                                if( foundCount >= 5 ) { return; }
+                            }
+                        }
+                    }
                 }
-                return itemDrop;
             }
 
-            // Helper method to add a drop only if not null
-            private static void AddSpecialItem( List<ISpecialItemDrop> dropsList, ISpecialItemDrop specialItem ) {
-                if( specialItem != null ) {
-                    dropsList.Add( specialItem );
+            private static void GetChallenges( List<ISpecialItemDrop> options ) {
+                int foundCount = 0;
+                foreach( ChallengeType challengeType in ChallengeType_RL.TypeArray ) {
+                    if( challengeType != ChallengeType.None ) {
+                        ChallengeObj challenge = ChallengeManager.GetChallenge(challengeType);
+                        if( challenge != null && challenge.ChallengeData != null && !challenge.ChallengeData.Disabled && challenge.FoundState != FoundState.NotFound && !challenge.HasMaxBlueprints ) {
+                            int count = Mathf.Min( 5, challenge.MaxLevel - challenge.MaxEquippableLevel );
+                            for( int i = 0; i < count; i++ ) {
+                                options.Add( new ChallengeDrop( challengeType ) );
+                            }
+                            foundCount += count;
+                            if( foundCount >= 5 ) { return; }
+                        }
+                    }
                 }
             }
+
+            // Method to access private method SpecialItemDropUtility.HasHeirloom
+            private static bool SpecialItemDropUtility_HasHeirloom( RuneType runeType ) {
+                return Traverse.Create( typeof( SpecialItemDropUtility ) ).Method( "HasHeirloom", new Type[] { typeof( RuneType ) } ).GetValue<bool>( new object[] { runeType } );
+            }
+
         }
 
         [HarmonyPatch( typeof( ChestObj ), "CalculateSpecialItemDropObj" )]

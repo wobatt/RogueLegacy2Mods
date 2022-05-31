@@ -12,17 +12,17 @@ namespace Wob_Regeneration {
             // Set up the logger and basic config items
             WobPlugin.Initialise( this, this.Logger );
             // Create/read the mod specific configuration options
-            WobPlugin.Settings.Add( new WobSettings.Entry[] {
+            WobSettings.Add( new WobSettings.Entry[] {
                 // Health related
-                new WobSettings.EntryBool(  "HealthRegenEnabled", "Enable mana regeneration",                                                        true                   ),
-                new WobSettings.Entry<int>( "HealthRegenTicks",   "Number of ticks/frames between adding health - higher number means slower regen", 30, bounds: (1, 1000)  ),
-                new WobSettings.Entry<int>( "HealthRegenAdd",     "When health is added, this is the amount to add",                                 1,  bounds: (1, 10000) ),
+                new WobSettings.Boolean(  "HealthRegenEnabled", "Enable mana regeneration",                                                        true                   ),
+                new WobSettings.Num<int>( "HealthRegenTicks",   "Number of ticks/frames between adding health - higher number means slower regen", 30, bounds: (1, 1000)  ),
+                new WobSettings.Num<int>( "HealthRegenAdd",     "When health is added, this is the amount to add",                                 1,  bounds: (1, 10000) ),
                 // Mana related
-                new WobSettings.EntryBool(  "ManaRegenEnabled",   "Enable mana regeneration",                                                        true                   ),
-                new WobSettings.Entry<int>( "ManaRegenTicks",     "Number of ticks/frames between adding mana - higher number means slower regen",   1,  bounds: (1, 1000)  ),
-                new WobSettings.Entry<int>( "ManaRegenAdd",       "When mana is added, this is the amount to add",                                   1,  bounds: (1, 10000) ),
-                new WobSettings.EntryBool(  "ManaRegenDelay",     "Enable the 2 second delay to mana regeneration after casting a spell",            true                   ),
-                new WobSettings.Entry<int>( "MaxMana",            "Additional max mana",                                                             0,  bounds: (0, 10000) ),
+                new WobSettings.Boolean(  "ManaRegenEnabled",   "Enable mana regeneration",                                                        true                   ),
+                new WobSettings.Num<int>( "ManaRegenTicks",     "Number of ticks/frames between adding mana - higher number means slower regen",   1,  bounds: (1, 1000)  ),
+                new WobSettings.Num<int>( "ManaRegenAdd",       "When mana is added, this is the amount to add",                                   1,  bounds: (1, 10000) ),
+                new WobSettings.Boolean(  "ManaRegenDelay",     "Enable the 2 second delay to mana regeneration after casting a spell",            true                   ),
+                new WobSettings.Num<int>( "MaxMana",            "Additional max mana",                                                             0,  bounds: (0, 10000) ),
             } );
             // Apply the patches if the mod is enabled
             WobPlugin.Patch();
@@ -32,7 +32,7 @@ namespace Wob_Regeneration {
         [HarmonyPatch( typeof( RuneLogicHelper ), nameof( RuneLogicHelper.GetMaxManaFlat ) )]
         internal static class RuneLogicHelper_GetMaxManaFlat_Patch {
             internal static void Postfix( ref int __result ) {
-                __result += WobPlugin.Settings.Get( "MaxMana", 0 );
+                __result += WobSettings.Get( "MaxMana", 0 );
             }
         }
 
@@ -43,12 +43,12 @@ namespace Wob_Regeneration {
             private static int tick = 0;
             // Increment counter and return amount of health to regen
             private static int Tick() {
-                tick = ( tick + 1 ) % WobPlugin.Settings.Get( "HealthRegenTicks", 30 );
-                return tick == 0 ? WobPlugin.Settings.Get( "HealthRegenAdd", 1 ) : 0;
+                tick = ( tick + 1 ) % WobSettings.Get( "HealthRegenTicks", 30 );
+                return tick == 0 ? WobSettings.Get( "HealthRegenAdd", 1 ) : 0;
             }
             internal static void Prefix( ManaRegen __instance ) {
                 // Continue if we are enabling regen
-                if( WobPlugin.Settings.Get( "HealthRegenEnabled", false ) ) {
+                if( WobSettings.Get( "HealthRegenEnabled", false ) ) {
                     // Get a reference to the private field where current player info is stored
                     PlayerController m_playerController = (PlayerController)Traverse.Create( __instance ).Field( "m_playerController" ).GetValue();
                     // Get the current health state
@@ -80,21 +80,21 @@ namespace Wob_Regeneration {
             private static int tick = 0;
             // Increment counter and return amount of mana to regen
             private static int Tick() {
-                tick = ( tick + 1 ) % WobPlugin.Settings.Get( "ManaRegenTicks", 1 );
-                return tick == 0 ? WobPlugin.Settings.Get( "ManaRegenAdd", 1 ) : 0;
+                tick = ( tick + 1 ) % WobSettings.Get( "ManaRegenTicks", 1 );
+                return tick == 0 ? WobSettings.Get( "ManaRegenAdd", 1 ) : 0;
             }
             internal static void Prefix( ManaRegen __instance ) {
                 // The default is to only use regen if the trait 'Crippling Intellect' is present, so check for it
                 bool regenTrait = TraitManager.IsTraitActive( TraitType.BonusMagicStrength );
                 // Continue if we are always enabling regen or the trait is present
-                if( WobPlugin.Settings.Get( "ManaRegenEnabled", false ) || regenTrait ) {
+                if( WobSettings.Get( "ManaRegenEnabled", false ) || regenTrait ) {
                     // Get a reference to the private field where current player info is stored
                     PlayerController m_playerController = (PlayerController)Traverse.Create( __instance ).Field( "m_playerController" ).GetValue();
                     // Get the current mana state
                     float actualMaxMana = m_playerController.ActualMaxMana;
                     float currentMana = m_playerController.CurrentMana;
                     // Check that mana is missing, and whether to respect the delay after casing
-                    if( currentMana < actualMaxMana && !( __instance.IsManaRegenDelayed && WobPlugin.Settings.Get( "ManaRegenDelay", true ) ) ) {
+                    if( currentMana < actualMaxMana && !( __instance.IsManaRegenDelayed && WobSettings.Get( "ManaRegenDelay", true ) ) ) {
                         // Calculate how much mana to regenerate this frame
                         float regenRate = Tick();
                         if( regenRate > 0 ) {

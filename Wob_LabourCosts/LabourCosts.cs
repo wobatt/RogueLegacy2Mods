@@ -15,10 +15,10 @@ namespace Wob_LabourCosts {
             // Set up the logger and basic config items
             WobPlugin.Initialise( this, this.Logger );
             // Create/read the mod specific configuration options
-            WobPlugin.Settings.Add( new WobSettings.Entry[] {
-                new WobSettings.Entry<sbyte>( "StartLevel", "Level after which labour costs start.",                     20,  bounds: (0, sbyte.MaxValue) ),
-                new WobSettings.Entry<float>( "PerLevel",   "Cost increase per level. Set to 0 to remove labour costs.", 14f, bounds: (0, 1000000f)       ),
-                new WobSettings.Entry<int>(   "RoundTo",    "Round down calculated cost to this significance.",          5,   bounds: (1, 1000000)        ),
+            WobSettings.Add( new WobSettings.Entry[] {
+                new WobSettings.Num<sbyte>( "StartLevel", "Level after which labour costs start.",                     20,  bounds: (0, sbyte.MaxValue) ),
+                new WobSettings.Num<float>( "PerLevel",   "Cost increase per level. Set to 0 to remove labour costs.", 14f, bounds: (0, 1000000f)       ),
+                new WobSettings.Num<int>(   "RoundTo",    "Round down calculated cost to this significance.",          5,   bounds: (1, 1000000)        ),
             } );
             // Apply the patches if the mod is enabled
             WobPlugin.Patch();
@@ -26,8 +26,8 @@ namespace Wob_LabourCosts {
 
         // Calculate new labour costs based on config parameters
         private static int NewLabourCost() {
-            int labourLevel = Mathf.Clamp( SkillTreeManager.GetTotalSkillObjLevel() - WobPlugin.Settings.Get( "StartLevel", (sbyte)20 ), 0, int.MaxValue );
-            return (int)( System.Math.Floor( ( labourLevel * WobPlugin.Settings.Get( "PerLevel", 14f ) ) / WobPlugin.Settings.Get( "RoundTo", 5 ) ) * WobPlugin.Settings.Get( "RoundTo", 5 ) );
+            int labourLevel = Mathf.Clamp( SkillTreeManager.GetTotalSkillObjLevel() - WobSettings.Get( "StartLevel", (sbyte)20 ), 0, int.MaxValue );
+            return (int)( System.Math.Floor( ( labourLevel * WobSettings.Get( "PerLevel", 14f ) ) / WobSettings.Get( "RoundTo", 5 ) ) * WobSettings.Get( "RoundTo", 5 ) );
         }
 
         // Patch for the method that gets the gold cost for a specific upgrade with labour costs included
@@ -64,7 +64,7 @@ namespace Wob_LabourCosts {
                         },
                         // Define the actions to take when an occurrence is found
                         new List<WobTranspiler.OpAction> {
-                            new WobTranspiler.OpAction_SetOperand( 1, WobPlugin.Settings.Get( "StartLevel", (sbyte)20 ) ), // Set the operand to the new level from the config file
+                            new WobTranspiler.OpAction_SetOperand( 1, WobSettings.Get( "StartLevel", (sbyte)20 ) ), // Set the operand to the new level from the config file
                         } );
                 // Return the modified instructions
                 return transpiler.GetResult();
@@ -97,7 +97,7 @@ namespace Wob_LabourCosts {
                         },
                         // Define the actions to take when an occurrence is found
                         new List<WobTranspiler.OpAction> {
-                            new WobTranspiler.OpAction_SetOperand( 1, WobPlugin.Settings.Get( "StartLevel", (sbyte)20 ) ), // Set the operand to the new level from the config file
+                            new WobTranspiler.OpAction_SetOperand( 1, WobSettings.Get( "StartLevel", (sbyte)20 ) ), // Set the operand to the new level from the config file
                         } );
                 // Return the modified instructions
                 return transpiler.GetResult();

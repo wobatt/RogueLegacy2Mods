@@ -12,9 +12,9 @@ namespace Wob_UnlockSkillTree {
             // Set up the logger and basic config items
             WobPlugin.Initialise( this, this.Logger );
             // Create/read the mod specific configuration options
-            WobPlugin.Settings.Add( new WobSettings.Entry[] {
-                new WobSettings.EntryBool( "UnlockTree",  "Unlock the tree - all skills visible/selectable",    true ),
-                new WobSettings.EntryBool( "UnlockLevel", "Unlock the level - remove manor level requirements", true ),
+            WobSettings.Add( new WobSettings.Entry[] {
+                new WobSettings.Boolean( "UnlockTree",  "Unlock the tree - all skills visible/selectable",    true ),
+                new WobSettings.Boolean( "UnlockLevel", "Unlock the level - remove manor level requirements", true ),
             } );
             // Apply the patches if the mod is enabled
             WobPlugin.Patch();
@@ -24,7 +24,7 @@ namespace Wob_UnlockSkillTree {
         [HarmonyPatch( typeof( SkillTreeObj ), nameof( SkillTreeObj.UnlockLevel ), MethodType.Getter )]
         internal static class SkillTreeObj_UnlockLevel_Patch {
             internal static void Postfix( ref int __result ) {
-                if( WobPlugin.Settings.Get( "UnlockLevel", false ) ) {
+                if( WobSettings.Get( "UnlockLevel", false ) ) {
                     // Always return 0 (unlocked)
                     __result = 0;
                 }
@@ -37,7 +37,7 @@ namespace Wob_UnlockSkillTree {
             // When the skill tree initialises, it looks for all skills with level > 0 and makes them visible, then all skills they connect to and also makes them visible
             // We are looking for the check of level > 0 and changing it to level >= 0, which makes all skills visible
             internal static IEnumerable<CodeInstruction> Transpiler( IEnumerable<CodeInstruction> instructions ) {
-                if( WobPlugin.Settings.Get( "UnlockTree", false ) ) {
+                if( WobSettings.Get( "UnlockTree", false ) ) {
                     WobPlugin.Log( "SkillTreeWindowController.Initialize Transpiler Patch" );
                     // Set up the transpiler handler with the instruction list
                     WobTranspiler transpiler = new WobTranspiler( instructions );

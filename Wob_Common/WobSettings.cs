@@ -3,199 +3,593 @@ using System.Collections.Generic;
 using BepInEx.Configuration;
 
 namespace Wob_Common {
+    /// <summary>
+    /// Class for handling a dictionary of dissimilar configuration entries for a mod.
+    /// </summary>
     internal class WobSettings {
-        private const string DEFAULT_SECTION = "Options";
+        /// <summary>
+        /// List of items created in the config file.
+        /// </summary>
+        private Dictionary<string, Entry> Entries { get; } = new Dictionary<string, Entry>();
 
-        private static ConfigFile configFile;
-        private readonly Dictionary<string, Entry> configItems;
+        /// <summary>
+        /// Static version of 'this'.
+        /// </summary>
+        private static WobSettings Instance { get; } = new WobSettings();
 
-        public WobSettings( ConfigFile config ) {
-            configFile = config;
-            this.configItems = new Dictionary<string, Entry>();
+        /// <summary>
+        /// The section name to be used if one isn't specified in the mod.
+        /// </summary>
+        public const string DEFAULT_SECTION = "Options";
+
+        /// <summary>
+        /// Get the combination of section and setting names fomatted in the standard manner used throughout this class and subclasses.
+        /// </summary>
+        /// <param name="keys">Object defining the section and setting names for the config item.</param>
+        /// <returns>Combined section and setting names.</returns>
+        private static string GetFullKey( ConfigDefinition keys ) {
+            return keys.Section + "." + keys.Key;
         }
-        public WobSettings( ConfigFile config, Entry setting ) : this( config ) { this.Add( setting ); }
-        public WobSettings( ConfigFile config, List<Entry> settings ) : this( config ) { this.Add( settings ); }
 
-        public void Add( Entry setting ) {
-            this.configItems.Add( setting.Key, setting );
-        }
-
-        public void Add( Entry[] settings ) {
-            foreach( Entry setting in settings ) {
-                this.configItems.Add( setting.Key, setting );
+        /// <summary>
+        /// Register a single config item.
+        /// </summary>
+        /// <param name="setting">The config item to be added.</param>
+        public static void Add( Entry setting ) {
+            if( setting != null ) {
+                Instance.Entries.Add( setting.FullKey, setting );
             }
         }
 
-        public void Add( List<Entry> settings ) {
+        /// <summary>
+        /// Register a set of config items.
+        /// </summary>
+        /// <param name="settings">The config items to be added.</param>
+        public static void Add( Entry[] settings ) {
             foreach( Entry setting in settings ) {
-                this.configItems.Add( setting.Key, setting );
+                Instance.Entries.Add( setting.FullKey, setting );
             }
         }
 
-        public T Get<T>( string name, T defaultValue ) { return this.Get( DEFAULT_SECTION, name, defaultValue ); }
-        public T Get<T>( string section, string name, T defaultValue ) {
-            Entry item;
-            if( this.configItems.TryGetValue( section + "." + name, out item ) ) {
-                return item.Get( defaultValue );
+        /// <summary>
+        /// Register a set of config items.
+        /// </summary>
+        /// <param name="settings">The config items to be added.</param>
+        public static void Add( IEnumerable<Entry> settings ) {
+            foreach( Entry setting in settings ) {
+                Instance.Entries.Add( setting.FullKey, setting );
+            }
+        }
+
+        /// <summary>
+        /// Read the value of a config item.
+        /// </summary>
+        /// <typeparam name="T">The return type of the value. It will be safely cast to a larger ranged type if not a perfect match for the underlying type.</typeparam>
+        /// <param name="keys">Object defining the section and setting names for the config item.</param>
+        /// <param name="defaultValue">The value to be returned if a matching config item cannot be read.</param>
+        /// <returns>The value read from the config file, or the default value parameter.</returns>
+        public static T Get<T>( ConfigDefinition keys, T defaultValue ) {
+            if( keys != null ) {
+                if( Instance.Entries.TryGetValue( GetFullKey( keys ), out Entry item ) ) {
+                    return item.Get( defaultValue );
+                } else {
+                    WobPlugin.Log( "WARNING: Setting not found for " + GetFullKey( keys ) );
+                    return defaultValue;
+                }
             } else {
-                WobPlugin.Log( "WARNING: Setting not found for " + section + "." + name );
+                WobPlugin.Log( "ERROR: Attempt to get value from null key", WobPlugin.ERROR );
                 return defaultValue;
             }
         }
+        /// <summary>
+        /// Read the value of a config item, using the provided section and setting names.
+        /// </summary>
+        /// <typeparam name="T">The return type of the value. It will be safely cast to a larger ranged type if not a perfect match for the underlying type.</typeparam>
+        /// <param name="section">The name of the section the config item is in.</param>
+        /// <param name="name">The name of the config item.</param>
+        /// <param name="defaultValue">The value to be returned if a matching config item cannot be read.</param>
+        /// <returns>The value read from the config file, or the default value parameter.</returns>
+        public static T Get<T>( string section, string name, T defaultValue ) { return Get( new ConfigDefinition( section, name ), defaultValue ); }
+        /// <summary>
+        /// Read the value of a config item, using the default section name and a provided setting name.
+        /// </summary>
+        /// <typeparam name="T">The return type of the value. It will be safely cast to a larger ranged type if not a perfect match for the underlying type.</typeparam>
+        /// <param name="name">The name of the config item.</param>
+        /// <param name="defaultValue">The value to be returned if a matching config item cannot be read.</param>
+        /// <returns>The value read from the config file, or the default value parameter.</returns>
+        public static T Get<T>( string name, T defaultValue ) { return Get( new ConfigDefinition( DEFAULT_SECTION, name ), defaultValue ); }
 
+        /// <summary>
+        /// Set the value of a config item.
+        /// </summary>
+        /// <typeparam name="T">The type of the value being set. It will be safely cast to a larger ranged type if not a perfect match for the underlying type.</typeparam>
+        /// <param name="keys">Object defining the section and setting names for the config item.</param>
+        /// <param name="newValue">The value to be written to the config item.</param>
+        public static void Set<T>( ConfigDefinition keys, T newValue ) {
+            if( keys != null ) {
+                if( Instance.Entries.TryGetValue( GetFullKey( keys ), out Entry item ) ) {
+                    item.Set( newValue );
+                } else {
+                    WobPlugin.Log( "ERROR: Setting not found for " + GetFullKey( keys ), WobPlugin.ERROR );
+                }
+            } else {
+                WobPlugin.Log( "ERROR: Attempt to set value for null key", WobPlugin.ERROR );
+            }
+        }
+        /// <summary>
+        /// Set the value of a config item, using the provided section and setting names.
+        /// </summary>
+        /// <typeparam name="T">The type of the value being set. It will be safely cast to a larger ranged type if not a perfect match for the underlying type.</typeparam>
+        /// <param name="section">The name of the section the config item is in.</param>
+        /// <param name="name">The name of the config item.</param>
+        /// <param name="newValue">The value to be written to the config item.</param>
+        public static void Set<T>( string section, string name, T newValue ) { Set( new ConfigDefinition( section, name ), newValue ); }
+        /// <summary>
+        /// Set the value of a config item, using the default section name and a provided setting name.
+        /// </summary>
+        /// <typeparam name="T">The type of the value being set. It will be safely cast to a larger ranged type if not a perfect match for the underlying type.</typeparam>
+        /// <param name="name">The name of the config item.</param>
+        /// <param name="newValue">The value to be written to the config item.</param>
+        public static void Set<T>( string name, T newValue ) { Set( new ConfigDefinition( DEFAULT_SECTION, name ), newValue ); }
+
+        /// <summary>
+        /// Safe type casts. It is safe to cast to the key value if the data type is in the return value list.
+        /// </summary>
+        private static readonly Dictionary<Type, HashSet<Type>> safeCasts = new Dictionary<Type, HashSet<Type>>() {
+            // Integer types - can cast from any smaller integer type
+            { typeof( short   ), new HashSet<Type> { typeof( sbyte ), typeof( byte ) } },
+            { typeof( ushort  ), new HashSet<Type> { typeof( sbyte ), typeof( byte ) } },
+            { typeof( int     ), new HashSet<Type> { typeof( sbyte ), typeof( byte ), typeof( short ), typeof( ushort ) } },
+            { typeof( uint    ), new HashSet<Type> { typeof( sbyte ), typeof( byte ), typeof( short ), typeof( ushort ) } },
+            { typeof( long    ), new HashSet<Type> { typeof( sbyte ), typeof( byte ), typeof( short ), typeof( ushort ), typeof( int ), typeof( uint ) } },
+            { typeof( ulong   ), new HashSet<Type> { typeof( sbyte ), typeof( byte ), typeof( short ), typeof( ushort ), typeof( int ), typeof( uint ) } },
+            // Floating point types - cast from integers or smaller floating points
+            { typeof( float   ), new HashSet<Type> { typeof( sbyte ), typeof( byte ), typeof( short ), typeof( ushort ), typeof( int ), typeof( uint ), typeof( long ), typeof( ulong ) } },
+            { typeof( double  ), new HashSet<Type> { typeof( sbyte ), typeof( byte ), typeof( short ), typeof( ushort ), typeof( int ), typeof( uint ), typeof( long ), typeof( ulong ), typeof( float ) } },
+            { typeof( decimal ), new HashSet<Type> { typeof( sbyte ), typeof( byte ), typeof( short ), typeof( ushort ), typeof( int ), typeof( uint ), typeof( long ), typeof( ulong ) } },
+        };
+
+        /// <summary>
+        /// Base class for configuration items, providing standard interactions and fields.
+        /// </summary>
         public abstract class Entry {
-            public string Key         { get; protected set; }
-            public string Section     { get; protected set; }
-            public string Name        { get; protected set; }
-            public string Description { get; protected set; }
-            public Type   DataType    { get; protected set; }
-
-            protected Entry( string section, string name, string description, Type dataType ) {
-                this.Key = section + "." + name;
-                this.Section = section;
-                this.Name = name;
-                this.Description = description;
-                this.DataType = dataType;
+            /// <summary>
+            /// Object containing the section and setting names of the config item.
+            /// </summary>
+            protected ConfigDefinition Keys { get; private set; }
+            /// <summary>
+            /// Get the combination of section and setting names fomatted in the standard manner.
+            /// </summary>
+            public string FullKey {
+                get {
+                    return GetFullKey( this.Keys );
+                }
+            }
+            /// <summary>
+            /// The underlying config item in the file.
+            /// </summary>
+            protected ConfigEntryBase ConfigEntry { get; set; } // The value of this MUST be set in the constructor of the subclass
+            /// <summary>
+            /// The data type of this config item.
+            /// </summary>
+            public Type DataType {
+                get {
+                    return this.ConfigEntry.SettingType;
+                }
             }
 
-            protected abstract object GetValue();
+            /// <summary>
+            /// Constructor that sets the key values for reading the item from the config file.
+            /// </summary>
+            /// <param name="keys">Object defining the section and setting names for the config item.</param>
+            protected Entry( ConfigDefinition keys ) {
+                this.Keys = keys;
+            }
 
+            /// <summary>
+            /// Method to get the actual value of the setting. Override in sublass if something more complex is desired.
+            /// </summary>
+            /// <returns>The boxed value of the config item.</returns>
+            protected virtual object GetValue() {
+                return this.ConfigEntry.BoxedValue;
+            }
+
+            /// <summary>
+            /// Read the value of a config item, with safe casting to the requested type.
+            /// </summary>
+            /// <typeparam name="T">The return type of the value. It will be safely cast to a larger ranged type if not a perfect match for the underlying type.</typeparam>
+            /// <param name="defaultValue">The value to be returned in case of any errors reading the value from the config item.</param>
+            /// <returns>The value read from the config file, or the default value parameter.</returns>
             public T Get<T>( T defaultValue ) {
-                T value = defaultValue;
-                // Check the data type being requested matches the target data type
-                if( typeof( T ) == this.DataType ) {
-                    // Request and target are same data type, so return the value
-                    value = (T)this.GetValue();
+                if( this.ConfigEntry == null ) {
+                    WobPlugin.Log( "ERROR: Underlying config enrty not created for " + this.FullKey, WobPlugin.ERROR );
+                    return defaultValue;
                 } else {
-                    // Types don't match, so check the list of safe casts of numeric types
-                    if( safeCasts.TryGetValue( typeof( T ), out HashSet<Type> safeCastList ) && safeCastList.Contains( this.DataType ) ) {
-                        // This is a safe cast, so return the value
-                        value = (T)Convert.ChangeType( this.GetValue(), typeof( T ) );
+                    T value = defaultValue;
+                    // Check the data type being requested matches the target data type
+                    if( typeof( T ) == this.DataType ) {
+                        // Request and target are same data type, so return the value
+                        value = (T)this.GetValue();
                     } else {
-                        // Can't get the value, so log an error, and leave the return value as the default from the parameter
-                        WobPlugin.Log( "ERROR: Attempt to get setting " + this.Key + " as " + typeof( T ) + " but it is " + this.DataType, WobPlugin.ERROR );
+                        // Types don't match, so check the list of safe casts of numeric types
+                        if( safeCasts.TryGetValue( typeof( T ), out HashSet<Type> safeCastList ) && safeCastList.Contains( this.DataType ) ) {
+                            // This is a safe cast, so return the value
+                            value = (T)Convert.ChangeType( this.GetValue(), typeof( T ) );
+                        } else {
+                            // Can't get the value, so log an error, and leave the return value as the default from the parameter
+                            WobPlugin.Log( "ERROR: Attempt to get setting " + this.FullKey + " as " + typeof( T ) + " but it is " + this.DataType, WobPlugin.ERROR );
+                        }
+                    }
+                    return value;
+                }
+            }
+
+            /// <summary>
+            /// Method to set the actual value of the setting. Override in sublass if additional restrictions apply.
+            /// </summary>
+            /// <param name="newValue">The value to be written to the config item.</param>
+            protected virtual void SetValue( object newValue ) {
+                this.ConfigEntry.BoxedValue = newValue;
+            }
+
+            /// <summary>
+            /// Set the value of a config item, with safe casting from the provided type.
+            /// </summary>
+            /// <typeparam name="T">The type of the value being set. It will be safely cast to a larger ranged type if not a perfect match for the underlying type.</typeparam>
+            /// <param name="newValue">The value to be written to the config item.</param>
+            public void Set<T>( T newValue ) {
+                if( this.ConfigEntry == null ) {
+                    WobPlugin.Log( "ERROR: Underlying config enrty not created for " + this.FullKey, WobPlugin.ERROR );
+                } else {
+                    if( typeof( T ) == this.DataType ) {
+                        // Request and target are same data type, so set the value
+                        this.SetValue( newValue );
+                    } else {
+                        // Types don't match, so check the list of safe casts of numeric types
+                        if( safeCasts.TryGetValue( this.DataType, out HashSet<Type> safeCastList ) && safeCastList.Contains( typeof( T ) ) ) {
+                            // This is a safe cast, so return the value
+                            this.SetValue( Convert.ChangeType( newValue, this.DataType ) );
+                        } else {
+                            // Can't get the value, so log an error, and leave the return value as the default from the parameter
+                            WobPlugin.Log( "ERROR: Attempt to set setting " + this.FullKey + " as " + typeof( T ) + " but it is " + this.DataType, WobPlugin.ERROR );
+                        }
                     }
                 }
-                return value;
             }
-
-            private readonly Dictionary<Type, HashSet<Type>> safeCasts = new Dictionary<Type, HashSet<Type>>() {
-                // Integer types - can cast from any smaller integer type
-                { typeof( short   ), new HashSet<Type> { typeof( sbyte ), typeof( byte ) } },
-                { typeof( ushort  ), new HashSet<Type> { typeof( sbyte ), typeof( byte ) } },
-                { typeof( int     ), new HashSet<Type> { typeof( sbyte ), typeof( byte ), typeof( short ), typeof( ushort ) } },
-                { typeof( uint    ), new HashSet<Type> { typeof( sbyte ), typeof( byte ), typeof( short ), typeof( ushort ) } },
-                { typeof( long    ), new HashSet<Type> { typeof( sbyte ), typeof( byte ), typeof( short ), typeof( ushort ), typeof( int ), typeof( uint ) } },
-                { typeof( ulong   ), new HashSet<Type> { typeof( sbyte ), typeof( byte ), typeof( short ), typeof( ushort ), typeof( int ), typeof( uint ) } },
-                // Floating point types - cast from integers
-                { typeof( float   ), new HashSet<Type> { typeof( sbyte ), typeof( byte ), typeof( short ), typeof( ushort ), typeof( int ), typeof( uint ), typeof( long ), typeof( ulong ) } },
-                { typeof( double  ), new HashSet<Type> { typeof( sbyte ), typeof( byte ), typeof( short ), typeof( ushort ), typeof( int ), typeof( uint ), typeof( long ), typeof( ulong ), typeof( float ) } },
-                { typeof( decimal ), new HashSet<Type> { typeof( sbyte ), typeof( byte ), typeof( short ), typeof( ushort ), typeof( int ), typeof( uint ), typeof( long ), typeof( ulong ) } },
-            };
         }
-        
+
+        /// <summary>
+        /// Setting of boolean type.
+        /// </summary>
+        public class Boolean : Entry {
+            /// <summary>
+            /// Initialise a config item of boolean type.
+            /// </summary>
+            /// <param name="keys">Object defining the section and setting names for the config item.</param>
+            /// <param name="description">Descriptive text to explain how the end-user should set the config item.</param>
+            /// <param name="value">Initial value of the config item.</param>
+            public Boolean( ConfigDefinition keys, string description, bool value ) : base( keys ) {
+                this.ConfigEntry = WobPlugin.Config.Bind( keys, value, new ConfigDescription( description, new AcceptableValueList<bool>( new bool[] { true, false } ) ) );
+            }
+            /// <summary>
+            /// Initialise a config item of boolean type.
+            /// </summary>
+            /// <param name="section">The name of the section the config item is in.</param>
+            /// <param name="name">The name of the config item.</param>
+            /// <param name="description">Descriptive text to explain how the end-user should set the config item.</param>
+            /// <param name="value">Initial value of the config item.</param>
+            public Boolean( string section, string name, string description, bool value ) : this( new ConfigDefinition( section, name ), description, value ) { }
+            /// <summary>
+            /// Initialise a config item of boolean type.
+            /// </summary>
+            /// <param name="name">The name of the config item.</param>
+            /// <param name="description">Descriptive text to explain how the end-user should set the config item.</param>
+            /// <param name="value">Initial value of the config item.</param>
+            public Boolean( string name, string description, bool value ) : this( new ConfigDefinition( DEFAULT_SECTION, name ), description, value ) { }
+        }
+
+        /// <summary>
+        /// Setting that uses an enum as the type. The config file uses the name of the enum values as strings for the value of the setting, and auto-validates against enum value list on read.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
         public class Enum<T> : Entry where T : Enum {
-            public T DefaultValue { get; protected set; }
-            protected ConfigEntry<T> configEntry;
-
-            public Enum( string name, string description, T value ) : this( DEFAULT_SECTION, name, description, value ) { }
-            public Enum( string section, string name, string description, T value ) : base( section, name, description, typeof( T ) ) {
-                this.DefaultValue = value;
-                this.Bind();
+            /// <summary>
+            /// Initialise a config item of enum type.
+            /// </summary>
+            /// <param name="keys">Object defining the section and setting names for the config item.</param>
+            /// <param name="description">Descriptive text to explain how the end-user should set the config item.</param>
+            /// <param name="value">Initial value of the config item.</param>
+            public Enum( ConfigDefinition keys, string description, T value ) : base( keys ) {
+                this.ConfigEntry = WobPlugin.Config.Bind( keys, value, new ConfigDescription( description ) );
             }
-
-            protected virtual void Bind() {
-                this.configEntry = configFile.Bind( this.Section, this.Name, this.DefaultValue, new ConfigDescription( this.Description ) );
-            }
-
-            protected override object GetValue() {
-                return this.configEntry.Value;
-            }
+            /// <summary>
+            /// Initialise a config item of enum type.
+            /// </summary>
+            /// <param name="section">The name of the section the config item is in.</param>
+            /// <param name="name">The name of the config item.</param>
+            /// <param name="description">Descriptive text to explain how the end-user should set the config item.</param>
+            /// <param name="value">Initial value of the config item.</param>
+            public Enum( string section, string name, string description, T value ) : this( new ConfigDefinition( section, name ), description, value ) { }
+            /// <summary>
+            /// Initialise a config item of enum type.
+            /// </summary>
+            /// <param name="name">The name of the config item.</param>
+            /// <param name="description">Descriptive text to explain how the end-user should set the config item.</param>
+            /// <param name="value">Initial value of the config item.</param>
+            public Enum( string name, string description, T value ) : this( new ConfigDefinition( DEFAULT_SECTION, name ), description, value ) { }
         }
 
-        public class Entry<T> : Entry where T : IComparable, IEquatable<T> {
-            public T DefaultValue        { get; protected set; }
-            public T[] AcceptedValues    { get; protected set; }
-            public (T min, T max) Bounds { get; protected set; }
-            public Func<T, T> Limiter    { get; protected set; }
-            protected ConfigEntry<T> configEntry;
-
-            public Entry( string name, string description, T value, T[] acceptedValues = null, (T min, T max) bounds = default, Func<T, T> limiter = null ) : this( DEFAULT_SECTION, name, description, value, acceptedValues, bounds, limiter ) { }
-            public Entry( string section, string name, string description, T value, T[] acceptedValues = null, (T min, T max) bounds = default, Func<T, T> limiter = null ) : base( section, name, description, typeof(T) ) {
-                this.DefaultValue = value;
-                this.AcceptedValues = acceptedValues;
-                this.Bounds = bounds;
-                this.Limiter = limiter;
-                this.Bind();
+        /// <summary>
+        /// Setting of string type.
+        /// </summary>
+        public class String : Entry {
+            /// <summary>
+            /// Initialise a config item of string type.
+            /// </summary>
+            /// <param name="keys">Object defining the section and setting names for the config item.</param>
+            /// <param name="description">Descriptive text to explain how the end-user should set the config item.</param>
+            /// <param name="value">Initial value of the config item.</param>
+            /// <param name="acceptedValues">Restrict user input to this list of specific values. Use <see langword="null"/> for no restriction.</param>
+            public String( ConfigDefinition keys, string description, string value, string[] acceptedValues = null ) : base( keys ) {
+                this.ConfigEntry = WobPlugin.Config.Bind( keys, value, new ConfigDescription( description, this.GetAcceptable( acceptedValues ) ) );
             }
+            /// <summary>
+            /// Initialise a config item of string type.
+            /// </summary>
+            /// <param name="section">The name of the section the config item is in.</param>
+            /// <param name="name">The name of the config item.</param>
+            /// <param name="description">Descriptive text to explain how the end-user should set the config item.</param>
+            /// <param name="value">Initial value of the config item.</param>
+            /// <param name="acceptedValues">Restrict user input to this list of specific values. Use <see langword="null"/> for no restriction.</param>
+            public String( string section, string name, string description, string value, string[] acceptedValues = null ) : this( new ConfigDefinition( section, name ), description, value, acceptedValues ) { }
+            /// <summary>
+            /// Initialise a config item of string type.
+            /// </summary>
+            /// <param name="name">The name of the config item.</param>
+            /// <param name="description">Descriptive text to explain how the end-user should set the config item.</param>
+            /// <param name="value">Initial value of the config item.</param>
+            /// <param name="acceptedValues">Restrict user input to this list of specific values. Use <see langword="null"/> for no restriction.</param>
+            public String( string name, string description, string value, string[] acceptedValues = null ) : this( new ConfigDefinition( DEFAULT_SECTION, name ), description, value, acceptedValues ) { }
 
-            protected virtual void Bind() {
-                this.configEntry = configFile.Bind( this.Section, this.Name, this.DefaultValue, new ConfigDescription( this.Description, this.GetAcceptable() ) );
-                if( this.Limiter != null ) {
-                    this.configEntry.Value = this.Limiter( this.configEntry.Value );
+            /// <summary>
+            /// Get the object defining restrictions to the value that the config reader should enforce.
+            /// </summary>
+            /// <param name="acceptedValues">Specific values restriction. Value of <see langword="null"/> for no restriction.</param>
+            /// <returns>Object containing the config reader enforced restrictions, or <see langword="null"/> for no restrictions.</returns>
+            protected AcceptableValueBase GetAcceptable( string[] acceptedValues ) {
+                if( acceptedValues != null ) {
+                    return new AcceptableValueList<string>( acceptedValues );
+                } else {
+                    WobPlugin.Log( "WARNING: No validation for " + this.FullKey );
+                    return null;
                 }
             }
+        }
 
-            protected override object GetValue() {
-                return this.configEntry.Value;
+        /// <summary>
+        /// Setting of numeric type.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        public class Num<T> : Entry where T : IComparable, IEquatable<T> {
+            /// <summary>
+            /// Function to apply additional limits to a given value, such as rounding.
+            /// </summary>
+            protected Func<T, T> Limiter { get; set; }
+            /// <summary>
+            /// Multiply the value read from the config file by this number for use in patches.
+            /// </summary>
+            public float Scaler { get; protected set; }
+
+            /// <summary>
+            /// List of numeric primitive types. These are the types that T will be validated against.
+            /// </summary>
+            protected static readonly HashSet<Type> numericTypes = new HashSet<Type> { typeof( sbyte ), typeof( byte ), typeof( short ), typeof( ushort ), typeof( int ), typeof( uint ), typeof( long ), typeof( ulong ), typeof( float ), typeof( double ), typeof( decimal ) };
+
+            /// <summary>
+            /// Initialise a config item of numeric type.
+            /// </summary>
+            /// <param name="keys">Object defining the section and setting names for the config item.</param>
+            /// <param name="description">Descriptive text to explain how the end-user should set the config item.</param>
+            /// <param name="value">Initial value of the config item.</param>
+            /// <param name="scaler">Multiply the value read from the config file by this number for use in patches.</param>
+            /// <param name="acceptedValues">Restrict user input to this list of specific values. Use <see langword="null"/> for no restriction.</param>
+            /// <param name="bounds">Restrict user input to this range of values. Use default or other value with equal min and max for no restriction.</param>
+            /// <param name="limiter">Function to apply additional limits to a given value, such as rounding. Use <see langword="null"/> for no restriction.</param>
+            /// <exception cref="ArgumentException"></exception>
+            public Num( ConfigDefinition keys, string description, T value, float scaler = 0f, T[] acceptedValues = null, (T min, T max) bounds = default, Func<T, T> limiter = null ) : base( keys ) {
+                if( !numericTypes.Contains( typeof( T ) ) ) {
+                    string message = "ERROR: Number config entry being created for non-numeric type " + typeof( T );
+                    WobPlugin.Log( message, WobPlugin.ERROR );
+                    throw new ArgumentException( message );
+                }
+                this.Limiter = limiter;
+                this.Scaler = scaler;
+                this.ConfigEntry = WobPlugin.Config.Bind( keys, value, new ConfigDescription( description, this.GetAcceptable( acceptedValues, bounds ) ) );
+                if( this.Limiter != null ) {
+                    this.SetValue( this.ConfigEntry.BoxedValue );
+                }
             }
+            /// <summary>
+            /// Initialise a config item of numeric type.
+            /// </summary>
+            /// <param name="section">The name of the section the config item is in.</param>
+            /// <param name="name">The name of the config item.</param>
+            /// <param name="description">Descriptive text to explain how the end-user should set the config item.</param>
+            /// <param name="value">Initial value of the config item.</param>
+            /// <param name="scaler">Multiply the value read from the config file by this number for use in patches.</param>
+            /// <param name="acceptedValues">Restrict user input to this list of specific values. Use <see langword="null"/> for no restriction.</param>
+            /// <param name="bounds">Restrict user input to this range of values. Use default or other value with equal min and max for no restriction.</param>
+            /// <param name="limiter">Function to apply additional limits to a given value, such as rounding. Use <see langword="null"/> for no restriction.</param>
+            public Num( string section, string name, string description, T value, float scaler = 0f, T[] acceptedValues = null, (T min, T max) bounds = default, Func<T, T> limiter = null ) : this( new ConfigDefinition( section, name ), description, value, scaler, acceptedValues, bounds, limiter ) { }
+            /// <summary>
+            /// Initialise a config item of numeric type.
+            /// </summary>
+            /// <param name="name">The name of the config item.</param>
+            /// <param name="description">Descriptive text to explain how the end-user should set the config item.</param>
+            /// <param name="value">Initial value of the config item.</param>
+            /// <param name="scaler">Multiply the value read from the config file by this number for use in patches.</param>
+            /// <param name="acceptedValues">Restrict user input to this list of specific values. Use <see langword="null"/> for no restriction.</param>
+            /// <param name="bounds">Restrict user input to this range of values. Use default or other value with equal min and max for no restriction.</param>
+            /// <param name="limiter">Function to apply additional limits to a given value, such as rounding. Use <see langword="null"/> for no restriction.</param>
+            public Num( string name, string description, T value, float scaler = 0f, T[] acceptedValues = null, (T min, T max) bounds = default, Func<T, T> limiter = null ) : this( new ConfigDefinition( DEFAULT_SECTION, name ), description, value, scaler, acceptedValues, bounds, limiter ) { }
 
-            public virtual T Get() {
-                return this.configEntry.Value;
-            }
-
-            private static readonly HashSet<Type> numericTypes = new HashSet<Type> { typeof( sbyte ), typeof( byte ), typeof( short ), typeof( ushort ), typeof( int ), typeof( uint ), typeof( long ), typeof( ulong ), typeof( float ), typeof( double ), typeof( decimal ) };
-            protected AcceptableValueBase GetAcceptable() {
+            /// <summary>
+            /// Get the object defining restrictions to the value that the config reader should enforce.
+            /// </summary>
+            /// <param name="acceptedValues">Specific values restriction. Value of <see langword="null"/> for no restriction.</param>
+            /// <param name="bounds">Range restriction. Value with equal min and max for no restriction.</param>
+            /// <returns>Object containing the config reader enforced restrictions, or <see langword="null"/> for no restrictions.</returns>
+            protected AcceptableValueBase GetAcceptable( T[] acceptedValues, (T min, T max) bounds ) {
                 AcceptableValueBase acceptableValues = null;
-                if( this.AcceptedValues != null ) {
-                    acceptableValues = new AcceptableValueList<T>( this.AcceptedValues );
+                if( acceptedValues != null ) {
+                    acceptableValues = new AcceptableValueList<T>( acceptedValues );
                 } else {
-                    if( numericTypes.Contains( typeof( T ) ) && this.Bounds.min.CompareTo( this.Bounds.max ) < 0 ) {
-                        acceptableValues = new AcceptableValueRange<T>( this.Bounds.min, this.Bounds.max );
+                    if( bounds.min.CompareTo( bounds.max ) != 0 ) {
+                        if( bounds.min.CompareTo( bounds.max ) < 0 ) {
+                            acceptableValues = new AcceptableValueRange<T>( bounds.min, bounds.max );
+                        } else {
+                            acceptableValues = new AcceptableValueRange<T>( bounds.max, bounds.min );
+                        }
                     } else {
-                        WobPlugin.Log( "WARNING: No validation for " + this.Key );
+                        WobPlugin.Log( "WARNING: No validation for " + this.FullKey );
                     }
                 }
                 return acceptableValues;
             }
 
-        }
-
-        public class EntryBool : Entry<bool> {
-            public EntryBool( string name, string description, bool value ) : this( DEFAULT_SECTION, name, description, value ) { }
-            public EntryBool( string section, string name, string description, bool value ) : base( section, name, description, value, new bool[] { true, false } ) { }
-        }
-
-        public class Scaled<T> : Entry<T> where T : IComparable, IEquatable<T> {
-            public float Scaler { get; protected set; }
-
-            public Scaled( string name, string description, T value, float scaler, T[] acceptedValues = null, (T min, T max) bounds = default, Func<T, T> limiter = null ) : this( DEFAULT_SECTION, name, description, value, scaler, acceptedValues, bounds, limiter ) { }
-            public Scaled( string section, string name, string description, T value, float scaler, T[] acceptedValues = null, (T min, T max) bounds = default, Func<T, T> limiter = null ) : base( section, name, description, value, acceptedValues, bounds, limiter ) {
-                this.DataType = typeof( float );
-                this.Scaler = scaler;
-            }
-
-            protected override void Bind() {
-                this.configEntry = configFile.Bind( this.Section, this.Name, this.DefaultValue, new ConfigDescription( this.Description, this.GetAcceptable() ) );
-                if( this.Limiter != null ) {
-                    this.configEntry.Value = this.Limiter( this.configEntry.Value );
-                }
-            }
-
+            /// <summary>
+            /// Override to the default method that multiplies the read value by the scaler if one has been set.
+            /// </summary>
+            /// <returns>The boxed value of the config item.</returns>
             protected override object GetValue() {
+                if( this.Scaler == 0f ) {
+                    return this.ConfigEntry.BoxedValue;
+                }
                 if( typeof( T ) == typeof( decimal ) ) {
-                    return ( (decimal)this.Scaler ) * ( (decimal)Convert.ChangeType( this.configEntry.Value, typeof( decimal ) ) );
+                    return ( (decimal)this.Scaler ) * ( (decimal)Convert.ChangeType( this.ConfigEntry.BoxedValue, typeof( decimal ) ) );
                 }
                 if( typeof( T ) == typeof( double ) ) {
-                    return ( (double)this.Scaler ) * ( (double)Convert.ChangeType( this.configEntry.Value, typeof( double ) ) );
+                    return ( (double)this.Scaler ) * ( (double)Convert.ChangeType( this.ConfigEntry.BoxedValue, typeof( double ) ) );
                 }
-                if( typeof( T ) == typeof( float ) || floatCasts.Contains( typeof( T ) ) ) {
-                    return this.Scaler * (float)Convert.ChangeType( this.configEntry.Value, typeof( float ) );
+                if( typeof( T ) == typeof( float ) || safeCasts[typeof( float )].Contains( typeof( T ) ) ) {
+                    return this.Scaler * (float)Convert.ChangeType( this.ConfigEntry.BoxedValue, typeof( float ) );
                 }
                 WobPlugin.Log( "ERROR: Could not multiply scaler by type " + typeof( T ), WobPlugin.ERROR );
-                return this.configEntry.Value;
+                return this.ConfigEntry.BoxedValue;
             }
-            private static readonly HashSet<Type> floatCasts = new HashSet<Type> { typeof( sbyte ), typeof( byte ), typeof( short ), typeof( ushort ), typeof( int ), typeof( uint ), typeof( long ), typeof( ulong ) };
+
+            /// <summary>
+            /// Override to default method that applies the limiter to the value before writing to the file.
+            /// </summary>
+            /// <param name="newValue">The value to be written to the config item.</param>
+            protected override void SetValue( object newValue ) {
+                if( this.Limiter != null ) {
+                    this.ConfigEntry.BoxedValue = this.Limiter( (T)newValue );
+                } else {
+                    this.ConfigEntry.BoxedValue = newValue;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Class to help with using a type for setting lookup that has different names to those in the config files, so that the config items can use more user-friendly names from the UI.
+        /// </summary>
+        /// <typeparam name="T">Internal type used for lookups. Usually enum type or string.</typeparam>
+        public class KeyHelper<T> {
+            /// <summary>
+            /// Set of translations from internal type to user-friendly name used in the config file.
+            /// </summary>
+            private readonly Dictionary<T, string> configNames = new Dictionary<T, string>();
+            /// <summary>
+            /// Prefix added to all section names, to keep them grouped in the file as it sorts sections alphabetically.
+            /// </summary>
+            private readonly string sectionPrefix;
+
+            /// <summary>
+            /// Constructor that just sets the section prefix.
+            /// </summary>
+            /// <param name="sectionPrefix">Prefix to be added to all section names, to keep them grouped in the file as it sorts sections alphabetically.</param>
+            public KeyHelper( string sectionPrefix ) {
+                this.sectionPrefix = sectionPrefix;
+            }
+            /// <summary>
+            /// Constructor that sets the section prefix and registers a set of translations.
+            /// </summary>
+            /// <param name="sectionPrefix">Prefix to be added to all section names, to keep them grouped in the file as it sorts sections alphabetically.</param>
+            /// <param name="translations">Dictionary of internal types and their respective section names without prefix.</param>
+            public KeyHelper( string sectionPrefix, Dictionary<T, string> translations ) : this( sectionPrefix ) {
+                this.Add( translations );
+            }
+
+            /// <summary>
+            /// Register a new internal type to config key translation.
+            /// </summary>
+            /// <param name="internalType">Internal type to use for config key lookup.</param>
+            /// <param name="configKey">Name of the section without prefix.</param>
+            public void Add( T internalType, string configKey ) {
+                if( this.configNames.TryGetValue( internalType, out string configKey2 ) ) {
+                    if( configKey != configKey2 ) {
+                        WobPlugin.Log( "ERROR: Attempt to register " + internalType + " as " + configKey + " but it is already defined as " + configKey2 );
+                    }
+                } else {
+                    this.configNames.Add( internalType, configKey );
+                }
+            }
+
+            /// <summary>
+            /// Register a set of new internal type to config key translations.
+            /// </summary>
+            /// <param name="translations">Dictionary of internal types and their respective section names without prefix.</param>
+            public void Add( Dictionary<T, string> translations ) {
+                foreach( KeyValuePair<T, string> pair in translations ) {
+                    this.Add( pair.Key, pair.Value );
+                }
+            }
+
+            /// <summary>
+            /// Construct the names in the settings file. The section name is the config key prefixed by the global prefix. The stat name is prefixed by the config key.
+            /// </summary>
+            /// <param name="configKey">Name of the section without prefix.</param>
+            /// <param name="statName">Name of the stat without prefix.</param>
+            /// <returns>Object containing the constructed names.</returns>
+            private ConfigDefinition MakeDef( string configKey, string statName ) {
+                return new ConfigDefinition( this.sectionPrefix + configKey, configKey + "_" + statName );
+            }
+
+            /// <summary>
+            /// Register a new internal type to config key translation and return the keys.
+            /// </summary>
+            /// <param name="internalType">Internal type to use for config key lookup.</param>
+            /// <param name="configKey">Name of the section without prefix.</param>
+            /// <param name="statName">Name of the stat without prefix.</param>
+            /// <returns>Object containing the constructed names.</returns>
+            public ConfigDefinition New( T internalType, string configKey, string statName ) {
+                this.Add( internalType, configKey );
+                return this.MakeDef( configKey, statName );
+            }
+
+            /// <summary>
+            /// Get the keys looked up for the given internal type.
+            /// </summary>
+            /// <param name="internalType">Internal type to use for config key lookup.</param>
+            /// <param name="statName">Name of the stat without prefix.</param>
+            /// <returns>Object containing the constructed names.</returns>
+            public ConfigDefinition Get( T internalType, string statName ) {
+                if( this.configNames.TryGetValue( internalType, out string configKey ) ) {
+                    return this.MakeDef( configKey, statName );
+                } else {
+                    return null;
+                }
+            }
+
+            /// <summary>
+            /// Check if there is a registered config key for the given internal type.
+            /// </summary>
+            /// <param name="internalType">Internal type to use for config key lookup.</param>
+            /// <returns>Returns <see langword="true"/> if the type has a matching config key, otherwise <see langword="false"/>.</returns>
+            public bool Exists( T internalType ) {
+                return this.configNames.ContainsKey( internalType );
+            }
         }
     }
 }

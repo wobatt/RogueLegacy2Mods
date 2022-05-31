@@ -10,7 +10,7 @@ namespace Wob_SuperMagnet {
             // Set up the logger and basic config items
             WobPlugin.Initialise( this, this.Logger );
             // Create/read the mod specific configuration options
-            WobPlugin.Settings.Add( new WobSettings.Entry<float>( "DistanceScaler", "Multiply magnet distance by this", 1f, bounds: (0f, 1000000f) ) );
+            WobSettings.Add( new WobSettings.Num<float>( "DistanceScaler", "Multiply magnet distance by this", 1f, bounds: (0f, 1000000f) ) );
 			// Apply the patches if the mod is enabled
 			WobPlugin.Patch();
         }
@@ -20,7 +20,7 @@ namespace Wob_SuperMagnet {
         internal static class RuneLogicHelper_GetMagnetDistance_Patch {
             internal static void Postfix( ref float __result ) {
                 // Calculate the new cost and overwrite the original return value
-                __result *= WobPlugin.Settings.Get( "DistanceScaler", 1f );
+                __result *= WobSettings.Get( "DistanceScaler", 1f );
             }
         }
     }
