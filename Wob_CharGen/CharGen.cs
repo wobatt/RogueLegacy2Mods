@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection.Emit;
 using BepInEx;
 using HarmonyLib;
 using UnityEngine;
@@ -24,14 +25,79 @@ namespace Wob_CharGen {
 			WobPlugin.Initialise( this, this.Logger );
 			// Create/read the mod specific configuration options
 			WobSettings.Add( new WobSettings.Entry[] {
-				new WobSettings.Num<float>(      "TraitChance1",  "Chance to generate first trait",                  67.5f, 0.01f, bounds: (0f, 100f) ),
-				new WobSettings.Num<float>(      "TraitChance2",  "Chance to generate second trait",                 35f,   0.01f, bounds: (0f, 100f) ),
-				new WobSettings.Num<float>(      "AntiqueChance", "Additional chance for a trait to be an antique",  22f,   0.01f, bounds: (0f, 100f) ),
-				new WobSettings.Enum<TraitName>( "TraitType1",    "Name of trait to always use as the first trait",  TraitName.Random                 ),
-				new WobSettings.Enum<TraitName>( "TraitType2",    "Name of trait to always use as the second trait", TraitName.Random                 ),
+				new WobSettings.Boolean(         "SoulShop", "AllSlotsLock_Class",      "Locking a class in the Soul Shop affects all slots, not just the last",     false                            ),
+				new WobSettings.Boolean(         "SoulShop", "AllSlotsLock_Spell",      "Locking a spell in the Soul Shop affects all slots, not just the last",     false                            ),
+				new WobSettings.Boolean(         "SoulShop", "AllSlotsLock_Contrarian", "Locking contrarian in the Soul Shop affects all slots, not just the first", false                            ),
+				new WobSettings.Num<float>(      "Traits",   "TraitChance1",            "Chance to generate first trait",                                            67.5f, 0.01f, bounds: (0f, 100f) ),
+				new WobSettings.Num<float>(      "Traits",   "TraitChance2",            "Chance to generate second trait",                                           35f,   0.01f, bounds: (0f, 100f) ),
+				new WobSettings.Num<float>(      "Traits",   "AntiqueChance",           "Additional chance for a trait to be an antique",                            22f,   0.01f, bounds: (0f, 100f) ),
+				new WobSettings.Enum<TraitName>( "Traits",   "TraitType1",              "Name of trait to always use as the first trait",                            TraitName.Random                 ),
+				new WobSettings.Enum<TraitName>( "Traits",   "TraitType2",              "Name of trait to always use as the second trait",                           TraitName.Random                 ),
 			} );
 			// Apply the patches if the mod is enabled
 			WobPlugin.Patch();
+		}
+
+		[HarmonyPatch( typeof( CharacterCreator ), nameof( CharacterCreator.GenerateClass ) )]
+		internal static class CharacterCreator_GenerateClass_Patch {
+			internal static IEnumerable<CodeInstruction> Transpiler( IEnumerable<CodeInstruction> instructions ) {
+				WobPlugin.Log( "CharacterCreator.GenerateClass Transpiler Patch" );
+				// Set up the transpiler handler with the instruction list
+				WobTranspiler transpiler = new WobTranspiler( instructions );
+				// Perform the patching
+				transpiler.PatchAll(
+						// Define the IL code instructions that should be matched
+						new List<WobTranspiler.OpTest> {
+							// charDataToMod.ClassType = classType;
+                            /*  0 */ new WobTranspiler.OpTest( OpCodes.Ldarg_1                  ), // charDataToMod
+                            /*  1 */ new WobTranspiler.OpTest( OpCodes.Ldarg_0                  ), // classType
+                            /*  2 */ new WobTranspiler.OpTest( OpCodes.Stfld, name: "ClassType" ), // charDataToMod.ClassType = classType
+                        },
+						// Define the actions to take when an occurrence is found
+						new List<WobTranspiler.OpAction> {
+								new WobTranspiler.OpAction_Insert( 2, OpCodes.Call, AccessTools.Method( typeof( CharacterCreator_GenerateClass_Patch ), "OverrideClass", new Type[] { typeof( ClassType ) } ) ),
+						} );
+				transpiler.PatchAll(
+						// Define the IL code instructions that should be matched
+						new List<WobTranspiler.OpTest> {
+							// charDataToMod.Spell = abilityType2;
+                            /*  0 */ new WobTranspiler.OpTest( OpCodes.Ldarg_1              ), // charDataToMod
+                            /*  1 */ new WobTranspiler.OpTest( OpCodeSet.Ldloc              ), // abilityType2
+                            /*  2 */ new WobTranspiler.OpTest( OpCodes.Stfld, name: "Spell" ), // charDataToMod.Spell = abilityType2
+                        },
+						// Define the actions to take when an occurrence is found
+						new List<WobTranspiler.OpAction> {
+								new WobTranspiler.OpAction_Insert( 2, OpCodes.Call, AccessTools.Method( typeof( CharacterCreator_GenerateClass_Patch ), "OverrideSpell", new Type[] { typeof( AbilityType ) } ) ),
+						} );
+				// Return the modified instructions
+				return transpiler.GetResult();
+			}
+
+			private static ClassType OverrideClass( ClassType classType ) {
+				if( WobSettings.Get( "SoulShop", "AllSlotsLock_Class", false ) ) {
+					SoulShopObj soulShopObj = SaveManager.ModeSaveData.GetSoulShopObj( SoulShopType.ChooseYourClass );
+					if( !soulShopObj.IsNativeNull() && soulShopObj.CurrentEquippedLevel > 0 ) {
+						ClassType soulShopClassChosen = SaveManager.ModeSaveData.SoulShopClassChosen;
+						if( soulShopClassChosen != ClassType.None ) {
+							return soulShopClassChosen;
+						}
+					}
+				}
+				return classType;
+			}
+
+			private static AbilityType OverrideSpell( AbilityType spellType ) {
+				if( WobSettings.Get( "SoulShop", "AllSlotsLock_Spell", false ) ) {
+					SoulShopObj soulShopObj = SaveManager.ModeSaveData.GetSoulShopObj( SoulShopType.ChooseYourSpell );
+					if( !soulShopObj.IsNativeNull() && soulShopObj.CurrentEquippedLevel > 0 ) {
+						AbilityType soulShopSpellChosen = SaveManager.ModeSaveData.SoulShopSpellChosen;
+						if( soulShopSpellChosen != AbilityType.None ) {
+							return soulShopSpellChosen;
+						}
+					}
+				}
+				return spellType;
+			}
 		}
 
 		// Complete override of the original method, starting with the guaranteed spawns, then randomly generating compatible traits
@@ -51,7 +117,7 @@ namespace Wob_CharGen {
 					traitTypes[1] = TraitType.None;
 				}
 				// Override for contrarian on left heir, if it is not in the guaranteed spawns
-				if( forceRandomizeKit && traitTypes[0] != TraitType.RandomizeKit && traitTypes[1] != TraitType.RandomizeKit ) {
+				if( ( forceRandomizeKit || WobSettings.Get( "SoulShop", "AllSlotsLock_Contrarian", false ) ) && traitTypes[0] != TraitType.RandomizeKit && traitTypes[1] != TraitType.RandomizeKit ) {
 					traitTypes[0] = TraitType.RandomizeKit;
 				}
 				// List for the available traits to choose from
@@ -61,11 +127,11 @@ namespace Wob_CharGen {
 					// We only want to randomly generate a trait if the slot is empty
 					if( traitTypes[j] == TraitType.None ) {
 						// Get the trait roll chances from config
-						float[] spawnChance = new float[] { WobSettings.Get( "TraitChance1", 0.675f ), WobSettings.Get( "TraitChance2", 0.35f ) };
+						float[] spawnChance = new float[] { WobSettings.Get( "Traits", "TraitChance1", 0.675f ), WobSettings.Get( "Traits", "TraitChance2", 0.35f ) };
 						// Roll for whether to generate a trait
 						if( RNGManager.GetRandomNumber( RngID.Lineage, "GetRandomTraitSpawnChance", 0f, 1f ) <= spawnChance[j] ) {
 							// Roll for whether the spawned trait should be an antique
-							if( RNGManager.GetRandomNumber( RngID.Lineage, "GetAntiqueSpawnChance", 0f, 1f ) < WobSettings.Get( "AntiqueChance", 0.22f ) ) {
+							if( RNGManager.GetRandomNumber( RngID.Lineage, "GetAntiqueSpawnChance", 0f, 1f ) < WobSettings.Get( "Traits", "AntiqueChance", 0.22f ) ) {
 								traitTypes[j] = TraitType.Antique;
 							} else {
 								// Check if random traits are disabled in House Rules
@@ -87,6 +153,7 @@ namespace Wob_CharGen {
 				}
 				// Return the traits
 				__result = new Vector2Int( (int)traitTypes[0], (int)traitTypes[1] );
+				WobPlugin.Log( "~~  Returning traits " + __result.x + " and " + __result.y );
 			}
 
 			// Get a list of the traits that can be randomly added to an heir
@@ -174,7 +241,7 @@ namespace Wob_CharGen {
 					// Variable for the return value, with default of 'None', which means randomly generate
 					TraitType traitType = TraitType.None;
 					// Get the value from config
-					TraitName traitName = WobSettings.Get( settingName, TraitName.Random );
+					TraitName traitName = WobSettings.Get( "Traits", settingName, TraitName.Random );
 					// Only need to change the trait type if it isn't randomly generated
 					if( traitName != TraitName.Random ) {
 						// Get the trait type for the name

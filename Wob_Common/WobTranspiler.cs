@@ -116,7 +116,7 @@ namespace Wob_Common {
                     WobPlugin.Log( "Occurrence found at " + index + " - patching" );
                     // Perform each of the patching actions in turn
                     foreach( OpAction action in actions ) {
-                        action.Do( this.CodeList, index );
+                        action.Do( this.CodeList, ref index );
                     }
                     // Record that an occurrence has been patched
                     patchCount++;
@@ -215,21 +215,56 @@ namespace Wob_Common {
                 return ( this.opcodes == null || this.opcodes.Contains( code.opcode ) ) && ( this.operand == null || this.HasOperand( code ) ) && ( this.name == null || this.HasName( code ) ) && ( this.type == null || this.HasType( code ) );
             }
 
+            // Just a list of the primitive numeric types
+            private static readonly HashSet<Type> numericTypes = new HashSet<Type> { typeof( sbyte ), typeof( byte ), typeof( short ), typeof( ushort ), typeof( int ), typeof( uint ), typeof( long ), typeof( ulong ), typeof( float ), typeof( double ), typeof( decimal ) };
+            // The Ldc_I4 opcodes that put specific values onto the stack, and the number they add, for operand comparison
+            private static readonly Dictionary<OpCode,int> i4NoOperands = new Dictionary<OpCode, int> {
+                { OpCodes.Ldc_I4_0, 0 }, { OpCodes.Ldc_I4_1, 1 }, { OpCodes.Ldc_I4_2, 2 }, { OpCodes.Ldc_I4_3, 3 }, { OpCodes.Ldc_I4_4, 4 },
+                { OpCodes.Ldc_I4_5, 5 }, { OpCodes.Ldc_I4_6, 6 }, { OpCodes.Ldc_I4_7, 7 }, { OpCodes.Ldc_I4_8, 8 }, { OpCodes.Ldc_I4_M1, -1 },
+            };
+
+            // Check if the object is of the desired type, or is numeric and can be cast to it
+            private static bool TryTypeCast<T>( object objToCast, out T testValue ) {
+                testValue = default;
+                Type operandType = objToCast.GetType();
+                if( operandType == typeof( T ) ) {
+                    testValue = (T)objToCast;
+                    return true;
+                } else {
+                    if( numericTypes.Contains( typeof( T ) ) && ( numericTypes.Contains( operandType ) || operandType.IsEnum ) ) {
+                        try {
+                            testValue = (T)Convert.ChangeType( objToCast, typeof( T ) );
+                            return true;
+                        } catch( OverflowException ) {
+                            testValue = default;
+                            return false;
+                        }
+                    }
+                }
+                return false;
+            }
+
             // Compare operands - needs to be instruction OpCode dependant as these define the type of the operand
             private bool HasOperand( CodeInstruction code ) {
                 if( code.operand != null ) {
-                    /* 32-bit integer */ if( code.opcode == OpCodes.Ldc_I4 ) {                                 return ( (int)code.operand )             == ( (int)this.operand );             }
-                    /* 8-bit integer  */ if( code.opcode == OpCodes.Ldc_I4_S ) {                               return ( (sbyte)code.operand )           == ( (sbyte)this.operand );           }
-                    /* 64-bit integer */ if( code.opcode == OpCodes.Ldc_I8 ) {                                 return ( (long)code.operand )            == ( (long)this.operand );            }
-                    /* 32-bit float   */ if( code.opcode == OpCodes.Ldc_R4 ) {                                 return ( (float)code.operand )           == ( (float)this.operand );           }
-                    /* 64-bit float   */ if( code.opcode == OpCodes.Ldc_R8 ) {                                 return ( (double)code.operand )          == ( (double)this.operand );          }
-                    /* String         */ if( code.opcode == OpCodes.Ldstr ) {                                  return ( (string)code.operand )          == ( (string)this.operand );          }
-                    /* Fields         */ if( OpCodeSet.OperandType_FieldInfo.Contains( code.opcode ) ) {       return ( (FieldInfo)code.operand )       == ( (FieldInfo)this.operand );       }
-                    /* Methods        */ if( OpCodeSet.OperandType_MethodInfo.Contains( code.opcode ) ) {      return ( (MethodInfo)code.operand )      == ( (MethodInfo)this.operand );      }
-                    /* Constructors   */ if( OpCodeSet.OperandType_ConstructorInfo.Contains( code.opcode ) ) { return ( (ConstructorInfo)code.operand ) == ( (ConstructorInfo)this.operand ); }
-                    /* Types          */ if( OpCodeSet.OperandType_Type.Contains( code.opcode ) ) {            return ( (Type)code.operand )            == ( (Type)this.operand );            }
-                    // No implemented yet - log it then return no match
-                    WobPlugin.Log( "ERROR: No operand comparison implemented for " + code.opcode, WobPlugin.ERROR );
+                    Type operandType = this.operand.GetType();
+                    try {
+                        /* 32-bit integer */ if( code.opcode == OpCodes.Ldc_I4   && TryTypeCast( this.operand, out int    intCast    ) ) { return ( (int)code.operand    ) == intCast;    }
+                        /* 8-bit integer  */ if( code.opcode == OpCodes.Ldc_I4_S && TryTypeCast( this.operand, out sbyte  sbyteCast  ) ) { return ( (sbyte)code.operand  ) == sbyteCast;  }
+                        /* 64-bit integer */ if( code.opcode == OpCodes.Ldc_I8   && TryTypeCast( this.operand, out long   longCast   ) ) { return ( (long)code.operand   ) == longCast;   }
+                        /* 32-bit float   */ if( code.opcode == OpCodes.Ldc_R4   && TryTypeCast( this.operand, out float  floatCast  ) ) { return ( (float)code.operand  ) == floatCast;  }
+                        /* 64-bit float   */ if( code.opcode == OpCodes.Ldc_R8   && TryTypeCast( this.operand, out double doubleCast ) ) { return ( (double)code.operand ) == doubleCast; }
+                        /* String         */ if( code.opcode == OpCodes.Ldstr    && TryTypeCast( this.operand, out string stringCast ) ) { return ( (string)code.operand ) == stringCast; }
+                        /* Fields         */ if( OpCodeSet.OperandType_FieldInfo.Contains( code.opcode )       && operandType == typeof( FieldInfo       ) ) { return ( (FieldInfo)code.operand       ) == ( (FieldInfo)this.operand       ); }
+                        /* Methods        */ if( OpCodeSet.OperandType_MethodInfo.Contains( code.opcode )      && operandType == typeof( MethodInfo      ) ) { return ( (MethodInfo)code.operand      ) == ( (MethodInfo)this.operand      ); }
+                        /* Constructors   */ if( OpCodeSet.OperandType_ConstructorInfo.Contains( code.opcode ) && operandType == typeof( ConstructorInfo ) ) { return ( (ConstructorInfo)code.operand ) == ( (ConstructorInfo)this.operand ); }
+                        /* Types          */ if( OpCodeSet.OperandType_Type.Contains( code.opcode )            && operandType == typeof( Type            ) ) { return ( (Type)code.operand            ) == ( (Type)this.operand            ); }
+                        /* I4 operandless */ if( i4NoOperands.ContainsKey( code.opcode ) && TryTypeCast( this.operand, out sbyte oplessCast ) ) { return i4NoOperands[code.opcode] == oplessCast; }
+                        // No implemented yet - log it then return no match
+                        WobPlugin.Log( "ERROR: Could not perform operand comparison for " + code.opcode + " and " + operandType, WobPlugin.ERROR );
+                    } catch( InvalidCastException ) {
+                        WobPlugin.Log( "ERROR: Wrong operand type for " + code.opcode + " of " + operandType, WobPlugin.ERROR );
+                    }
                 }
                 return false;
             }
@@ -237,12 +272,12 @@ namespace Wob_Common {
             // Compare the declaring type on instructions
             private bool HasType( CodeInstruction code ) {
                 if( code.operand != null ) {
-                    /* Fields         */ if( OpCodeSet.OperandType_FieldInfo.Contains( code.opcode ) ) {       return ( (FieldInfo)code.operand ).DeclaringType == this.type;       }
-                    /* Methods        */ if( OpCodeSet.OperandType_MethodInfo.Contains( code.opcode ) ) {      return ( (MethodInfo)code.operand ).DeclaringType == this.type;      }
+                    /* Fields         */ if( OpCodeSet.OperandType_FieldInfo.Contains( code.opcode )       ) { return ( (FieldInfo)code.operand ).DeclaringType       == this.type; }
+                    /* Methods        */ if( OpCodeSet.OperandType_MethodInfo.Contains( code.opcode )      ) { return ( (MethodInfo)code.operand ).DeclaringType      == this.type; }
                     /* Constructors   */ if( OpCodeSet.OperandType_ConstructorInfo.Contains( code.opcode ) ) { return ( (ConstructorInfo)code.operand ).DeclaringType == this.type; }
-                    /* Types          */ if( OpCodeSet.OperandType_Type.Contains( code.opcode ) ) {            return ( (Type)code.operand ) == this.type;                          }
+                    /* Types          */ if( OpCodeSet.OperandType_Type.Contains( code.opcode )            ) { return ( (Type)code.operand )                          == this.type; }
                     // No implemented yet - log it then return no match
-                    WobPlugin.Log( "ERROR: No type comparison implemented for " + code.opcode, WobPlugin.ERROR );
+                    WobPlugin.Log( "ERROR: Could not perform type comparison for " + code.opcode, WobPlugin.ERROR );
                 }
                 return false;
             }
@@ -250,11 +285,11 @@ namespace Wob_Common {
             // Compare the name of fields and methods on instructions
             private bool HasName( CodeInstruction code ) {
                 if( code.operand != null ) {
-                    /* Fields         */ if( OpCodeSet.OperandType_FieldInfo.Contains( code.opcode ) ) {       return ( (FieldInfo)code.operand ).Name == this.name;       }
-                    /* Methods        */ if( OpCodeSet.OperandType_MethodInfo.Contains( code.opcode ) ) {      return ( (MethodInfo)code.operand ).Name == this.name;      }
+                    /* Fields         */ if( OpCodeSet.OperandType_FieldInfo.Contains( code.opcode )       ) { return ( (FieldInfo)code.operand ).Name       == this.name; }
+                    /* Methods        */ if( OpCodeSet.OperandType_MethodInfo.Contains( code.opcode )      ) { return ( (MethodInfo)code.operand ).Name      == this.name; }
                     /* Constructors   */ if( OpCodeSet.OperandType_ConstructorInfo.Contains( code.opcode ) ) { return ( (ConstructorInfo)code.operand ).Name == this.name; }
                     // No implemented yet - log it then return no match
-                    WobPlugin.Log( "ERROR: No name comparison implemented for " + code.opcode, WobPlugin.ERROR );
+                    WobPlugin.Log( "ERROR: Could not perform name comparison for " + code.opcode, WobPlugin.ERROR );
                 }
                 return false;
             }
@@ -280,7 +315,7 @@ namespace Wob_Common {
             /// </summary>
             /// <param name="codes">Full method instruction list to be patched.</param>
             /// <param name="startAt">Index of the start of the matched block of instructions.</param>
-            public abstract void Do( List<CodeInstruction> codes, int startAt );
+            public abstract void Do( List<CodeInstruction> codes, ref int startAt );
 
             /// <summary>
             /// Overwrite the opcode for an instruction at the specified index.
@@ -392,7 +427,7 @@ namespace Wob_Common {
             /// </summary>
             /// <param name="codes">Full method instruction list to be patched.</param>
             /// <param name="startAt">Index of the start of the matched block of instructions.</param>
-            public override void Do( List<CodeInstruction> codes, int startAt ) {
+            public override void Do( List<CodeInstruction> codes, ref int startAt ) {
                 this.SetOp( codes, startAt + this.relativeIndex, this.opcode );
             }
         }
@@ -415,7 +450,7 @@ namespace Wob_Common {
             /// </summary>
             /// <param name="codes">Full method instruction list to be patched.</param>
             /// <param name="startAt">Index of the start of the matched block of instructions.</param>
-            public override void Do( List<CodeInstruction> codes, int startAt ) {
+            public override void Do( List<CodeInstruction> codes, ref int startAt ) {
                 int index = startAt + this.relativeIndex;
                 this.SetOp( codes, index, codes[index].opcode, this.operand );
             }
@@ -448,7 +483,7 @@ namespace Wob_Common {
             /// </summary>
             /// <param name="codes">Full method instruction list to be patched.</param>
             /// <param name="startAt">Index of the start of the matched block of instructions.</param>
-            public override void Do( List<CodeInstruction> codes, int startAt ) {
+            public override void Do( List<CodeInstruction> codes, ref int startAt ) {
                 if( this.safe ) {
                     this.SetOp( codes, startAt + this.relativeIndex, this.instruction.opcode, this.instruction.operand );
                 } else {
@@ -477,7 +512,7 @@ namespace Wob_Common {
             /// </summary>
             /// <param name="codes">Full method instruction list to be patched.</param>
             /// <param name="startAt">Index of the start of the matched block of instructions.</param>
-            public override void Do( List<CodeInstruction> codes, int startAt ) {
+            public override void Do( List<CodeInstruction> codes, ref int startAt ) {
                 for( int i = 0; i < this.instructions.Count; i++ ) {
                     if( this.safe ) {
                         this.SetOp( codes, startAt + this.relativeIndex + i, this.instructions[i].opcode, this.instructions[i].operand );
@@ -506,7 +541,7 @@ namespace Wob_Common {
             /// </summary>
             /// <param name="codes">Full method instruction list to be patched.</param>
             /// <param name="startAt">Index of the start of the matched block of instructions.</param>
-            public override void Do( List<CodeInstruction> codes, int startAt ) {
+            public override void Do( List<CodeInstruction> codes, ref int startAt ) {
                 this.RemoveOps( codes, startAt + this.relativeIndex, this.removeCount );
             }
         }
@@ -516,6 +551,21 @@ namespace Wob_Common {
         /// </summary>
         public class OpAction_Insert : OpAction {
             private readonly List<CodeInstruction> instructions;
+
+            /// <summary>
+            /// Initialise the action with the relative index to be patched and the new instruction to be inserted.
+            /// </summary>
+            /// <param name="relativeIndex">Index relative to the start of the matched code block for where to apply this action.</param>
+            /// <param name="opcode">New opcode to be inserted.</param>
+            /// <param name="operand">New operand to be inserted.</param>
+            public OpAction_Insert( int relativeIndex, OpCode opcode, object operand ) : this( relativeIndex, new CodeInstruction( opcode, operand ) ) { }
+
+            /// <summary>
+            /// Initialise the action with the relative index to be patched and the new instruction to be inserted.
+            /// </summary>
+            /// <param name="relativeIndex">Index relative to the start of the matched code block for where to apply this action.</param>
+            /// <param name="instruction">New instruction to be inserted.</param>
+            public OpAction_Insert( int relativeIndex, CodeInstruction instruction ) : this( relativeIndex, new List<CodeInstruction> { instruction } ) { }
 
             /// <summary>
             /// Initialise the action with the relative index to be patched and the new instructions to be inserted.
@@ -529,8 +579,99 @@ namespace Wob_Common {
             /// </summary>
             /// <param name="codes">Full method instruction list to be patched.</param>
             /// <param name="startAt">Index of the start of the matched block of instructions.</param>
-            public override void Do( List<CodeInstruction> codes, int startAt ) {
+            public override void Do( List<CodeInstruction> codes, ref int startAt ) {
                 this.InsertOps( codes, startAt + this.relativeIndex, this.instructions );
+                startAt += this.instructions.Count;
+            }
+        }
+
+        /// <summary>
+        /// Insert a set of new instructions.
+        /// </summary>
+        public class OpAction_InsertCopy : OpAction {
+            private readonly List<OpCopy> instructions;
+
+            /// <summary>
+            /// Initialise the action with the relative index to be patched and the new instructions to be inserted.
+            /// </summary>
+            /// <param name="relativeIndex">Index relative to the start of the matched code block for where to apply this action.</param>
+            /// <param name="instructions">New instructions to be inserted.</param>
+            public OpAction_InsertCopy( int relativeIndex, List<OpCopy> instructions ) : base( relativeIndex ) { this.instructions = instructions; }
+
+            /// <summary>
+            /// Apply the action to the code list starting at the specified offset.
+            /// </summary>
+            /// <param name="codes">Full method instruction list to be patched.</param>
+            /// <param name="startAt">Index of the start of the matched block of instructions.</param>
+            public override void Do( List<CodeInstruction> codes, ref int startAt ) {
+                List<CodeInstruction> newInstructions = new List<CodeInstruction>();
+                foreach( OpCopy instruction in this.instructions ) {
+                    newInstructions.Add( instruction.GetInstruction( codes, startAt ) );
+                }
+                this.InsertOps( codes, startAt + this.relativeIndex, newInstructions );
+                startAt += this.instructions.Count;
+            }
+        }
+
+        /// <summary>
+        /// Insert a set of new instructions.
+        /// </summary>
+        public class OpAction_Extract : OpAction {
+            private readonly CodeInstruction instruction;
+
+            /// <summary>
+            /// Initialise the action with the relative index to be patched and the new instructions to be inserted.
+            /// </summary>
+            /// <param name="relativeIndex">Index relative to the start of the matched code block for where to apply this action.</param>
+            /// <param name="instructions">New instructions to be inserted.</param>
+            public OpAction_Extract( int relativeIndex, out CodeInstruction instruction ) : base( relativeIndex ) {
+                this.instruction = new CodeInstruction( OpCodes.Nop );
+                instruction = this.instruction;
+            }
+
+            /// <summary>
+            /// Apply the action to the code list starting at the specified offset.
+            /// </summary>
+            /// <param name="codes">Full method instruction list to be patched.</param>
+            /// <param name="startAt">Index of the start of the matched block of instructions.</param>
+            public override void Do( List<CodeInstruction> codes, ref int startAt ) {
+                this.instruction.opcode = codes[startAt + this.relativeIndex].opcode;
+                this.instruction.operand = codes[startAt + this.relativeIndex].operand;
+            }
+        }
+
+        public class OpCopy {
+            private readonly int relativeIndex;
+            private readonly bool setOpcode;
+            private readonly bool setOperand;
+            private readonly CodeInstruction instruction;
+
+            public OpCopy( int relativeIndex, CodeInstruction instruction ) {
+                this.relativeIndex = relativeIndex;
+                this.instruction = instruction;
+                this.setOpcode = true;
+                this.setOperand = true;
+            }
+            public OpCopy( int relativeIndex ) : this( relativeIndex, null ) { this.setOpcode = false; this.setOperand = false; }
+            public OpCopy( int relativeIndex, OpCode opcode ) : this( relativeIndex, new CodeInstruction( opcode ) ) { this.setOperand = false; }
+            public OpCopy( int relativeIndex, object operand ) : this( relativeIndex, new CodeInstruction( OpCodes.Nop, operand ) ) { this.setOpcode = false; }
+            public OpCopy( int relativeIndex, OpCode opcode, object operand ) : this( relativeIndex, new CodeInstruction( opcode, operand ) ) { }
+            public OpCopy( OpCode opcode, object operand ) : this( int.MinValue, new CodeInstruction( opcode, operand ) ) { }
+            public OpCopy( CodeInstruction instruction ) : this( int.MinValue, instruction ) { }
+
+            public CodeInstruction GetInstruction( List<CodeInstruction> codes, int startAt ) {
+                if( this.relativeIndex == int.MinValue ) {
+                    return new CodeInstruction( this.instruction );
+                } else {
+                    CodeInstruction instruction = new CodeInstruction( codes[startAt + this.relativeIndex] );
+                    if( this.setOpcode ) {
+                        instruction.opcode = this.instruction.opcode;
+                    }
+                    if( this.setOperand ) {
+                        instruction.operand = this.instruction.operand;
+                    }
+                    return instruction;
+                }
             }
         }
     }
