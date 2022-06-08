@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Reflection.Emit;
 using BepInEx;
 using HarmonyLib;
+using MoreMountains.CorgiEngine;
+using UnityEngine;
 using Wob_Common;
 
 namespace Wob__Test {
@@ -13,7 +16,9 @@ namespace Wob__Test {
             // Set up the logger and basic config items
             WobPlugin.Initialise( this, this.Logger );
             // Create/read the mod specific configuration options
-            
+
+
+
             // Apply the patches if the mod is enabled
             WobPlugin.Patch();
         }
@@ -22,14 +27,18 @@ namespace Wob__Test {
         /*[HarmonyPatch( typeof( SkillTreeWindowController ), nameof( SkillTreeWindowController.Initialize ) )]
         internal static class SkillTreeWindowController_Initialize_Patch {
             internal static void Postfix() {
-                foreach( RelicType relicType in RelicType_RL.TypeArray ) {
-                    RelicData relicData = RelicLibrary.GetRelicData( relicType );
-                    if( relicData != null ) {
-                        WobPlugin.Log( relicType + " = " + LocalizationManager.GetString( relicData.Title, false ) + " | " + relicData.Rarity );
+                foreach( BurdenType burdenType in BurdenType_RL.TypeArray ) {
+                    if( burdenType != BurdenType.None ) {
+                        BurdenData burdenData = BurdenLibrary.GetBurdenData( burdenType );
+                        if( burdenData != null && !burdenData.Disabled ) {
+                            WobPlugin.Log( "~~  " + burdenType + "|" + burdenData.MaxBurdenLevel + "|" + burdenData.InitialBurdenCost + "|" + burdenData.StatsGain + "|" + LocalizationManager.GetString( burdenData.Title, false, false ) + "|" + LocalizationManager.GetString( burdenData.Description2, false, false ) );
+                        }
                     }
                 }
             }
         }*/
+
+        // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
         [HarmonyPatch( typeof( CaveLanternPostProcessingController ), "DarknessAmountWhenFullyLit", MethodType.Getter )]
         internal static class CaveLanternPostProcessingController_DarknessAmountWhenFullyLit_Patch {
@@ -37,6 +46,40 @@ namespace Wob__Test {
                 __result = 0f;
             }
         }
+
+        // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+        [HarmonyPatch( typeof( RelicObj ), nameof( RelicObj.WasSeen ), MethodType.Getter )]
+        internal static class RelicObj_WasSeen_Patch {
+            internal static void Postfix( RelicObj __instance, ref bool __result ) {
+                if( !__result ) {
+                    Traverse.Create( __instance ).Field( "m_wasSeen" ).SetValue( true );
+                    __result = true;
+                }
+            }
+        }
+        
+        [HarmonyPatch( typeof( PlayerSaveData ), nameof( PlayerSaveData.GetSpellSeenState ) )]
+        internal static class PlayerSaveData_GetSpellSeenState_Patch {
+            internal static void Postfix( PlayerSaveData __instance, AbilityType spellType, ref bool __result ) {
+                if( !__result ) {
+                    __instance.SetSpellSeenState( spellType, true );
+                    __result = true;
+                }
+            }
+        }
+        
+        [HarmonyPatch( typeof( TraitManager ), nameof( TraitManager.GetTraitSeenState ) )]
+        internal static class TraitManager_GetTraitFoundState_Patch {
+            internal static void Postfix( TraitType traitType, ref TraitSeenState __result ) {
+                if( __result < TraitSeenState.SeenTwice ) {
+                    TraitManager.SetTraitSeenState( traitType, TraitSeenState.SeenTwice, false );
+                    __result = TraitSeenState.SeenTwice;
+                }
+            }
+        }
+
+        // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
         // Helper to get the UI names of a trait
         /*public static string GetTraitTitles( TraitData traitData ) {

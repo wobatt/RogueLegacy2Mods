@@ -9,7 +9,7 @@ namespace Wob_ClassStats {
     [BepInPlugin( "Wob.ClassStats", "Class Stats Mod", "1.0.1" )]
     public partial class ClassStats : BaseUnityPlugin {
 
-        private static readonly WobSettings.KeyHelper<ClassType> keys = new WobSettings.KeyHelper<ClassType>( "Class_" );
+        private static readonly WobSettings.KeyHelper<ClassType> keys = new WobSettings.KeyHelper<ClassType>( "Class" );
 
         // Names and descriptions used in the config file, repeated per class
         private static readonly (string name, string desc)[] stats = {

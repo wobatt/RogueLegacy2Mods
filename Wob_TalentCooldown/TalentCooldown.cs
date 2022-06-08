@@ -10,7 +10,7 @@ namespace Wob_TalentCooldown {
     [BepInPlugin( "Wob.TalentCooldown", "Talent Cooldown Mod", "1.1.0" )]
     public partial class TalentCooldown : BaseUnityPlugin {
         
-        private static readonly WobSettings.KeyHelper<AbilityType> keys = new WobSettings.KeyHelper<AbilityType>( "Talent_" );
+        private static readonly WobSettings.KeyHelper<AbilityType> keys = new WobSettings.KeyHelper<AbilityType>( "Talent" );
         
         private static readonly Dictionary<AbilityType, string> descriptions = new Dictionary<AbilityType, string>() {
             // Class talents

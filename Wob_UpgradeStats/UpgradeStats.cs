@@ -2,6 +2,7 @@
 using HarmonyLib;
 using System.Collections.Generic;
 using System.Reflection.Emit;
+using UnityEngine;
 using Wob_Common;
 
 namespace Wob_UpgradeStats {
@@ -116,10 +117,39 @@ namespace Wob_UpgradeStats {
                         },
                         // Define the actions to take when an occurrence is found
                         new List<WobTranspiler.OpAction> {
-                            new WobTranspiler.OpAction_SetOperand( 0, AccessTools.Method( typeof( SkillTreeManager ), "GetSkillTreeObj", new System.Type[] { typeof( SkillTreeType ) } ) ), // Replace the call with one that gets the upgrade itself
+                            new WobTranspiler.OpAction_SetOperand( 0, SymbolExtensions.GetMethodInfo( () => SkillTreeManager.GetSkillTreeObj( SkillTreeType.None ) ) ), // Replace the call with one that gets the upgrade itself
                             new WobTranspiler.OpAction_Insert( 1, new List<CodeInstruction>() {
                                 new CodeInstruction( OpCodes.Callvirt, AccessTools.Method( typeof( SkillTreeObj ), "get_CurrentStatGain" ) ), // Add a call to the upgrade's CurrentStatGain getter
                                 new CodeInstruction( OpCodes.Conv_I4 ), // Cast the float return value to int
+                            } ),
+                        } );
+                // Return the modified instructions
+                return transpiler.GetResult();
+            }
+        }
+
+        // Correct the total resolve cost calculation to prevent negative costs from increased effect of Archeology Camp (Relic_Cost_Down)
+        [HarmonyPatch( typeof( PlayerSaveData ), nameof( PlayerSaveData.GetTotalRelicResolveCost ) )]
+        internal static class PlayerSaveData_GetTotalRelicResolveCost_Patch {
+            internal static IEnumerable<CodeInstruction> Transpiler( IEnumerable<CodeInstruction> instructions ) {
+                WobPlugin.Log( "PlayerSaveData.GetTotalRelicResolveCost Transpiler Patch" );
+                // Set up the transpiler handler with the instruction list
+                WobTranspiler transpiler = new WobTranspiler( instructions );
+                // Perform the patching
+                transpiler.PatchAll(
+                        // Define the IL code instructions that should be matched
+                        new List<WobTranspiler.OpTest> {
+                            /*  0 */ new WobTranspiler.OpTest( OpCodeSet.Ldloc ), // num2
+                            /*  1 */ new WobTranspiler.OpTest( OpCodeSet.Ldloc ), // relicCostMod
+                            /*  2 */ new WobTranspiler.OpTest( OpCodes.Sub     ), // num2 - relicCostMod
+                            /*  3 */ new WobTranspiler.OpTest( OpCodeSet.Stloc ), // num2 = num2 - relicCostMod
+                        },
+                        // Define the actions to take when an occurrence is found
+                        new List<WobTranspiler.OpAction> {
+                            new WobTranspiler.OpAction_Insert( 3, new List<CodeInstruction> {
+                                new CodeInstruction( OpCodes.Ldc_R4, 0f ),
+                                new CodeInstruction( OpCodes.Ldc_R4, float.MaxValue ),
+                                new CodeInstruction( OpCodes.Call, SymbolExtensions.GetMethodInfo( () => Mathf.Clamp( 0f, 0f, float.MaxValue ) ) ),
                             } ),
                         } );
                 // Return the modified instructions

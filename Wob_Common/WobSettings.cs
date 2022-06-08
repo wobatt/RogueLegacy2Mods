@@ -62,6 +62,19 @@ namespace Wob_Common {
         }
 
         /// <summary>
+        /// Check if there is a config item registered for a set of keys.
+        /// </summary>
+        /// <param name="keys">Object defining the section and setting names for the config item.</param>
+        /// <returns>Returns <see langword="true"/> if a setting exists, otherwise <see langword="false"/>.</returns>
+        public static bool Exists( ConfigDefinition keys ) {
+            if( keys != null ) {
+                return Instance.Entries.ContainsKey( GetFullKey( keys ) );
+            } else {
+                return false;
+            }
+        }
+
+        /// <summary>
         /// Read the value of a config item.
         /// </summary>
         /// <typeparam name="T">The return type of the value. It will be safely cast to a larger ranged type if not a perfect match for the underlying type.</typeparam>
@@ -499,25 +512,24 @@ namespace Wob_Common {
             /// <summary>
             /// Set of translations from internal type to user-friendly name used in the config file.
             /// </summary>
-            private readonly Dictionary<T, string> configNames = new Dictionary<T, string>();
+            private readonly Dictionary<T, (string Key, int Index)> configNames = new Dictionary<T, (string Key, int Index)>();
             /// <summary>
             /// Prefix added to all section names, to keep them grouped in the file as it sorts sections alphabetically.
             /// </summary>
             private readonly string sectionPrefix;
+            /// <summary>
+            /// 
+            /// </summary>
+            private readonly int digits;
 
             /// <summary>
-            /// Constructor that just sets the section prefix.
-            /// </summary>
-            /// <param name="sectionPrefix">Prefix to be added to all section names, to keep them grouped in the file as it sorts sections alphabetically.</param>
-            public KeyHelper( string sectionPrefix ) {
-                this.sectionPrefix = sectionPrefix;
-            }
-            /// <summary>
-            /// Constructor that sets the section prefix and registers a set of translations.
+            /// Constructor that sets the section prefix and optionally registers a set of translations.
             /// </summary>
             /// <param name="sectionPrefix">Prefix to be added to all section names, to keep them grouped in the file as it sorts sections alphabetically.</param>
             /// <param name="translations">Dictionary of internal types and their respective section names without prefix.</param>
-            public KeyHelper( string sectionPrefix, Dictionary<T, string> translations ) : this( sectionPrefix ) {
+            public KeyHelper( string sectionPrefix, int digits = 0, Dictionary<T, string> translations = null ) {
+                this.sectionPrefix = sectionPrefix;
+                this.digits = digits;
                 this.Add( translations );
             }
 
@@ -527,12 +539,13 @@ namespace Wob_Common {
             /// <param name="internalType">Internal type to use for config key lookup.</param>
             /// <param name="configKey">Name of the section without prefix.</param>
             public void Add( T internalType, string configKey ) {
-                if( this.configNames.TryGetValue( internalType, out string configKey2 ) ) {
-                    if( configKey != configKey2 ) {
+                if( this.configNames.TryGetValue( internalType, out (string Key, int Index) configKey2 ) ) {
+                    if( configKey != configKey2.Key ) {
                         WobPlugin.Log( "ERROR: Attempt to register " + internalType + " as " + configKey + " but it is already defined as " + configKey2 );
                     }
                 } else {
-                    this.configNames.Add( internalType, configKey );
+                    int index = this.configNames.Count + 1;
+                    this.configNames.Add( internalType, (configKey, index) );
                 }
             }
 
@@ -541,19 +554,11 @@ namespace Wob_Common {
             /// </summary>
             /// <param name="translations">Dictionary of internal types and their respective section names without prefix.</param>
             public void Add( Dictionary<T, string> translations ) {
-                foreach( KeyValuePair<T, string> pair in translations ) {
-                    this.Add( pair.Key, pair.Value );
+                if( translations != null ) {
+                    foreach( KeyValuePair<T, string> pair in translations ) {
+                        this.Add( pair.Key, pair.Value );
+                    }
                 }
-            }
-
-            /// <summary>
-            /// Construct the names in the settings file. The section name is the config key prefixed by the global prefix. The stat name is prefixed by the config key.
-            /// </summary>
-            /// <param name="configKey">Name of the section without prefix.</param>
-            /// <param name="statName">Name of the stat without prefix.</param>
-            /// <returns>Object containing the constructed names.</returns>
-            private ConfigDefinition MakeDef( string configKey, string statName ) {
-                return new ConfigDefinition( this.sectionPrefix + configKey, configKey + "_" + statName );
             }
 
             /// <summary>
@@ -565,7 +570,7 @@ namespace Wob_Common {
             /// <returns>Object containing the constructed names.</returns>
             public ConfigDefinition New( T internalType, string configKey, string statName ) {
                 this.Add( internalType, configKey );
-                return this.MakeDef( configKey, statName );
+                return this.Get( internalType, statName );
             }
 
             /// <summary>
@@ -575,8 +580,12 @@ namespace Wob_Common {
             /// <param name="statName">Name of the stat without prefix.</param>
             /// <returns>Object containing the constructed names.</returns>
             public ConfigDefinition Get( T internalType, string statName ) {
-                if( this.configNames.TryGetValue( internalType, out string configKey ) ) {
-                    return this.MakeDef( configKey, statName );
+                if( this.configNames.TryGetValue( internalType, out (string Key, int Index) configKey ) ) {
+                    string sectionIndex = "";
+                    if( this.digits > 0 ) {
+                        sectionIndex = configKey.Index.ToString( "D" + this.digits );
+                    }
+                    return new ConfigDefinition( this.sectionPrefix + sectionIndex + "_" + configKey.Key, configKey.Key + "_" + statName );
                 } else {
                     return null;
                 }
