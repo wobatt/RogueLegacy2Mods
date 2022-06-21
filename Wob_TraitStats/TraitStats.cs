@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Reflection;
+﻿using System.Collections.Generic;
 using System.Reflection.Emit;
 using BepInEx;
 using HarmonyLib;
@@ -119,7 +117,6 @@ namespace Wob_TraitStats {
 				new WobSettings.Num<int>(   keys.Get( TraitType.BonusMagicStrength,  "WeaponDamage" ), "Weapon damage modifier for " + TraitInfo[TraitType.BonusMagicStrength].Name,     -50,   0.01f, bounds: (-99, 1000000 ) ),
 				new WobSettings.Num<int>(   keys.Get( TraitType.DamageBoost,         "WeaponDamage" ), "Weapon damage modifier for " + TraitInfo[TraitType.DamageBoost].Name,            50,    0.01f, bounds: (-99, 1000000 ) ),
 				// Magic damage modifiers
-			  //new WobSettings.Num<int>(   keys.Get( TraitType.BonusMagicStrength,  "MagicDamage"  ), "Magic damage modifier for " + TraitInfo[TraitType.BonusMagicStrength].Name,      0,     0.01f, bounds: (-99, 1000000 ) ),
 				new WobSettings.Num<int>(   keys.Get( TraitType.MagicBoost,          "MagicDamage"  ), "Magic damage modifier for " + TraitInfo[TraitType.MagicBoost].Name,              50,    0.01f, bounds: (-99, 1000000 ) ),
 				// Spell damage modifiers
 				new WobSettings.Num<int>(   keys.Get( TraitType.ManaCostAndDamageUp, "SpellDamage"  ), "Spell damage modifier for " + TraitInfo[TraitType.ManaCostAndDamageUp].Name,     100,   0.01f, bounds: (-99, 1000000 ) ),

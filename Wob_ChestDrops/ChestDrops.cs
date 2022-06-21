@@ -8,7 +8,7 @@ using UnityEngine;
 using Wob_Common;
 
 namespace Wob_ChestDrops {
-    [BepInPlugin( "Wob.ChestDrops", "Chest Drops Mod", "0.2.0" )]
+    [BepInPlugin( "Wob.ChestDrops", "Chest Drops Mod", "0.3.0" )]
     public partial class ChestDrops : BaseUnityPlugin {
         private static readonly WobSettings.KeyHelper<ChestType> keys = new WobSettings.KeyHelper<ChestType>( "Chest" );
         private enum DefaultDrop {
@@ -31,6 +31,10 @@ namespace Wob_ChestDrops {
                 keys.Add( chestType, chests[chestType].Config );
                 WobSettings.Add( new WobSettings.Num<int>(          keys.Get( chestType, "MaxDrops" ), chests[chestType].Name + ": Maximum number of drops", chests[chestType].Max, bounds: (0, 5) ) );
                 WobSettings.Add( new WobSettings.Enum<DefaultDrop>( keys.Get( chestType, "Default"  ), chests[chestType].Name + ": Drop type if no items",   chests[chestType].Default             ) );
+            }
+            if( WobPlugin.Enabled ) {
+                Economy_EV.BASE_GOLD_DROP_AMOUNT[ChestType.Fairy] = new Vector2Int( 2, 3 );
+                Economy_EV.CHEST_TYPE_GOLD_MOD[ChestType.Fairy] = 6f;
             }
             // Apply the patches if the mod is enabled
             WobPlugin.Patch();
@@ -76,7 +80,12 @@ namespace Wob_ChestDrops {
                         WobPlugin.Log( "    Returning drop of " + drops.Last().SpecialItemType );
                     } else {
                         __result = (SpecialItemType)WobSettings.Get( keys.Get( __instance.ChestType, "Default" ), chests[__instance.ChestType].Default );
-                        WobPlugin.Log( "    No drops" );
+                        //WobPlugin.Log( "    Returning drop of " + __instance.Gold + " / " + ChestObj_GetOreDropAmount( __instance, ItemDropType.EquipmentOre, __instance.Level ) + " / " + ChestObj_GetOreDropAmount( __instance, ItemDropType.RuneOre, __instance.Level ) );
+                        if( __result == SpecialItemType.Gold ) {
+                            WobPlugin.Log( "    Returning gold drop of " + __instance.Gold );
+                        } else {
+                            WobPlugin.Log( "    Returning ore drop of " + ChestObj_GetOreDropAmount( __instance, ( __instance.ChestType == ChestType.Fairy ? ItemDropType.RuneOre : ItemDropType.EquipmentOre ), __instance.Level ) );
+                        }
                     }
                 }
             }
@@ -166,7 +175,10 @@ namespace Wob_ChestDrops {
             private static bool SpecialItemDropUtility_HasHeirloom( RuneType runeType ) {
                 return Traverse.Create( typeof( SpecialItemDropUtility ) ).Method( "HasHeirloom", new Type[] { typeof( RuneType ) } ).GetValue<bool>( new object[] { runeType } );
             }
-
+            // Method to access private method ChestObj.GetOreDropAmount
+            private static int ChestObj_GetOreDropAmount( ChestObj chest, ItemDropType oreDropType, int chestLevel ) {
+                return Traverse.Create( chest ).Method( "GetOreDropAmount", new Type[] { typeof( ItemDropType ), typeof( int ) } ).GetValue<int>( new object[] { oreDropType, chestLevel } );
+            }
         }
 
         [HarmonyPatch( typeof( ChestObj ), "CalculateSpecialItemDropObj" )]

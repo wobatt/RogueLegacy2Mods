@@ -557,6 +557,13 @@ namespace Wob_Common {
             /// </summary>
             /// <param name="relativeIndex">Index relative to the start of the matched code block for where to apply this action.</param>
             /// <param name="opcode">New opcode to be inserted.</param>
+            public OpAction_Insert( int relativeIndex, OpCode opcode ) : this( relativeIndex, new CodeInstruction( opcode, null ) ) { }
+            
+            /// <summary>
+            /// Initialise the action with the relative index to be patched and the new instruction to be inserted.
+            /// </summary>
+            /// <param name="relativeIndex">Index relative to the start of the matched code block for where to apply this action.</param>
+            /// <param name="opcode">New opcode to be inserted.</param>
             /// <param name="operand">New operand to be inserted.</param>
             public OpAction_Insert( int relativeIndex, OpCode opcode, object operand ) : this( relativeIndex, new CodeInstruction( opcode, operand ) ) { }
 
@@ -591,6 +598,34 @@ namespace Wob_Common {
         public class OpAction_InsertCopy : OpAction {
             private readonly List<OpCopy> instructions;
 
+            /// <summary>
+            /// Initialise the action with the relative index to be patched and the instruction to be copied and inserted.
+            /// </summary>
+            /// <param name="relativeIndex">Index relative to the start of the matched code block for where to apply this action.</param>
+            /// <param name="relativeCopyFrom">Index relative to the start of the matched code block for the instruction to be copied.</param>
+            public OpAction_InsertCopy( int relativeIndex, int relativeCopyFrom ) : this( relativeIndex, new List<OpCopy> { new OpCopy( relativeCopyFrom ) } ) { }
+            /// <summary>
+            /// Initialise the action with the relative index to be patched and the instruction to be copied and inserted, with opcode override.
+            /// </summary>
+            /// <param name="relativeIndex">Index relative to the start of the matched code block for where to apply this action.</param>
+            /// <param name="relativeCopyFrom">Index relative to the start of the matched code block for the instruction to be copied.</param>
+            /// <param name="opcode">Opcode to be set on the copied instruction.</param>
+            public OpAction_InsertCopy( int relativeIndex, int relativeCopyFrom, OpCode opcode ) : this( relativeIndex, new List<OpCopy> { new OpCopy( relativeCopyFrom, opcode ) } ) { }
+            /// <summary>
+            /// Initialise the action with the relative index to be patched and the instruction to be copied and inserted, with operand override.
+            /// </summary>
+            /// <param name="relativeIndex">Index relative to the start of the matched code block for where to apply this action.</param>
+            /// <param name="relativeCopyFrom">Index relative to the start of the matched code block for the instruction to be copied.</param>
+            /// <param name="operand">Operand to be set on the copied instruction.</param>
+            public OpAction_InsertCopy( int relativeIndex, int relativeCopyFrom, object operand ) : this( relativeIndex, new List<OpCopy> { new OpCopy( relativeCopyFrom, operand ) } ) { }
+            /// <summary>
+            /// Initialise the action with the relative index to be patched and the instruction to be copied and inserted, with opcode and operand overrides.
+            /// </summary>
+            /// <param name="relativeIndex">Index relative to the start of the matched code block for where to apply this action.</param>
+            /// <param name="relativeCopyFrom">Index relative to the start of the matched code block for the instruction to be copied.</param>
+            /// <param name="opcode">Opcode to be set on the copied instruction.</param>
+            /// <param name="operand">Operand to be set on the copied instruction.</param>
+            public OpAction_InsertCopy( int relativeIndex, int relativeCopyFrom, OpCode opcode, object operand ) : this( relativeIndex, new List<OpCopy> { new OpCopy( relativeCopyFrom, opcode, operand ) } ) { }
             /// <summary>
             /// Initialise the action with the relative index to be patched and the new instructions to be inserted.
             /// </summary>
@@ -640,25 +675,68 @@ namespace Wob_Common {
             }
         }
 
+        /// <summary>
+        /// Class to simplify copying and modifying an existing instruction, to be used with an insert copy action.
+        /// </summary>
         public class OpCopy {
             private readonly int relativeIndex;
             private readonly bool setOpcode;
             private readonly bool setOperand;
             private readonly CodeInstruction instruction;
 
+            /// <summary>
+            /// Initialise with the instruction to be copied, with opcode and operand overrides taken from the instruction.
+            /// </summary>
+            /// <param name="relativeIndex">Index relative to the start of the matched code block for the instruction to be copied.</param>
+            /// <param name="instruction">Instruction with the opcode and operand to be set on the copied instruction.</param>
             public OpCopy( int relativeIndex, CodeInstruction instruction ) {
                 this.relativeIndex = relativeIndex;
                 this.instruction = instruction;
                 this.setOpcode = true;
                 this.setOperand = true;
             }
+            /// <summary>
+            /// Initialise with the instruction to be copied.
+            /// </summary>
+            /// <param name="relativeIndex">Index relative to the start of the matched code block for the instruction to be copied.</param>
             public OpCopy( int relativeIndex ) : this( relativeIndex, null ) { this.setOpcode = false; this.setOperand = false; }
+            /// <summary>
+            /// Initialise with the instruction to be copied, with opcode override.
+            /// </summary>
+            /// <param name="relativeIndex">Index relative to the start of the matched code block for the instruction to be copied.</param>
+            /// <param name="opcode">Opcode to be set on the copied instruction.</param>
             public OpCopy( int relativeIndex, OpCode opcode ) : this( relativeIndex, new CodeInstruction( opcode ) ) { this.setOperand = false; }
+            /// <summary>
+            /// Initialise with the instruction to be copied, with operand override.
+            /// </summary>
+            /// <param name="relativeIndex">Index relative to the start of the matched code block for the instruction to be copied.</param>
+            /// <param name="operand">Operand to be set on the copied instruction.</param>
             public OpCopy( int relativeIndex, object operand ) : this( relativeIndex, new CodeInstruction( OpCodes.Nop, operand ) ) { this.setOpcode = false; }
+            /// <summary>
+            /// Initialise with the instruction to be copied, with opcode and operand overrides.
+            /// </summary>
+            /// <param name="relativeIndex">Index relative to the start of the matched code block for the instruction to be copied.</param>
+            /// <param name="opcode">Opcode to be set on the copied instruction.</param>
+            /// <param name="operand">Operand to be set on the copied instruction.</param>
             public OpCopy( int relativeIndex, OpCode opcode, object operand ) : this( relativeIndex, new CodeInstruction( opcode, operand ) ) { }
+            /// <summary>
+            /// Initialise with a new instruction to be inserted with the copied instructions.
+            /// </summary>
+            /// <param name="opcode">New opcode to be inserted.</param>
+            /// <param name="operand">New operand to be inserted.</param>
             public OpCopy( OpCode opcode, object operand ) : this( int.MinValue, new CodeInstruction( opcode, operand ) ) { }
+            /// <summary>
+            /// Initialise with a new instruction to be inserted with the copied instructions.
+            /// </summary>
+            /// <param name="instruction">New instruction to be inserted.</param>
             public OpCopy( CodeInstruction instruction ) : this( int.MinValue, instruction ) { }
 
+            /// <summary>
+            /// Perform the copy and overrides to get the new instruction to be inserted.
+            /// </summary>
+            /// <param name="codes">Full method instruction list to be patched.</param>
+            /// <param name="startAt">Index of the start of the matched block of instructions.</param>
+            /// <returns></returns>
             public CodeInstruction GetInstruction( List<CodeInstruction> codes, int startAt ) {
                 if( this.relativeIndex == int.MinValue ) {
                     return new CodeInstruction( this.instruction );

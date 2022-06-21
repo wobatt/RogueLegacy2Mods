@@ -3,10 +3,11 @@ using System.Reflection;
 using System.Reflection.Emit;
 using BepInEx;
 using HarmonyLib;
+using MoreMountains.CorgiEngine;
 using Wob_Common;
 
 namespace Wob_ClassStats {
-    [BepInPlugin( "Wob.ClassStats", "Class Stats Mod", "1.0.1" )]
+    [BepInPlugin( "Wob.ClassStats", "Class Stats Mod", "1.1.0" )]
     public partial class ClassStats : BaseUnityPlugin {
 
         private static readonly WobSettings.KeyHelper<ClassType> keys = new WobSettings.KeyHelper<ClassType>( "Class" );
@@ -35,6 +36,7 @@ namespace Wob_ClassStats {
             ( "TalentCrit",        "Enable Duelist's crit on talent use for "                ),
             ( "WeaponMagicDamage", "Enable Gunslinger's weapons deal +15% magic damage for " ),
             ( "ManaLeech",         "Enable Mage's weapons apply mana leech for "             ),
+            ( "ClownBounce",       "Enable Clown trait's spin kick terrain for "             ),
         };
 
         // Create all stat settings for a class at once
@@ -66,22 +68,22 @@ namespace Wob_ClassStats {
         protected void Awake() {
             // Set up the logger and basic config items
             WobPlugin.Initialise( this, this.Logger );
-            // Create the settings in bulk                                             HP   MP    Arm  Vit  Str  Int  Dex  Foc  WCC  MCC  WCD  MCD  SCC                 Astro  Bard   Boxer  Chef   Duel   Gun    Mage
-            CreateSettings( ClassType.DualBladesClass,  "Assassin",     new float[] { -30f, 25f,  0f,  0f,  0f,  0f,  0f,  0f,  0f,  0f,  0f,  0f,  10f }, new bool[] { false, false, false, false, false, false, false } );
-            CreateSettings( ClassType.AstroClass,       "Astromancer",  new float[] { -40f, 100f, 0f,  0f,  0f,  20f, 0f,  0f,  0f,  0f,  0f,  0f,  0f  }, new bool[] { true,  false, false, false, false, false, false } );
-            CreateSettings( ClassType.AxeClass,         "Barbarian",    new float[] {  0f,  25f,  0f,  20f, 0f,  0f,  0f,  0f,  0f,  0f,  0f,  0f,  0f  }, new bool[] { false, false, false, false, false, false, false } );
-            CreateSettings( ClassType.LuteClass,        "Bard",         new float[] { -15f, 50f,  0f,  0f,  0f,  0f,  0f,  0f,  0f,  0f,  0f,  0f,  0f  }, new bool[] { false, true,  false, false, false, false, false } );
-            CreateSettings( ClassType.BoxingGloveClass, "Boxer",        new float[] {  0f,  25f,  0f,  0f,  0f,  0f,  0f,  0f,  0f,  0f,  0f,  0f,  0f  }, new bool[] { false, false, true,  false, false, false, false } );
-            CreateSettings( ClassType.LadleClass,       "Chef",         new float[] { -30f, 100f, 0f,  0f,  0f,  0f,  0f,  0f,  0f,  0f,  0f,  0f,  0f  }, new bool[] { false, false, false, true,  false, false, false } );
-            CreateSettings( ClassType.LanceClass,       "DragonLancer", new float[] {  0f,  25f,  20f, 0f,  0f,  0f,  0f,  0f,  0f,  0f,  0f,  0f,  0f  }, new bool[] { false, false, false, false, false, false, false } );
-            CreateSettings( ClassType.SaberClass,       "Duelist",      new float[] { -15f, 25f,  0f,  0f,  0f,  0f,  0f,  0f,  0f,  0f,  0f,  0f,  0f  }, new bool[] { false, false, false, false, true,  false, false } );
-            CreateSettings( ClassType.GunClass,         "Gunslinger",   new float[] { -30f, 50f,  0f,  0f,  0f,  0f,  0f,  0f,  0f,  0f,  0f,  0f,  0f  }, new bool[] { false, false, false, false, false, true,  false } );
-            CreateSettings( ClassType.SwordClass,       "Knight",       new float[] {  0f,  50f,  0f,  0f,  0f,  0f,  0f,  0f,  5f,  0f,  0f,  0f,  0f  }, new bool[] { false, false, false, false, false, false, false } );
-            CreateSettings( ClassType.MagicWandClass,   "Mage",         new float[] { -30f, 100f, 0f,  0f,  0f,  0f,  0f,  0f,  0f,  0f,  0f,  0f,  0f  }, new bool[] { false, false, false, false, false, false, true  } );
-            CreateSettings( ClassType.CannonClass,      "Pirate",       new float[] {  0f,  25f,  0f,  0f,  0f,  0f,  0f,  0f,  0f,  0f,  10f, 10f, 0f  }, new bool[] { false, false, false, false, false, false, false } );
-            CreateSettings( ClassType.BowClass,         "Ranger",       new float[] { -15f, 25f,  0f,  0f,  10f, 0f,  10f, 0f,  0f,  0f,  0f,  0f,  0f  }, new bool[] { false, false, false, false, false, false, false } );
-            CreateSettings( ClassType.KatanaClass,      "Ronin",        new float[] { -40f, 50f,  0f,  0f,  20f, 0f,  0f,  0f,  0f,  0f,  0f,  0f,  0f  }, new bool[] { false, false, false, false, false, false, false } );
-            CreateSettings( ClassType.SpearClass,       "Valkyrie",     new float[] { -15f, 50f,  0f,  0f,  0f,  0f,  0f,  0f,  0f,  5f,  0f,  10f, 0f  }, new bool[] { false, false, false, false, false, false, false } );
+            // Create the settings in bulk                                             HP   MP    Arm  Vit  Str  Int  Dex  Foc  WCC  MCC  WCD  MCD  SCC                 Astro  Bard   Boxer  Chef   Duel   Gun    Mage   Clown
+            CreateSettings( ClassType.DualBladesClass,  "Assassin",     new float[] { -30f, 25f,  0f,  0f,  0f,  0f,  0f,  0f,  0f,  0f,  0f,  0f,  10f }, new bool[] { false, false, false, false, false, false, false, false } );
+            CreateSettings( ClassType.AstroClass,       "Astromancer",  new float[] { -40f, 100f, 0f,  0f,  0f,  20f, 0f,  0f,  0f,  0f,  0f,  0f,  0f  }, new bool[] { true,  false, false, false, false, false, false, false } );
+            CreateSettings( ClassType.AxeClass,         "Barbarian",    new float[] {  0f,  25f,  0f,  20f, 0f,  0f,  0f,  0f,  0f,  0f,  0f,  0f,  0f  }, new bool[] { false, false, false, false, false, false, false, false } );
+            CreateSettings( ClassType.LuteClass,        "Bard",         new float[] { -15f, 50f,  0f,  0f,  0f,  0f,  0f,  0f,  0f,  0f,  0f,  0f,  0f  }, new bool[] { false, true,  false, false, false, false, false, false } );
+            CreateSettings( ClassType.BoxingGloveClass, "Boxer",        new float[] {  0f,  25f,  0f,  0f,  0f,  0f,  0f,  0f,  0f,  0f,  0f,  0f,  0f  }, new bool[] { false, false, true,  false, false, false, false, false } );
+            CreateSettings( ClassType.LadleClass,       "Chef",         new float[] { -30f, 100f, 0f,  0f,  0f,  0f,  0f,  0f,  0f,  0f,  0f,  0f,  0f  }, new bool[] { false, false, false, true,  false, false, false, false } );
+            CreateSettings( ClassType.LanceClass,       "DragonLancer", new float[] {  0f,  25f,  20f, 0f,  0f,  0f,  0f,  0f,  0f,  0f,  0f,  0f,  0f  }, new bool[] { false, false, false, false, false, false, false, false } );
+            CreateSettings( ClassType.SaberClass,       "Duelist",      new float[] { -15f, 25f,  0f,  0f,  0f,  0f,  0f,  0f,  0f,  0f,  0f,  0f,  0f  }, new bool[] { false, false, false, false, true,  false, false, false } );
+            CreateSettings( ClassType.GunClass,         "Gunslinger",   new float[] { -30f, 50f,  0f,  0f,  0f,  0f,  0f,  0f,  0f,  0f,  0f,  0f,  0f  }, new bool[] { false, false, false, false, false, true,  false, false } );
+            CreateSettings( ClassType.SwordClass,       "Knight",       new float[] {  0f,  50f,  0f,  0f,  0f,  0f,  0f,  0f,  5f,  0f,  0f,  0f,  0f  }, new bool[] { false, false, false, false, false, false, false, false } );
+            CreateSettings( ClassType.MagicWandClass,   "Mage",         new float[] { -30f, 100f, 0f,  0f,  0f,  0f,  0f,  0f,  0f,  0f,  0f,  0f,  0f  }, new bool[] { false, false, false, false, false, false, true,  false } );
+            CreateSettings( ClassType.CannonClass,      "Pirate",       new float[] {  0f,  25f,  0f,  0f,  0f,  0f,  0f,  0f,  0f,  0f,  10f, 10f, 0f  }, new bool[] { false, false, false, false, false, false, false, false } );
+            CreateSettings( ClassType.BowClass,         "Ranger",       new float[] { -15f, 25f,  0f,  0f,  10f, 0f,  10f, 0f,  0f,  0f,  0f,  0f,  0f  }, new bool[] { false, false, false, false, false, false, false, false } );
+            CreateSettings( ClassType.KatanaClass,      "Ronin",        new float[] { -40f, 50f,  0f,  0f,  20f, 0f,  0f,  0f,  0f,  0f,  0f,  0f,  0f  }, new bool[] { false, false, false, false, false, false, false, false } );
+            CreateSettings( ClassType.SpearClass,       "Valkyrie",     new float[] { -15f, 50f,  0f,  0f,  0f,  0f,  0f,  0f,  0f,  5f,  0f,  10f, 0f  }, new bool[] { false, false, false, false, false, false, false, false } );
             // Apply the patches if the mod is enabled
             WobPlugin.Patch();
         }
@@ -399,6 +401,56 @@ namespace Wob_ClassStats {
 
             private static bool Check_WeaponMagicDamage( ClassType playerClass ) {
                 return keys.Exists( playerClass ) && WobSettings.Get( keys.Get( playerClass, "WeaponMagicDamage" ), playerClass == ClassType.GunClass );
+            }
+        }
+
+        // Clown trait - Can spin kick terrain
+        [HarmonyPatch()]
+        public static class CharacterDownStrike_RL_DownStrike_Patch {
+            // Find the correct method - this is an implicitly defined method
+            // CharacterDownStrike_RL.DownStrike returns an IEnumerator, and we need to patch the MoveNext method on that
+            internal static MethodInfo TargetMethod() {
+                // Find the nested class the method implicitly created
+                System.Type type = AccessTools.FirstInner( typeof( CharacterDownStrike_RL ), t => t.Name.Contains( "<DownStrike>d__" ) );
+                // Find the 'MoveNext' method on the nested class
+                return AccessTools.FirstMethod( type, method => method.Name.Contains( "MoveNext" ) );
+            }
+
+            internal static IEnumerable<CodeInstruction> Transpiler( IEnumerable<CodeInstruction> instructions ) {
+                WobPlugin.Log( "CharacterDownStrike_RL.DownStrike Transpiler Patch" );
+                // Set up the transpiler handler with the instruction list
+                WobTranspiler transpiler = new WobTranspiler( instructions );
+                // Perform the patching - should match 2 occurrences
+                transpiler.PatchAll(
+                        // Define the IL code instructions that should be matched
+                        new List<WobTranspiler.OpTest> {
+                            /*  0 */ new WobTranspiler.OpTest( OpCodes.Ldc_I4, TraitType.BounceTerrain  ), // TraitType.BounceTerrain
+                            /*  1 */ new WobTranspiler.OpTest( OpCodes.Call, name: "IsTraitActive"      ), // TraitManager.IsTraitActive(TraitType.BounceTerrain)
+                            /*  2 */ new WobTranspiler.OpTest( OpCodeSet.Brfalse                        ), // if (TraitManager.IsTraitActive(TraitType.BounceTerrain))
+
+                            /*  3 */ new WobTranspiler.OpTest( OpCodeSet.Ldloc                          ), // characterDownStrike_RL
+                            /*  4 */ new WobTranspiler.OpTest( OpCodes.Ldfld, name: "m_firedProjectile" ), // characterDownStrike_RL.m_firedProjectile
+                            /*  5 */ new WobTranspiler.OpTest( OpCodes.Ldc_I4_1                         ), // true
+                            /*  6 */ new WobTranspiler.OpTest( OpCodes.Callvirt, name: "set_CanHitWall" ), // characterDownStrike_RL.m_firedProjectile.CanHitWall = true
+                            
+                            /*  7 */ new WobTranspiler.OpTest( OpCodeSet.Br                             ), // else
+
+                            /*  8 */ new WobTranspiler.OpTest( OpCodeSet.Ldloc                          ), // characterDownStrike_RL
+                            /*  9 */ new WobTranspiler.OpTest( OpCodes.Ldfld, name: "m_firedProjectile" ), // characterDownStrike_RL.m_firedProjectile
+                            /* 10 */ new WobTranspiler.OpTest( OpCodes.Ldc_I4_0                         ), // false
+                            /* 11 */ new WobTranspiler.OpTest( OpCodes.Callvirt, name: "set_CanHitWall" ), // characterDownStrike_RL.m_firedProjectile.CanHitWall = false
+                        },
+                        // Define the actions to take when an occurrence is found
+                        new List<WobTranspiler.OpAction> {
+                            new WobTranspiler.OpAction_SetInstruction( 10, OpCodes.Call, SymbolExtensions.GetMethodInfo( () => Check_ClownBounce() ) ), // Change false -> call method that returns bool
+                        } );
+                // Return the modified instructions
+                return transpiler.GetResult();
+            }
+
+            private static bool Check_ClownBounce() {
+                ClassType playerClass = SaveManager.PlayerSaveData.CurrentCharacter.ClassType;
+                return keys.Exists( playerClass ) && WobSettings.Get( keys.Get( playerClass, "ClownBounce" ), false );
             }
         }
     }

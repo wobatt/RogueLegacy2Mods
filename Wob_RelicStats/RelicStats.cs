@@ -6,11 +6,12 @@ using UnityEngine;
 using Wob_Common;
 
 namespace Wob_RelicStats {
-    [BepInPlugin( "Wob.RelicStats", "Relic Stats Mod", "0.1.0" )]
+    [BepInPlugin( "Wob.RelicStats", "Relic Stats Mod", "1.0.0" )]
     public partial class RelicStats : BaseUnityPlugin {
         private static readonly WobSettings.KeyHelper<RelicType> keys = new WobSettings.KeyHelper<RelicType>( "Relic" );
 
         private static readonly Dictionary<RelicType,(string Config, string Name, bool Spawn, int Resolve, int Stack)> RelicInfo = new Dictionary<RelicType,(string Config, string Name, bool Spawn, int Resolve, int Stack)>() {
+            // Standard stackable relics
             { RelicType.MaxHealthStatBonus,         ( "AchillesShield",          "Achilles' Shield - While ABOVE 50% Health, deal 10% more Spell and Weapon damage.",                                 true,   25, 5  ) }, // +10% dmg
             { RelicType.WeaponsBurnAdd,             ( "AmaterasusSun",           "Amaterasu's Sun - Your Weapon applies (or extends) Burn for 2 seconds.",                                            true,   55, 5  ) }, // +2s
             { RelicType.ExtendInvuln,               ( "Ambrosia",                "Ambrosia - After taking damage you are Invincible for an additional 1.25 seconds.",                                 true,   25, 5  ) }, // +1.25s
@@ -25,26 +26,19 @@ namespace Wob_RelicStats {
             { RelicType.FoodHealsMore,              ( "Cornucopia",              "Cornucopia - Health Drops restore an additional 8% of your Max Health.",                                            true,   25, 5  ) }, // +8%
             { RelicType.ProjectileDashStart,        ( "CorruptingReagent",       "Corrupting Reagent - Dashing leaves a poisonous cloud behind for 1 second.",                                        true,   35, 5  ) }, // +1s
             { RelicType.ManaRestoreOnHurt,          ( "CosmicInsight",           "Cosmic Insight - Gain 100 Mana when hurt. Mana gained can Overcharge.",                                             true,   25, 5  ) }, // +100 mana
-            { RelicType.NoGoldXPBonus,              ( "DiogenesBargain",         "Diogenes' Bargain - No more gold. All Gold Bonuses are converted into an XP Bonus (X%) instead.",                   true,   15, 1  ) },
             { RelicType.SpellKillMaxMana,           ( "Dreamcatcher",            "Dreamcatcher - Defeat enemies while at Max HP to gain 5 Max Mana (Max 200).",                                       true,   35, 5  ) }, // +200 max
             { RelicType.ReplacementRelic,           ( "EmptyVessel",             "Empty Vessel - Gain 10% bonus Health, Weapon, and Magic Damage.",                                                   false,  25, 5  ) }, // +10%
             { RelicType.FreeEnemyKill,              ( "FatesDie",                "Fate's Die - Defeat 6 enemies to load the die and instantly defeat the next enemy.",                                true,   25, 5  ) }, // -1 kill
             { RelicType.ChestHealthRestore,         ( "FreonsReward",            "Freon's Reward - Opening chests restores Health (100% of INT.).",                                                   true,   25, 5  ) }, // +100% INT
-            { RelicType.GoldDeathCurse,             ( "FutureSuccessorsBargain", "Future Successor's Bargain - Your heirs shall inherit your fortune.",                                               true,   15, 1  ) },
             { RelicType.BonusDamageOnNextHit,       ( "GlowingEmber",            "Glowing Ember - Deal 75% more damage on every 6th hit. Counter resets if you take damage.",                         true,   25, 5  ) }, // +75% dmg
             { RelicType.MeatMaxHealth,              ( "GnawedBone",              "Gnawed Bone - Eating Health Drops while at Full Health increases Max HP by 10% (Max 3 stacks).",                    true,   25, 5  ) }, // +3 max
             { RelicType.FatalBlowDodge,             ( "GraveBell",               "Grave Bell - You have a 25% chance of avoiding a Fatal Blow.",                                                      true,   35, 3  ) }, // +25%
-            { RelicType.AttackCooldown,             ( "HeavyStoneBargain",       "Heavy Stone Bargain - Your Weapon deals 100% more damage, but has a 2 second cooldown.",                            true,   15, 1  ) },
             { RelicType.LowHealthStatBonus,         ( "HectorsHelm",             "Hector's Helm - While BELOW 50% Health, deal 20% more Spell and Weapon damage.",                                    true,   25, 5  ) }, // +20% dmg
-            { RelicType.NoSpikeDamage,              ( "HermesBoots",             "Hermes' Boots - You are Immune to static spikes.",                                                                  true,   25, 1  ) },
             { RelicType.LowResolveMagicDamage,      ( "HeronsRing",              "Heron's Ring - For every point of Resolve below 100%, deal an additional 1% bonus Magic damage.",                   true,   35, 5  ) }, // +1% dmg
-            { RelicType.FlightBonusCurse,           ( "IcarusWingsBargain",      "Icarus' Wings Bargain - Jumping in the air enables Flight, but you take 75% extra damage.",                         true,   15, 1  ) },
             { RelicType.RangeDamageBonusCurse,      ( "IncandescentTelescope",   "Incandescent Telescope - Deal 12.5% more damage to enemies far away.",                                              true,   25, 5  ) }, // +12.5% dmg
             { RelicType.GroundDamageBonus,          ( "IvyRoots",                "Ivy Roots - Deal 12.5% bonus damage while on the ground.",                                                          true,   25, 5  ) }, // +12.5% dmg
-            { RelicType.PlatformOnAerial,           ( "IvySeed",                 "Ivy Seed - Create an Ivy Canopy every time you do an Aerial Recovery.",                                             true,   25, 1  ) },
             { RelicType.CritKillsHeal,              ( "LachesisMeasure",         "Lachesis' Measure - Enemies defeated with a critical hit restore 6% of your Max Health.",                           true,   55, 5  ) }, // +6%
-            { RelicType.SkillCritBonus,             ( "LamechsWhetstone",        "Lamech's Whetstone - Weapon Skill Crits now apply Magic Break for 2.5 seconds.",                                    true,   35, 1  ) },
-            { RelicType.BonusMana,                  ( "LotusPetal",              "Lotus Petal - Increases your total Mana Pool by 50. Deal 8% more Magic Damage.",                                    true,   25, 5  ) }, // ???    <---------------
+            { RelicType.BonusMana,                  ( "LotusPetal",              "Lotus Petal - Increases your total Mana Pool by 50. Deal 8% more Magic Damage.",                                    true,   25, 5  ) }, // +50 mana, +8% dmg
             { RelicType.ManaDamageReduction,        ( "LotusStem",               "Lotus Stem - Blocks up to 2 attacks. Consumes 150 Mana per block. Mana potions restore charges.",                   true,   45, 5  ) }, // +2 blocks
             { RelicType.LandShockwave,              ( "MarbleStatue",            "Marble Statue - Landing creates a small shockwave that destroys Mid-sized Projectiles and deals 75% Magic damage.", true,   25, 5  ) }, // +75% dmg
             { RelicType.SuperCritChanceUp,          ( "Obelisk",                 "Obelisk - Your Skill Crits have an extra 20% chance of becoming Super Crits.",                                      true,   25, 5  ) }, // +20%
@@ -52,15 +46,23 @@ namespace Wob_RelicStats {
             { RelicType.LowResolveWeaponDamage,     ( "RavensRing",              "Raven's Ring - For every point of Resolve below 100%, deal an additional 1% bonus Weapon damage.",                  true,   35, 5  ) }, // +1% dmg
             { RelicType.NoAttackDamageBonus,        ( "RedSandHourglass",        "Red Sand Hourglass - Every 5 seconds your next Weapon attack deals 75% bonus damage.",                              true,   25, 5  ) }, // -1s
             { RelicType.WeaponsPoisonAdd,           ( "SerqetsStinger",          "Serqet's Stinger - Your Weapon applies 1 stack of Poison.",                                                         true,   55, 5  ) }, // +1 stack
-            { RelicType.BonusDamageCurse,           ( "SerratedHandlesBargain",  "Serrated Handle's Bargain - Deal and take 100% more damage.",                                                       true,   15, 1  ) },
             { RelicType.OnHitAreaDamage,            ( "SoulTether",              "Soul Tether - Every 5 seconds, your next Weapon attack deals 150% bonus Magic damage to all nearby enemies.",       true,   45, 5  ) }, // -1s, +75% dmg
-            { RelicType.SpinKickArmorBreak,         ( "Steel-ToedBoots",         "Steel-Toed Boots - Spin Kicks now apply Armor Break for 3.5 seconds.",                                              true,   35, 1  ) },
             { RelicType.DashStrikeDamageUp,         ( "VanguardsBanner",         "Vanguard's Banner - Dashing creates a wave that destroys Mid-sized Projectiles. Waves travel 2 units.",             true,   45, 5  ) }, // +2 units
             { RelicType.DamageAuraOnHit,            ( "VoltaicCirclet",          "Voltaic Circlet - Hitting an enemy with your Weapon will generate a damage aura around you for 1.5 seconds.",       true,   35, 5  ) }, // +1.5s
             { RelicType.RelicAmountDamageUp,        ( "WarDrum",                 "War Drum - Every unique Relic increases your damage by 6%.",                                                        true,   45, 5  ) }, // +6%
             { RelicType.SpinKickDamageBonus,        ( "WeightedAnklet",          "Weighted Anklet - Your Spin Kicks deal 40% more damage.",                                                           true,   25, 5  ) }, // +40%
-            { RelicType.SporeburstKillAdd,          ( "WeirdMushrooms",          "Weird Mushrooms - Defeated enemies have Spore Burst applied to them.",                                              true,   35, 1  ) },
             { RelicType.MaxManaDamage,              ( "ZealotsRing",             "Zealot's Ring - Spells cast while at Max MP deal an additional 25% damage.",                                        true,   25, 5  ) }, // +25% dmg
+            // Non-stackable relics
+            { RelicType.NoGoldXPBonus,              ( "DiogenesBargain",         "Diogenes' Bargain - No more gold. All Gold Bonuses are converted into an XP Bonus (X%) instead.",                   true,   15, 1  ) },
+            { RelicType.GoldDeathCurse,             ( "FutureSuccessorsBargain", "Future Successor's Bargain - Your heirs shall inherit your fortune.",                                               true,   15, 1  ) },
+            { RelicType.AttackCooldown,             ( "HeavyStoneBargain",       "Heavy Stone Bargain - Your Weapon deals 100% more damage, but has a 2 second cooldown.",                            true,   15, 1  ) },
+            { RelicType.NoSpikeDamage,              ( "HermesBoots",             "Hermes' Boots - You are Immune to static spikes.",                                                                  true,   25, 1  ) },
+            { RelicType.FlightBonusCurse,           ( "IcarusWingsBargain",      "Icarus' Wings Bargain - Jumping in the air enables Flight, but you take 75% extra damage.",                         true,   15, 1  ) },
+            { RelicType.PlatformOnAerial,           ( "IvySeed",                 "Ivy Seed - Create an Ivy Canopy every time you do an Aerial Recovery.",                                             true,   25, 1  ) },
+            { RelicType.SkillCritBonus,             ( "LamechsWhetstone",        "Lamech's Whetstone - Weapon Skill Crits now apply Magic Break for 2.5 seconds.",                                    true,   35, 1  ) },
+            { RelicType.BonusDamageCurse,           ( "SerratedHandlesBargain",  "Serrated Handle's Bargain - Deal and take 100% more damage.",                                                       true,   15, 1  ) },
+            { RelicType.SpinKickArmorBreak,         ( "Steel-ToedBoots",         "Steel-Toed Boots - Spin Kicks now apply Armor Break for 3.5 seconds.",                                              true,   35, 1  ) },
+            { RelicType.SporeburstKillAdd,          ( "WeirdMushrooms",          "Weird Mushrooms - Defeated enemies have Spore Burst applied to them.",                                              true,   35, 1  ) },
             // Relics that purify
             { RelicType.GoldCombatChallenge,        ( "CharonsTrial",            "Charon's Trial - Defeat 15 enemies to purify it and gain a 20% Gold, Ore, and Aether bonus.",                       true,   0,  1  ) },
             { RelicType.GoldCombatChallengeUsed,    ( "CharonsTrial",            "Charon's Reward - Defeat 15 enemies to purify it and gain a 20% Gold, Ore, and Aether bonus.",                      false,  0,  1  ) },
@@ -109,17 +111,20 @@ namespace Wob_RelicStats {
                 }
             }
             WobSettings.Add( new WobSettings.Entry[] {
-                new WobSettings.Boolean(    keys.Get( RelicType.DamageNoHitChallenge, "RemoveOnBreak" ), "Remove on breaking (refund resolve) for " + RelicInfo[RelicType.DamageNoHitChallenge].Name,       false                               ),
-                new WobSettings.Boolean(    keys.Get( RelicType.ExtraLife,            "RemoveOnBreak" ), "Remove on breaking (refund resolve) for " + RelicInfo[RelicType.ExtraLife].Name,                  false                               ),
-                new WobSettings.Boolean(    keys.Get( RelicType.FreeFairyChest,       "RemoveOnBreak" ), "Remove on breaking (refund resolve) for " + RelicInfo[RelicType.FreeFairyChest].Name,             false                               ),
-                new WobSettings.Boolean(    keys.Get( RelicType.FreeFairyChest,       "InfiniteUses"  ), "Infinite uses without breaking for " + RelicInfo[RelicType.FreeFairyChest].Name,                    false                               ),
-                new WobSettings.Num<float>( keys.Get( RelicType.AttackCooldown,       "Cooldown"      ), "Set the attack cooldown to this number of seconds for " + RelicInfo[RelicType.AttackCooldown].Name, 2f,          bounds: (0f, 1000000f) ),
-                new WobSettings.Num<float>( keys.Get( RelicType.FlightBonusCurse,     "DamageTaken"   ), "Set the additional damage taken to this percent for " + RelicInfo[RelicType.FlightBonusCurse].Name, 75f,  0.01f, bounds: (0f, 1000000f) ),
+                new WobSettings.Boolean(    keys.Get( RelicType.DamageNoHitChallenge, "RemoveOnBreak" ), "Remove on breaking (refund resolve) for " + RelicInfo[RelicType.DamageNoHitChallenge].Name,                         false                                 ),
+                new WobSettings.Boolean(    keys.Get( RelicType.ExtraLife,            "RemoveOnBreak" ), "Remove on breaking (refund resolve) for " + RelicInfo[RelicType.ExtraLife].Name,                                    false                                 ),
+                new WobSettings.Boolean(    keys.Get( RelicType.FreeFairyChest,       "RemoveOnBreak" ), "Remove on breaking (refund resolve) for " + RelicInfo[RelicType.FreeFairyChest].Name,                               false                                 ),
+                new WobSettings.Boolean(    keys.Get( RelicType.FreeFairyChest,       "InfiniteUses"  ), "Infinite uses without breaking for " + RelicInfo[RelicType.FreeFairyChest].Name,                                    false                                 ),
+                new WobSettings.Num<float>( keys.Get( RelicType.AttackCooldown,       "Cooldown"      ), "Set the attack cooldown to this number of seconds for " + RelicInfo[RelicType.AttackCooldown].Name,                 2f,            bounds: (0f, 1000000f) ),
+                new WobSettings.Num<float>( keys.Get( RelicType.AttackCooldown,       "CooldownGun"   ), "Set the attack cooldown on the revolver to this number of seconds for " + RelicInfo[RelicType.AttackCooldown].Name, 0.125f,        bounds: (0f, 1000000f) ),
+                new WobSettings.Num<int>(   keys.Get( RelicType.AttackCooldown,       "SlowHammer"    ), "Set the move speed penalty on the hammer to this percent for " + RelicInfo[RelicType.AttackCooldown].Name,          30,    -0.01f, bounds: (0, 1000000)   ),
+                new WobSettings.Num<float>( keys.Get( RelicType.FlightBonusCurse,     "DamageTaken"   ), "Set the additional damage taken to this percent for " + RelicInfo[RelicType.FlightBonusCurse].Name,                 75f,    0.01f, bounds: (0f, 1000000f) ),
             } );
-
             // Apply the patches if the mod is enabled
             WobPlugin.Patch();
         }
+
+        // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
         // Enable or disable a relic for random spawn
         [HarmonyPatch( typeof( RelicType_RL ), nameof( RelicType_RL.TypeArray ), MethodType.Getter )]
@@ -148,6 +153,8 @@ namespace Wob_RelicStats {
             }
         }
 
+        // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
         // Change the resolve costs
         [HarmonyPatch( typeof( RelicLibrary ), "Instance", MethodType.Getter )]
         internal static class RelicLibrary_GetRelicData_Patch {
@@ -173,6 +180,37 @@ namespace Wob_RelicStats {
             }
         }
 
+        // Correct the total resolve cost calculation to prevent negative costs from reduced relic costs
+        [HarmonyPatch( typeof( PlayerSaveData ), nameof( PlayerSaveData.GetTotalRelicResolveCost ) )]
+        internal static class PlayerSaveData_GetTotalRelicResolveCost_Patch {
+            internal static IEnumerable<CodeInstruction> Transpiler( IEnumerable<CodeInstruction> instructions ) {
+                WobPlugin.Log( "PlayerSaveData.GetTotalRelicResolveCost Transpiler Patch" );
+                // Set up the transpiler handler with the instruction list
+                WobTranspiler transpiler = new WobTranspiler( instructions );
+                // Perform the patching
+                transpiler.PatchAll(
+                        // Define the IL code instructions that should be matched
+                        new List<WobTranspiler.OpTest> {
+                            /*  0 */ new WobTranspiler.OpTest( OpCodeSet.Ldloc ), // num2
+                            /*  1 */ new WobTranspiler.OpTest( OpCodeSet.Ldloc ), // relicCostMod
+                            /*  2 */ new WobTranspiler.OpTest( OpCodes.Sub     ), // num2 - relicCostMod
+                            /*  3 */ new WobTranspiler.OpTest( OpCodeSet.Stloc ), // num2 = num2 - relicCostMod
+                        },
+                        // Define the actions to take when an occurrence is found
+                        new List<WobTranspiler.OpAction> {
+                            new WobTranspiler.OpAction_Insert( 3, new List<CodeInstruction> {
+                                new CodeInstruction( OpCodes.Ldc_R4, 0f ),
+                                new CodeInstruction( OpCodes.Ldc_R4, float.MaxValue ),
+                                new CodeInstruction( OpCodes.Call, SymbolExtensions.GetMethodInfo( () => Mathf.Clamp( 0f, 0f, float.MaxValue ) ) ),
+                            } ),
+                        } );
+                // Return the modified instructions
+                return transpiler.GetResult();
+            }
+        }
+
+        // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
         // Prevent adding the 'Used' variant of Aite's Sword, Hyperion's Ring, and Skeleton Key
         [HarmonyPatch( typeof( RelicObj ), nameof( RelicObj.SetLevel ) )]
         internal static class RelicObj_SetLevel_Patch {
@@ -185,6 +223,8 @@ namespace Wob_RelicStats {
                 }
             }
         }
+
+        // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
         // Prevent breaking of Skeleton Key
         [HarmonyPatch( typeof( ChestObj ), "OpenChest" )]
@@ -225,6 +265,8 @@ namespace Wob_RelicStats {
             }
         }
 
+        // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
         // Set the attack cooldown of Heavy Stone Bargain
         [HarmonyPatch( typeof( BaseAbility_RL ), nameof( BaseAbility_RL.ActualCooldownTime ), MethodType.Getter )]
         internal static class BaseAbility_RL_ActualCooldownTime_Patch {
@@ -236,22 +278,106 @@ namespace Wob_RelicStats {
                 transpiler.PatchAll(
                         // Define the IL code instructions that should be matched
                         new List<WobTranspiler.OpTest> {
-                            /*  0 */ new WobTranspiler.OpTest( OpCodeSet.Ldloc    ), // num
-                            /*  1 */ new WobTranspiler.OpTest( OpCodes.Ldc_R4, 2f ), // 2f
-                            /*  2 */ new WobTranspiler.OpTest( OpCodeSet.Ldloc    ), // level
-                            /*  3 */ new WobTranspiler.OpTest( OpCodes.Conv_R4    ), // (float)level
-                            /*  4 */ new WobTranspiler.OpTest( OpCodes.Mul        ), // 2f * (float)level
-                            /*  5 */ new WobTranspiler.OpTest( OpCodes.Add        ), // num + 2f * (float)level
-                            /*  6 */ new WobTranspiler.OpTest( OpCodeSet.Stloc    ), // num = num + 2f * (float)level
+                            /*  0 */ new WobTranspiler.OpTest( OpCodeSet.Ldloc                                   ), // num
+                            /*  1 */ new WobTranspiler.OpTest( OpCodes.Ldc_R4, Relic_EV.ATTACK_COOLDOWN_DURATION ), // 2f
+                            /*  2 */ new WobTranspiler.OpTest( OpCodeSet.Ldloc                                   ), // level
+                            /*  3 */ new WobTranspiler.OpTest( OpCodes.Conv_R4                                   ), // (float)level
+                            /*  4 */ new WobTranspiler.OpTest( OpCodes.Mul                                       ), // 2f * (float)level
+                            /*  5 */ new WobTranspiler.OpTest( OpCodes.Add                                       ), // num + 2f * (float)level
+                            /*  6 */ new WobTranspiler.OpTest( OpCodeSet.Stloc                                   ), // num = num + 2f * (float)level
                         },
                         // Define the actions to take when an occurrence is found
                         new List<WobTranspiler.OpAction> {
-                            new WobTranspiler.OpAction_SetOperand( 1, WobSettings.Get( keys.Get( RelicType.AttackCooldown, "Cooldown" ), 2f ) ),
+                            new WobTranspiler.OpAction_SetOperand( 1, WobSettings.Get( keys.Get( RelicType.AttackCooldown, "Cooldown" ), Relic_EV.ATTACK_COOLDOWN_DURATION ) ),
                         } );
                 // Return the modified instructions
                 return transpiler.GetResult();
             }
         }
+
+        // Attack cooldown of Heavy Stone Bargain on revolver
+        [HarmonyPatch( typeof( PistolWeapon_Ability ), "ExitAnimExitDelay", MethodType.Getter )]
+        internal static class PistolWeapon_Ability_ExitAnimExitDelay_Patch {
+            internal static IEnumerable<CodeInstruction> Transpiler( IEnumerable<CodeInstruction> instructions ) {
+                WobPlugin.Log( "PistolWeapon_Ability.ExitAnimExitDelay Transpiler Patch" );
+                // Set up the transpiler handler with the instruction list
+                WobTranspiler transpiler = new WobTranspiler( instructions );
+                // Perform the patching
+                transpiler.PatchAll(
+                        // Define the IL code instructions that should be matched
+                        new List<WobTranspiler.OpTest> {
+                            /*  0 */ new WobTranspiler.OpTest( OpCodes.Ldc_I4, RelicType.AttackCooldown ), // RelicType.AttackCooldown
+                            /*  1 */ new WobTranspiler.OpTest( OpCodes.Callvirt, name: "GetRelic"       ), // GetRelic(RelicType.AttackCooldown)
+                            /*  2 */ new WobTranspiler.OpTest( OpCodes.Callvirt, name: "get_Level"      ), // GetRelic(RelicType.AttackCooldown).Level
+                            /*  3 */ new WobTranspiler.OpTest( OpCodes.Conv_R4                          ), // (float)GetRelic(RelicType.AttackCooldown).Level
+                            /*  4 */ new WobTranspiler.OpTest( OpCodes.Ldc_R4                           ), // 0.125f
+                            /*  5 */ new WobTranspiler.OpTest( OpCodes.Mul                              ), // (float)GetRelic(RelicType.AttackCooldown).Level * 0.125f
+                        },
+                        // Define the actions to take when an occurrence is found
+                        new List<WobTranspiler.OpAction> {
+                            new WobTranspiler.OpAction_SetOperand( 4, WobSettings.Get( keys.Get( RelicType.AttackCooldown, "CooldownGun" ), Relic_EV.ATTACK_COOLDOWN_PISTOL_EXIT_DELAY_ADD ) ),
+                        } );
+                // Return the modified instructions
+                return transpiler.GetResult();
+            }
+        }
+
+        // Move slow of Heavy Stone Bargain on Hephaestus' Hammer
+        [HarmonyPatch( typeof( AxeSpinner_Ability ), "OnEnterAttackLogic" )]
+        internal static class AxeSpinner_Ability_OnEnterAttackLogic_Patch {
+            internal static IEnumerable<CodeInstruction> Transpiler( IEnumerable<CodeInstruction> instructions ) {
+                WobPlugin.Log( "AxeSpinner_Ability.OnEnterAttackLogic Transpiler Patch" );
+                // Set up the transpiler handler with the instruction list
+                WobTranspiler transpiler = new WobTranspiler( instructions );
+                // Perform the patching
+                transpiler.PatchAll(
+                        // Define the IL code instructions that should be matched
+                        new List<WobTranspiler.OpTest> {
+                            /*  0 */ new WobTranspiler.OpTest( OpCodes.Callvirt, name: "get_MovementSpeedMod" ), // MovementSpeedMod
+                            /*  1 */ new WobTranspiler.OpTest( OpCodes.Ldc_R4                                 ), // -0.3f
+                            /*  2 */ new WobTranspiler.OpTest( OpCodeSet.Ldloc                                ), // level
+                            /*  3 */ new WobTranspiler.OpTest( OpCodes.Conv_R4                                ), // (float)level
+                            /*  4 */ new WobTranspiler.OpTest( OpCodes.Mul                                    ), // -0.3f * (float)level
+                            /*  5 */ new WobTranspiler.OpTest( OpCodes.Add                                    ), // MovementSpeedMod + -0.3f * (float)level
+                            /*  6 */ new WobTranspiler.OpTest( OpCodes.Callvirt, name: "set_MovementSpeedMod" ), // MovementSpeedMod = MovementSpeedMod + -0.3f * (float)level
+                        },
+                        // Define the actions to take when an occurrence is found
+                        new List<WobTranspiler.OpAction> {
+                            new WobTranspiler.OpAction_SetOperand( 1, WobSettings.Get( keys.Get( RelicType.AttackCooldown, "SlowHammer" ), Relic_EV.ATTACK_COOLDOWN_AXE_SPINNER_MOD ) ),
+                        } );
+                // Return the modified instructions
+                return transpiler.GetResult();
+            }
+        }
+        // Move slow of Heavy Stone Bargain on Hephaestus' Hammer
+        [HarmonyPatch( typeof( AxeSpinner_Ability ), "StopAbility" )]
+        internal static class AxeSpinner_Ability_StopAbility_Patch {
+            internal static IEnumerable<CodeInstruction> Transpiler( IEnumerable<CodeInstruction> instructions ) {
+                WobPlugin.Log( "AxeSpinner_Ability.StopAbility Transpiler Patch" );
+                // Set up the transpiler handler with the instruction list
+                WobTranspiler transpiler = new WobTranspiler( instructions );
+                // Perform the patching
+                transpiler.PatchAll(
+                        // Define the IL code instructions that should be matched
+                        new List<WobTranspiler.OpTest> {
+                            /*  0 */ new WobTranspiler.OpTest( OpCodes.Callvirt, name: "get_MovementSpeedMod" ), // MovementSpeedMod
+                            /*  1 */ new WobTranspiler.OpTest( OpCodes.Ldc_R4                                 ), // -0.3f
+                            /*  2 */ new WobTranspiler.OpTest( OpCodeSet.Ldloc                                ), // level
+                            /*  3 */ new WobTranspiler.OpTest( OpCodes.Conv_R4                                ), // (float)level
+                            /*  4 */ new WobTranspiler.OpTest( OpCodes.Mul                                    ), // -0.3f * (float)level
+                            /*  5 */ new WobTranspiler.OpTest( OpCodes.Sub                                    ), // MovementSpeedMod - -0.3f * (float)level
+                            /*  6 */ new WobTranspiler.OpTest( OpCodes.Callvirt, name: "set_MovementSpeedMod" ), // MovementSpeedMod = MovementSpeedMod - -0.3f * (float)level
+                        },
+                        // Define the actions to take when an occurrence is found
+                        new List<WobTranspiler.OpAction> {
+                            new WobTranspiler.OpAction_SetOperand( 1, WobSettings.Get( keys.Get( RelicType.AttackCooldown, "SlowHammer" ), Relic_EV.ATTACK_COOLDOWN_AXE_SPINNER_MOD ) ),
+                        } );
+                // Return the modified instructions
+                return transpiler.GetResult();
+            }
+        }
+
+        // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
         // Set the damage taken for Icarus' Wings Bargain
         [HarmonyPatch( typeof( PlayerController ), nameof( PlayerController.CalculateDamageTaken ) )]
@@ -275,7 +401,7 @@ namespace Wob_RelicStats {
                         },
                         // Define the actions to take when an occurrence is found
                         new List<WobTranspiler.OpAction> {
-                            new WobTranspiler.OpAction_SetOperand( 0, WobSettings.Get( keys.Get( RelicType.FlightBonusCurse, "DamageTaken" ), 0.75f ) ),
+                            new WobTranspiler.OpAction_SetOperand( 0, WobSettings.Get( keys.Get( RelicType.FlightBonusCurse, "DamageTaken" ), Relic_EV.FLIGHT_BONUS_CURSE_DAMAGE_MOD ) ),
                         } );
                 // Return the modified instructions
                 return transpiler.GetResult();

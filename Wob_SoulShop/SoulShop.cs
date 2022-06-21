@@ -7,7 +7,7 @@ using UnityEngine;
 using Wob_Common;
 
 namespace Wob_SoulShop {
-    [BepInPlugin( "Wob.SoulShop", "Soul Shop Mod", "1.0.0" )]
+    [BepInPlugin( "Wob.SoulShop", "Soul Shop Mod", "1.1.0" )]
     public partial class SoulShop : BaseUnityPlugin {
 
         private static readonly HashSet<SoulShopType> specialShopItems = new HashSet<SoulShopType> { SoulShopType.SoulSwap, SoulShopType.OreAetherSwap, SoulShopType.AetherOreSwap };
@@ -61,10 +61,42 @@ namespace Wob_SoulShop {
                 new WobSettings.Num<float>( keys.Get( SoulShopType.SoulSwap, "CostScaler" ), "Multiply costs by this for Strange Transaction", 1f,  bounds: (0f, 100f)   ),
                 new WobSettings.Num<int>(   keys.Get( SoulShopType.SoulSwap, "GainSouls"  ), "Number of souls given for Strange Transaction",  150, bounds: (1, 1000000) ),
                 new WobSettings.Num<int>(   keys.Get( SoulShopType.SoulSwap, "MaxLevel"   ), "Max level for Strange Transaction",              100, bounds: (1, 1000000) ),
+                new WobSettings.Boolean(    keys.Get( SoulShopType.BaseStats04MaxUp, "CapWeights" ), "Apply a hard cap to equip and rune weight upgrade levels when they would exceed the maximum weight of all equipable items", true ),
             } );
+            if( WobPlugin.Enabled ) {
+                GenerateLeveledArrays();
+            }
             // Apply the patches if the mod is enabled
             WobPlugin.Patch();
         }
+
+        private static void GenerateLeveledArrays( ) {
+            int levels = 50 + WobSettings.Get( keys.Get( SoulShopType.MaxMasteryFlat, "MaxOverload" ), 50 );
+            if( levels > Mastery_EV.XP_REQUIRED.Length ) {
+                int[] xpArray = new int[levels];
+                for( int i = 0; i < xpArray.Length; i++ ) {
+                    xpArray[i] = Mathf.RoundToInt( ( ( 700f / 6f ) * i * i * i ) + ( 450f * i * i ) + ( ( 5800f / 3f ) * i ) );
+                }
+                Mastery_EV.XP_REQUIRED = xpArray;
+            }
+            int levelsDW = 50 + WobSettings.Get( keys.Get( SoulShopType.MaxMasteryFlat, "MaxOverload" ), 50 );
+            if( levelsDW > Mastery_EV.DRIFTING_WORLDS_XP_REQUIRED.Length ) {
+                int[] xpArray = new int[levels];
+                for( int i = 0; i < xpArray.Length; i++ ) {
+                    xpArray[i] = Mathf.RoundToInt( ( ( 50f / 3f ) * i * i * i ) + ( 850f * i * i ) + ( ( 2650f / 3f ) * i ) );
+                }
+                Mastery_EV.DRIFTING_WORLDS_XP_REQUIRED = xpArray;
+            }
+            int levelsCharon = 50 + WobSettings.Get( keys.Get( SoulShopType.MaxCharonDonationFlat, "MaxOverload" ), 50 );
+            if( levelsCharon > SkillTree_EV.CHARON_GOLD_STAT_BONUS_MILESTONES.Length ) {
+                int[] goldArray = new int[levelsCharon];
+                for( int i = 0; i < goldArray.Length; i++ ) {
+                    goldArray[i] = Mathf.RoundToInt( ( 50f * i * i * i ) + ( 2425f * i * i ) + ( 5025f * i ) );
+                }
+                SkillTree_EV.CHARON_GOLD_STAT_BONUS_MILESTONES = goldArray;
+            }
+        }
+
 
         [HarmonyPatch( typeof( Souls_EV ), nameof( Souls_EV.GetTotalSoulsCollected ) )]
         internal static class Souls_EV_GetTotalSoulsCollected_Patch {
@@ -244,6 +276,139 @@ namespace Wob_SoulShop {
                         } );
                 // Return the modified instructions
                 return transpiler.GetResult();
+            }
+        }
+
+
+        // Patch to apply a cap on equip weight and rune weight upgrades overload levels based on their stat gains and the maximum weight of equipable items
+        [HarmonyPatch( typeof( SkillTreeObj ), nameof( SkillTreeObj.MaxLevel ), MethodType.Getter )]
+        internal static class SkillTreeObj_MaxLevel_Patch {
+            // These are the upgrades to be edited for equip weight and rune weight
+            private static readonly SkillTreeType[] equipUpgrades = new SkillTreeType[] { SkillTreeType.Equip_Up, SkillTreeType.Equip_Up2, SkillTreeType.Equip_Up3 };
+            private static readonly SkillTreeType[] runeUpgrades = new SkillTreeType[] { SkillTreeType.Rune_Equip_Up, SkillTreeType.Rune_Equip_Up2, SkillTreeType.Rune_Equip_Up3 };
+            // Only need to edit once
+            private static bool runOnce = false;
+
+            // The patch itself - call the calculation methods
+            internal static void Prefix() {
+                if( !runOnce ) {
+                    if( WobSettings.Get( keys.Get( SoulShopType.BaseStats04MaxUp, "CapWeights" ), true ) ) {
+                        CalcMaxLevel( equipUpgrades, GetTotalEquipWeight() );
+                        CalcMaxLevel( runeUpgrades, GetTotalRuneWeight() );
+                    }
+                    runOnce = true;
+                }
+            }
+
+            // Calculate the maximum weight of equipment that can be on a character at once, and scale so this is within the lightest category for maximum resolve
+            private static int GetTotalEquipWeight() {
+                // Running maximums of the weights of max level equipment in each category
+                Dictionary<EquipmentCategoryType, int> maxWeights = new Dictionary<EquipmentCategoryType, int> {  };
+                // Get the extra levels that could be gained from overload
+                int equipOverloadMaxLevel = SaveManager.ModeSaveData.GetSoulShopObj( SoulShopType.MaxEquipmentDrops ).SoulShopData.OverloadMaxLevel;
+                // Loop through all equipment categories (equipment slot types)
+                foreach( EquipmentCategoryType equipmentCatType in EquipmentType_RL.CategoryTypeArray ) {
+                    if( equipmentCatType != EquipmentCategoryType.None ) {
+                        // Add the category to the max weights dictionary
+                        maxWeights.Add( equipmentCatType, 0 );
+                        // Loop through each item in the category, one for each set
+                        foreach( EquipmentType equipmentType in EquipmentType_RL.TypeArray ) {
+                            if( equipmentType != EquipmentType.None ) {
+                                // Get the data for the equipment
+                                EquipmentData equipmentData = EquipmentLibrary.GetEquipmentData( equipmentCatType, equipmentType );
+                                if( equipmentData != null && !equipmentData.Disabled ) {
+                                    // Calculate its weight at max level
+                                    int weight = equipmentData.BaseWeight + equipmentData.ScalingWeight * ( equipmentData.MaximumLevel + equipOverloadMaxLevel - 1 );
+                                    // Store the highest found weight for this category
+                                    maxWeights[equipmentCatType] = Mathf.Max( maxWeights[equipmentCatType], weight );
+                                }
+                            }
+                        }
+                    }
+                }
+                // Total weight for all 5 slots
+                int totalEquipWeight = 0;
+                // Add up the maximum weights for each slot
+                foreach( EquipmentCategoryType equipmentCatType in maxWeights.Keys ) {
+                    totalEquipWeight += maxWeights[equipmentCatType];
+                }
+                // Apply the weight category reduction upgrade to make sure the max equipped would be in the lightest category
+                SkillTreeObj weightCategory = SkillTreeManager.GetSkillTreeObj( SkillTreeType.Weight_CD_Reduce );
+                float weightCat = 0.2f + weightCategory.FirstLevelStatGain + weightCategory.AdditionalLevelStatGain * ( weightCategory.SkillTreeData.MaxLevel - 1 );
+                totalEquipWeight = Mathf.CeilToInt( totalEquipWeight / weightCat );
+                // Return the calculated maximum
+                return totalEquipWeight;
+            }
+
+            // Calculate the maximum weight of runes that can be on a character at once
+            private static int GetTotalRuneWeight() {
+                // Running total of the weights of max level runes
+                int totalRuneWeight = 0;
+                // Get the extra levels that could be gained from overload
+                int runeOverloadMaxLevel = SaveManager.ModeSaveData.GetSoulShopObj( SoulShopType.MaxRuneDrops ).SoulShopData.OverloadMaxLevel;
+                // Loop through all runes
+                foreach( RuneType runeType in RuneType_RL.TypeArray ) {
+                    if( runeType != RuneType.None ) {
+                        // Get the data for the rune
+                        RuneData runeData = RuneLibrary.GetRuneData( runeType );
+                        if( runeData != null && !runeData.Disabled ) {
+                            // Calculate its maximum weight and add it to the total
+                            int weight = runeData.BaseWeight + runeData.ScalingWeight * ( runeData.MaximumLevel + runeOverloadMaxLevel - 1 );
+                            totalRuneWeight += weight;
+                        }
+                    }
+                }
+                return totalRuneWeight;
+            }
+
+            private static void CalcMaxLevel( SkillTreeType[] skillTreeTypes, int maxWeight ) {
+                WobPlugin.Log( "Max weight = " + maxWeight );
+                // STEP 1: Calculate the total weight capacity from all upgrades, plus soul shop upgrades, without overload
+                // Running total of the weight capacity of max level upgrades
+                float totalUpgradeWeight = 0f;
+                // Get the Soul Shop item that governs weight upgrades
+                SoulShopData soulShopData = SaveManager.ModeSaveData.GetSoulShopObj( SoulShopType.BaseStats04MaxUp ).SoulShopData;
+                // Create a dictionary of the 3 upgrades
+                Dictionary<SkillTreeType, (int MaxLevel, float BaseWeight, int AdditiveLevels, float WeightPerLevel)> UpgradeInfo = new Dictionary<SkillTreeType, (int MaxLevel, float BaseWeight, int AdditiveLevels, float WeightPerLevel)>();
+                // Loop through the upgrades
+                foreach( SkillTreeType skillTreeType in skillTreeTypes ) {
+                    // Get the upgrade item
+                    SkillTreeObj skillTreeObj = SkillTreeManager.GetSkillTreeObj( skillTreeType );
+                    // Calculate the maximum possible level without overload
+                    int maxLevel = skillTreeObj.SkillTreeData.MaxLevel + ( soulShopData.MaxLevel * skillTreeObj.SkillTreeData.AdditiveSoulShopLevels );
+                    // Calculate the weight capacity at the maximum level without overload
+                    float baseWeight = skillTreeObj.FirstLevelStatGain + skillTreeObj.AdditionalLevelStatGain * ( maxLevel - 1 );
+                    // Add to the total
+                    totalUpgradeWeight += baseWeight;
+                    // Record the stats needed for level cap calculation
+                    UpgradeInfo.Add( skillTreeType, (maxLevel, baseWeight, skillTreeObj.SkillTreeData.AdditiveSoulShopLevels, skillTreeObj.SkillTreeData.AdditionalLevelStatGain) );
+                }
+                // STEP 2: Calculate how many upgrades on top of the standard maximum are needed to equip all items
+                // Counter for number of overload level to add
+                int extraLevels = 0;
+                // Add levels until the overload maximum is reached or there is enough capacity to equip all items
+                while( extraLevels <= soulShopData.OverloadMaxLevel && totalUpgradeWeight < maxWeight ) {
+                    // Add the weight capacity for a level of each upgrade
+                    foreach( SkillTreeType skillTreeType in UpgradeInfo.Keys ) {
+                        totalUpgradeWeight += UpgradeInfo[skillTreeType].AdditiveLevels * UpgradeInfo[skillTreeType].WeightPerLevel;
+                    }
+                    // Increment the number of levels
+                    extraLevels++;
+                }
+                // STEP 3: Round off, and write the level to the max cap
+                // Round down to a multiple of 5
+                extraLevels = Mathf.CeilToInt( extraLevels / 5f ) * 5;
+                WobPlugin.Log( "Overload levels = " + ( extraLevels + 10 ) );
+                // Loop through the upgrades
+                foreach( SkillTreeType skillTreeType in UpgradeInfo.Keys ) {
+                    // Get the current upgrade level, so we don't set the cap to below it
+                    int currentLevel = SkillTreeManager.GetSkillTreeObj( skillTreeType ).Level;
+                    // Get the upgrade data to be capped
+                    SkillTreeData skillTreeData = SkillTreeLibrary.GetSkillTreeData( skillTreeType );
+                    // Set the level cap to the higher of the current upgrade level and the calculated maximum
+                    skillTreeData.OverloadLevelCap = Mathf.Max( currentLevel, UpgradeInfo[skillTreeType].MaxLevel + ( UpgradeInfo[skillTreeType].AdditiveLevels * extraLevels ) );
+                    WobPlugin.Log( skillTreeType + ": " + skillTreeData.OverloadLevelCap + " = " + UpgradeInfo[skillTreeType].MaxLevel + " + " + ( UpgradeInfo[skillTreeType].AdditiveLevels * extraLevels ) + " (" + currentLevel + ") for " + ( UpgradeInfo[skillTreeType].BaseWeight + ( UpgradeInfo[skillTreeType].WeightPerLevel * UpgradeInfo[skillTreeType].AdditiveLevels * extraLevels ) ) );
+                }
             }
         }
     }

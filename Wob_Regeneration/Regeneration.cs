@@ -1,12 +1,14 @@
-﻿using System.Collections.Generic;
-using System.Reflection.Emit;
-using BepInEx;
+﻿using BepInEx;
 using HarmonyLib;
+using UnityEngine;
 using Wob_Common;
 
 namespace Wob_Regeneration {
-    [BepInPlugin( "Wob.Regeneration", "Regeneration Mod", "1.0.0" )]
+    [BepInPlugin( "Wob.Regeneration", "Regeneration Mod", "1.1.0" )]
+    [BepInIncompatibility( "Wob.ManaRegen" )]
     public partial class Regeneration : BaseUnityPlugin {
+        internal enum RegenStat { NoRegen, MaxHealth, MaxMana, Vitality, Strength, Dexterity, Intelligence, Focus, Constant100 }
+
         // Main method that kicks everything off
         protected void Awake() {
             // Set up the logger and basic config items
@@ -14,129 +16,115 @@ namespace Wob_Regeneration {
             // Create/read the mod specific configuration options
             WobSettings.Add( new WobSettings.Entry[] {
                 // Health related
-                new WobSettings.Boolean(  "HealthRegenEnabled", "Enable mana regeneration",                                                        true                   ),
-                new WobSettings.Num<int>( "HealthRegenTicks",   "Number of ticks/frames between adding health - higher number means slower regen", 30, bounds: (1, 1000)  ),
-                new WobSettings.Num<int>( "HealthRegenAdd",     "When health is added, this is the amount to add",                                 1,  bounds: (1, 10000) ),
+                new WobSettings.Enum<RegenStat>( "HealthRegenStat",  "Use this character stat to calculate health regeneration rate", RegenStat.MaxHealth               ),
+                new WobSettings.Num<float>(      "HealthRegenScale", "Regenerate this percent of the health regen stat per second",   0.5f, 0.01f, bounds: (0f, 10000f) ),
                 // Mana related
-                new WobSettings.Boolean(  "ManaRegenEnabled",   "Enable mana regeneration",                                                        true                   ),
-                new WobSettings.Num<int>( "ManaRegenTicks",     "Number of ticks/frames between adding mana - higher number means slower regen",   1,  bounds: (1, 1000)  ),
-                new WobSettings.Num<int>( "ManaRegenAdd",       "When mana is added, this is the amount to add",                                   1,  bounds: (1, 10000) ),
-                new WobSettings.Boolean(  "ManaRegenDelay",     "Enable the 2 second delay to mana regeneration after casting a spell",            true                   ),
-                new WobSettings.Num<int>( "MaxMana",            "Additional max mana",                                                             0,  bounds: (0, 10000) ),
+                new WobSettings.Enum<RegenStat>( "ManaRegenStat",    "Use this character stat to calculate mana regeneration rate",   RegenStat.MaxMana                 ),
+                new WobSettings.Num<float>(      "ManaRegenScale",   "Regenerate this percent of the mana regen stat per second",     1f,   0.01f, bounds: (0f, 10000f) ),
+                new WobSettings.Boolean(         "ManaRegenDelay",   "Enable the 2 second delay to mana regen after casting a spell", true                              ),
             } );
+            ManaRegen_Update_Patch.healthRegenStat  = WobSettings.Get( "HealthRegenStat",  RegenStat.NoRegen );
+            ManaRegen_Update_Patch.healthRegenScale = WobSettings.Get( "HealthRegenScale", 0f                );
+            ManaRegen_Update_Patch.manaRegenStat    = WobSettings.Get( "ManaRegenStat",    RegenStat.NoRegen );
+            ManaRegen_Update_Patch.manaRegenScale   = WobSettings.Get( "ManaRegenScale",   0f                );
+            ManaRegen_Update_Patch.manaRegenDelay   = WobSettings.Get( "ManaRegenDelay",   true              );
             // Apply the patches if the mod is enabled
             WobPlugin.Patch();
         }
 
-        // Patch to add extra max mana - this method gets the max mana added by runes, just add a flat amount to its return value
-        [HarmonyPatch( typeof( RuneLogicHelper ), nameof( RuneLogicHelper.GetMaxManaFlat ) )]
-        internal static class RuneLogicHelper_GetMaxManaFlat_Patch {
-            internal static void Postfix( ref int __result ) {
-                __result += WobSettings.Get( "MaxMana", 0 );
-            }
-        }
-
         // Patch to the method that controls mana regen
         [HarmonyPatch( typeof( ManaRegen ), "Update" )]
-        internal static class ManaRegen_Update_Health_Patch {
-            // Counter for number of frames - every X ticks add Y health
-            private static int tick = 0;
-            // Increment counter and return amount of health to regen
-            private static int Tick() {
-                tick = ( tick + 1 ) % WobSettings.Get( "HealthRegenTicks", 30 );
-                return tick == 0 ? WobSettings.Get( "HealthRegenAdd", 1 ) : 0;
-            }
+        internal static class ManaRegen_Update_Patch {
+            // Health regen settings
+            internal static RegenStat healthRegenStat;
+            internal static float healthRegenScale;
+            // Health regen fractional running total
+            private static float healthRegenTotal = 0f;
+            // Mana regen settings
+            internal static RegenStat manaRegenStat;
+            internal static float manaRegenScale;
+            internal static bool manaRegenDelay;
+            // Mana regen fractional running total
+            private static float manaRegenTotal = 0f;
+
             internal static void Prefix( ManaRegen __instance ) {
-                // Continue if we are enabling regen
-                if( WobSettings.Get( "HealthRegenEnabled", false ) ) {
-                    // Get a reference to the private field where current player info is stored
-                    PlayerController m_playerController = (PlayerController)Traverse.Create( __instance ).Field( "m_playerController" ).GetValue();
+                // Get a reference to the private field where current player info is stored
+                PlayerController m_playerController = Traverse.Create( __instance ).Field( "m_playerController" ).GetValue<PlayerController>();
+                // Continue if we are enabling health regen
+                if( healthRegenScale > 0f ) {
                     // Get the current health state
                     float actualMaxHealth = m_playerController.ActualMaxHealth;
                     float currentHealth = m_playerController.CurrentHealth;
                     // Check that health is missing
                     if( currentHealth < actualMaxHealth ) {
-                        // Calculate how much health to regenerate this frame
-                        float regenRate = Tick();
-                        if( regenRate > 0 ) {
-                            // Check if this would take us over the maximum
-                            if( regenRate + currentHealth >= actualMaxHealth ) {
+                        // Add current frame's regen to the running total
+                        healthRegenTotal += GetRegenStatValue( m_playerController, healthRegenStat ) * healthRegenScale * Time.deltaTime;
+                        // After the total is over 1 do the actual regeneration
+                        if( healthRegenTotal > 1f ) {
+                            // The regen to add is the integer portion of the total
+                            float regenNow = Mathf.FloorToInt( healthRegenTotal );
+                            // Subtract the regen from the running total so it won't be added twice
+                            healthRegenTotal -= regenNow;
+                            // Check if the regen will take the current health over the maximum
+                            if( regenNow + currentHealth >= actualMaxHealth ) {
                                 // Set health to maximum
                                 m_playerController.SetHealth( actualMaxHealth, false, true );
                             } else {
                                 // Add regen amount to current health
-                                m_playerController.SetHealth( regenRate, true, true );
+                                m_playerController.SetHealth( regenNow, true, true );
                             }
                         }
                     }
                 }
-            }
-        }
-
-        // Patch to the method that controls mana regen
-        [HarmonyPatch( typeof( ManaRegen ), "Update" )]
-        internal static class ManaRegen_Update_Mana_Patch {
-            // Counter for number of frames - every X ticks add Y mana
-            private static int tick = 0;
-            // Increment counter and return amount of mana to regen
-            private static int Tick() {
-                tick = ( tick + 1 ) % WobSettings.Get( "ManaRegenTicks", 1 );
-                return tick == 0 ? WobSettings.Get( "ManaRegenAdd", 1 ) : 0;
-            }
-            internal static void Prefix( ManaRegen __instance ) {
-                // The default is to only use regen if the trait 'Crippling Intellect' is present, so check for it
-                bool regenTrait = TraitManager.IsTraitActive( TraitType.BonusMagicStrength );
-                // Continue if we are always enabling regen or the trait is present
-                if( WobSettings.Get( "ManaRegenEnabled", false ) || regenTrait ) {
-                    // Get a reference to the private field where current player info is stored
-                    PlayerController m_playerController = (PlayerController)Traverse.Create( __instance ).Field( "m_playerController" ).GetValue();
+                // Continue if we are enabling mana regen
+                if( manaRegenScale > 0f ) {
                     // Get the current mana state
                     float actualMaxMana = m_playerController.ActualMaxMana;
                     float currentMana = m_playerController.CurrentMana;
-                    // Check that mana is missing, and whether to respect the delay after casing
-                    if( currentMana < actualMaxMana && !( __instance.IsManaRegenDelayed && WobSettings.Get( "ManaRegenDelay", true ) ) ) {
-                        // Calculate how much mana to regenerate this frame
-                        float regenRate = Tick();
-                        if( regenRate > 0 ) {
-                            // Check if this would take us over the maximum
-                            if( regenRate + currentMana >= actualMaxMana ) {
+                    // Check that mana is missing
+                    if( currentMana < actualMaxMana && !( manaRegenDelay && __instance.IsManaRegenDelayed ) ) {
+                        // Add current frame's regen to the running total
+                        manaRegenTotal += GetRegenStatValue( m_playerController, manaRegenStat ) * manaRegenScale * Time.deltaTime;
+                        // After the total is over 1 do the actual regeneration
+                        if( manaRegenTotal > 1f ) {
+                            // The regen to add is the integer portion of the total
+                            float regenNow = Mathf.FloorToInt( manaRegenTotal );
+                            // Subtract the regen from the running total so it won't be added twice
+                            manaRegenTotal -= regenNow;
+                            // Check if the regen will take the current mana over the maximum
+                            if( regenNow + currentMana >= actualMaxMana ) {
                                 // Set mana to maximum
                                 m_playerController.SetMana( actualMaxMana, false, true );
                             } else {
                                 // Add regen amount to current mana
-                                m_playerController.SetMana( regenRate, true, true );
+                                m_playerController.SetMana( regenNow, true, true );
                             }
                         }
                     }
                 }
             }
-        }
 
-        // Patch to the method that controls mana regen - just removing effects of original method
-        [HarmonyPatch( typeof( ManaRegen ), "Update" )]
-        internal static class ManaRegen_Update_Transpiler_Patch {
-            internal static IEnumerable<CodeInstruction> Transpiler( IEnumerable<CodeInstruction> instructions ) {
-                WobPlugin.Log( "ManaRegen.Update Transpiler Patch" );
-                // Set up the transpiler handler with the instruction list
-                WobTranspiler transpiler = new WobTranspiler( instructions );
-                // Perform the patching
-                transpiler.PatchAll(
-                        // Define the IL code instructions that should be matched
-                        new List<WobTranspiler.OpTest> {
-                            /*  0 */ new WobTranspiler.OpTest( OpCodes.Ldarg_0                           ), // this
-                            /*  1 */ new WobTranspiler.OpTest( OpCodes.Ldfld, name: "m_playerController" ), // this.m_playerController
-                            /*  2 */ new WobTranspiler.OpTest( OpCodeSet.Ldloc                           ), // local variable parameter
-                            /*  3 */ new WobTranspiler.OpTest( OpCodeSet.Ldc_I4_Bool                     ), // bool literal parameter
-                            /*  4 */ new WobTranspiler.OpTest( OpCodeSet.Ldc_I4_Bool                     ), // bool literal parameter
-                            /*  5 */ new WobTranspiler.OpTest( OpCodeSet.Ldc_I4_Bool                     ), // bool literal parameter
-                            /*  6 */ new WobTranspiler.OpTest( OpCodes.Callvirt, name: "SetMana"         ), // this.m_playerController.SetMana
-                        },
-                        // Define the actions to take when an occurrence is found
-                        new List<WobTranspiler.OpAction> {
-                            new WobTranspiler.OpAction_Remove( 0, 7 ), // Blank out the found instructions with nop instructions
-                        } );
-                // Return the modified instructions
-                return transpiler.GetResult();
+            private static float GetRegenStatValue( PlayerController player, RegenStat regenStat ) {
+                switch( regenStat ) {
+                    case RegenStat.MaxHealth:
+                        return player.ActualMaxHealth;
+                    case RegenStat.MaxMana:
+                        return player.ActualMaxMana;
+                    case RegenStat.Vitality:
+                        return player.ActualVitality;
+                    case RegenStat.Strength:
+                        return player.ActualStrength;
+                    case RegenStat.Dexterity:
+                        return player.ActualDexterity;
+                    case RegenStat.Intelligence:
+                        return player.ActualMagic;
+                    case RegenStat.Focus:
+                        return player.ActualMaxHealth;
+                    case RegenStat.Constant100:
+                        return 100f;
+                    default:
+                        return 0f;
+                }
             }
         }
     }
