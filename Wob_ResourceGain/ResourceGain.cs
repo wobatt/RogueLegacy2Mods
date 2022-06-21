@@ -5,7 +5,7 @@ using HarmonyLib;
 using Wob_Common;
 
 namespace Wob_ResourceGain {
-    [BepInPlugin( "Wob.ResourceGain", "Resource Gain Mod", "1.0.0" )]
+    [BepInPlugin( "Wob.ResourceGain", "Resource Gain Mod", "1.1.0" )]
     public partial class GoldGain : BaseUnityPlugin {
         // Main method that kicks everything off
         protected void Awake() {

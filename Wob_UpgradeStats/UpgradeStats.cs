@@ -6,7 +6,7 @@ using UnityEngine;
 using Wob_Common;
 
 namespace Wob_UpgradeStats {
-    [BepInPlugin( "Wob.UpgradeStats", "Upgrade Stat Gains Mod", "1.0.0" )]
+    [BepInPlugin( "Wob.UpgradeStats", "Upgrade Stat Gains Mod", "1.0.1" )]
     public partial class UpgradeStats : BaseUnityPlugin {
         // Main method that kicks everything off
         protected void Awake() {
