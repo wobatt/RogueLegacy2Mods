@@ -47,7 +47,7 @@ namespace Wob_RuneStats {
             foreach( RuneType runeType in RuneInfo.Keys ) {
                 keys.Add( runeType, RuneInfo[runeType].Config );
                 WobSettings.Add( new WobSettings.Num<int>( keys.Get( runeType, "GoldCost" ), "Base gold cost for " + RuneInfo[runeType].Name, RuneInfo[runeType].Cost, bounds: (1, 1000000) ) );
-                WobSettings.Add( new WobSettings.Num<int>( keys.Get( runeType, "OreCost" ), "Base red aether cost for " + RuneInfo[runeType].Name, RuneInfo[runeType].Cost, bounds: (1, 1000000) ) );
+                WobSettings.Add( new WobSettings.Num<int>( keys.Get( runeType, "AetherCost" ), "Base red aether cost for " + RuneInfo[runeType].Name, RuneInfo[runeType].Cost, bounds: (1, 1000000) ) );
                 WobSettings.Add( new WobSettings.Num<int>( keys.Get( runeType, "Weight" ), "Rune weight per level for " + RuneInfo[runeType].Name, RuneInfo[runeType].Weight, bounds: (1, 1000000) ) );
                 if( runeType == RuneType.Magnet ) {
                     WobSettings.Add( new WobSettings.Num<float>( keys.Get( runeType, "StatGain" ), RuneInfo[runeType].StatName + " added per level for " + RuneInfo[runeType].Name, RuneInfo[runeType].StatGain, bounds: (0f, 1000000f) ) );

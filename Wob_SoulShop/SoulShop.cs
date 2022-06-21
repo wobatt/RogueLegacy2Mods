@@ -46,7 +46,17 @@ namespace Wob_SoulShop {
                 keys.Add( sType, SSInfo[sType].Config );
                 WobSettings.Add( new WobSettings.Num<int>( keys.Get( sType, "BaseCost"    ), "Cost at level 1 for "         + SSInfo[sType].Name, SSInfo[sType].BaseCost,    bounds: (1, 1000000) ) );
                 if( SSInfo[sType].MaxLevel > 1 ) {
-                    int maxBound = ( sType == SoulShopType.MaxEquipmentDrops || sType == SoulShopType.MaxRuneDrops ) ? 9 : 1000000;
+                    int maxBound = 1000000;
+                    switch( sType ) {
+                        case SoulShopType.MaxEquipmentDrops:
+                        case SoulShopType.MaxRuneDrops:
+                            maxBound = 9;
+                            break;
+                        case SoulShopType.MaxMasteryFlat:
+                        case SoulShopType.MaxCharonDonationFlat:
+                            maxBound = 260;
+                            break;
+                    }
                     WobSettings.Add( new WobSettings.Num<int>( keys.Get( sType, "ScalingCost" ), "Cost increase per level for "         + SSInfo[sType].Name, SSInfo[sType].ScalingCost, bounds: (0, 1000000)  ) );
                     WobSettings.Add( new WobSettings.Num<int>( keys.Get( sType, "MaxScaling"  ), "Stop scaling cost at this level for " + SSInfo[sType].Name, SSInfo[sType].MaxScaling,  bounds: (1, maxBound) ) );
                     WobSettings.Add( new WobSettings.Num<int>( keys.Get( sType, "MaxLevel"    ), "Max level without overload for "      + SSInfo[sType].Name, SSInfo[sType].MaxLevel,    bounds: (1, maxBound) ) );

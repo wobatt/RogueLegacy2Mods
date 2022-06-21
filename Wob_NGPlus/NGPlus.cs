@@ -6,7 +6,7 @@ using HarmonyLib;
 using Wob_Common;
 
 namespace Wob_Plus {
-    [BepInPlugin( "Wob.NGPlus", "New Game Plus Mod", "0.1.0" )]
+    [BepInPlugin( "Wob.NGPlus", "New Game Plus Mod", "1.0.0" )]
     public partial class NGPlus : BaseUnityPlugin {
 
         private static readonly WobSettings.KeyHelper<BurdenType> keys = new WobSettings.KeyHelper<BurdenType>( "Burden", 2 );

@@ -30,12 +30,13 @@ namespace Wob_BonusDamage {
             WobPlugin.Initialise( this, this.Logger );
             // Create/read the mod specific configuration options
             WobSettings.Add( new WobSettings.Entry[] {
-                new WobSettings.Num<float>( "Tier1Bonus",    "Deal this % bonus damage to all tier 1 (basic) variant enemies",     0f,  0.01f, bounds: (0f, 1000000f) ),
-                new WobSettings.Num<float>( "Tier2Bonus",    "Deal this % bonus damage to all tier 2 (advanced) variant enemies",  0f,  0.01f, bounds: (0f, 1000000f) ),
-                new WobSettings.Num<float>( "Tier3Bonus",    "Deal this % bonus damage to all tier 3 (commander) variant enemies", 0f,  0.01f, bounds: (0f, 1000000f) ),
-                new WobSettings.Num<float>( "MinibossBonus", "Deal this % bonus damage to all minibosses",                         0f,  0.01f, bounds: (0f, 1000000f) ),
-                new WobSettings.Num<float>( "BossBonus",     "Deal this % bonus damage to all bosses",                             0f,  0.01f, bounds: (0f, 1000000f) ),
-                new WobSettings.Num<float>( "InsightBonus",  "Deal this % bonus damage to a boss for resolving their insight",     15f, 0.01f, bounds: (0f, 1000000f) ),
+                new WobSettings.Num<float>( "Tier1Bonus",    "Deal this % bonus damage to all tier 1 (basic) variant enemies",                 0f,  0.01f, bounds: (0f, 1000000f) ),
+                new WobSettings.Num<float>( "Tier2Bonus",    "Deal this % bonus damage to all tier 2 (advanced) variant enemies",              0f,  0.01f, bounds: (0f, 1000000f) ),
+                new WobSettings.Num<float>( "Tier3Bonus",    "Deal this % bonus damage to all tier 3 (commander) variant enemies",             0f,  0.01f, bounds: (0f, 1000000f) ),
+                new WobSettings.Num<float>( "MinibossBonus", "Deal this % bonus damage to all minibosses",                                     0f,  0.01f, bounds: (0f, 1000000f) ),
+                new WobSettings.Num<float>( "BossBonus",     "Deal this % bonus damage to all bosses",                                         0f,  0.01f, bounds: (0f, 1000000f) ),
+                new WobSettings.Num<float>( "InsightBonus",  "Deal this % bonus damage to a boss for resolving their insight",                 15f, 0.01f, bounds: (0f, 1000000f) ),
+                new WobSettings.Num<float>( "InsightPrime",  "Deal this % bonus damage to Traitor/Cain for resolving the Prime boss insights", 5f,  0.01f, bounds: (0f, 1000000f) ),
             } );
             // Cache the settings into a dictionary based on the EnemyRank enum
             rankBonus.Add( (int)EnemyRank.Basic,    WobSettings.Get( "Tier1Bonus",    0f ) );
@@ -67,6 +68,19 @@ namespace Wob_BonusDamage {
                         // Define the actions to take when an occurrence is found
                         new List<WobTranspiler.OpAction> {
                             new WobTranspiler.OpAction_SetOperand( 0, ( WobSettings.Get( "InsightBonus", 0.15f ) + 1f ) ),
+                        } );
+                // Perform the patching
+                transpiler.PatchAll(
+                        // Define the IL code instructions that should be matched
+                        new List<WobTranspiler.OpTest> {
+                            /*  0 */ new WobTranspiler.OpTest( OpCodeSet.Ldloc                                                ), // num
+                            /*  1 */ new WobTranspiler.OpTest( OpCodes.Ldc_R4, Insight_EV.INSIGHT_FINALBOSS_PLAYER_DAMAGE_MOD ), // 0.05f
+                            /*  2 */ new WobTranspiler.OpTest( OpCodes.Add                                                    ), // num + 0.05f
+                            /*  3 */ new WobTranspiler.OpTest( OpCodeSet.Stloc                                                ), // num += 0.05f
+                        },
+                        // Define the actions to take when an occurrence is found
+                        new List<WobTranspiler.OpAction> {
+                            new WobTranspiler.OpAction_SetOperand( 1, WobSettings.Get( "InsightPrime", 0.05f ) ),
                         } );
                 // Return the modified instructions
                 return transpiler.GetResult();

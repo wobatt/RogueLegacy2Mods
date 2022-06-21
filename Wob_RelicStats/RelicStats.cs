@@ -146,6 +146,9 @@ namespace Wob_RelicStats {
                                 relicData.Rarity = 99;
                                 WobPlugin.Log( "Banning relic " + relicData.Name );
                             }
+                            if( relicType == RelicType.FreeFairyChest && WobSettings.Get( keys.Get( RelicType.FreeFairyChest, "InfiniteUses" ), false ) ) {
+                                relicData.MaxStack = 1;
+                            }
                         }
                     }
                     runOnce = true;
