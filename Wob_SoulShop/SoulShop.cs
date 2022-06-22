@@ -7,7 +7,7 @@ using UnityEngine;
 using Wob_Common;
 
 namespace Wob_SoulShop {
-    [BepInPlugin( "Wob.SoulShop", "Soul Shop Mod", "1.1.0" )]
+    [BepInPlugin( "Wob.SoulShop", "Soul Shop Mod", "1.1.2" )]
     public partial class SoulShop : BaseUnityPlugin {
 
         private static readonly HashSet<SoulShopType> specialShopItems = new HashSet<SoulShopType> { SoulShopType.SoulSwap, SoulShopType.OreAetherSwap, SoulShopType.AetherOreSwap };
@@ -53,8 +53,10 @@ namespace Wob_SoulShop {
                             maxBound = 9;
                             break;
                         case SoulShopType.MaxMasteryFlat:
+                            maxBound = 235; // Max mastery XP level = 15 + 235 = 250, int overflow at 263
+                            break;
                         case SoulShopType.MaxCharonDonationFlat:
-                            maxBound = 260;
+                            maxBound = 100; // Max Charon level = 25 + 3 * 100 = 325, int overflow at 335
                             break;
                     }
                     WobSettings.Add( new WobSettings.Num<int>( keys.Get( sType, "ScalingCost" ), "Cost increase per level for "         + SSInfo[sType].Name, SSInfo[sType].ScalingCost, bounds: (0, 1000000)  ) );
@@ -81,30 +83,21 @@ namespace Wob_SoulShop {
         }
 
         private static void GenerateLeveledArrays( ) {
-            int levels = 50 + WobSettings.Get( keys.Get( SoulShopType.MaxMasteryFlat, "MaxOverload" ), 50 );
-            if( levels > Mastery_EV.XP_REQUIRED.Length ) {
-                int[] xpArray = new int[levels];
-                for( int i = 0; i < xpArray.Length; i++ ) {
-                    xpArray[i] = Mathf.RoundToInt( ( ( 700f / 6f ) * i * i * i ) + ( 450f * i * i ) + ( ( 5800f / 3f ) * i ) );
-                }
-                Mastery_EV.XP_REQUIRED = xpArray;
+            int[] xpArray1 = new int[261]; // int overflow at 263
+            for( int i = 0; i < xpArray1.Length; i++ ) {
+                xpArray1[i] = Mathf.RoundToInt( ( ( 700f / 6f ) * i * i * i ) + ( 450f * i * i ) + ( ( 5800f / 3f ) * i ) );
             }
-            int levelsDW = 50 + WobSettings.Get( keys.Get( SoulShopType.MaxMasteryFlat, "MaxOverload" ), 50 );
-            if( levelsDW > Mastery_EV.DRIFTING_WORLDS_XP_REQUIRED.Length ) {
-                int[] xpArray = new int[levels];
-                for( int i = 0; i < xpArray.Length; i++ ) {
-                    xpArray[i] = Mathf.RoundToInt( ( ( 50f / 3f ) * i * i * i ) + ( 850f * i * i ) + ( ( 2650f / 3f ) * i ) );
-                }
-                Mastery_EV.DRIFTING_WORLDS_XP_REQUIRED = xpArray;
+            Mastery_EV.XP_REQUIRED = xpArray1;
+            int[] xpArray2 = new int[261]; // Match length of array above
+            for( int i = 0; i < xpArray2.Length; i++ ) {
+                xpArray2[i] = Mathf.RoundToInt( ( ( 50f / 3f ) * i * i * i ) + ( 850f * i * i ) + ( ( 2650f / 3f ) * i ) );
             }
-            int levelsCharon = 50 + WobSettings.Get( keys.Get( SoulShopType.MaxCharonDonationFlat, "MaxOverload" ), 50 );
-            if( levelsCharon > SkillTree_EV.CHARON_GOLD_STAT_BONUS_MILESTONES.Length ) {
-                int[] goldArray = new int[levelsCharon];
-                for( int i = 0; i < goldArray.Length; i++ ) {
-                    goldArray[i] = Mathf.RoundToInt( ( 50f * i * i * i ) + ( 2425f * i * i ) + ( 5025f * i ) );
-                }
-                SkillTree_EV.CHARON_GOLD_STAT_BONUS_MILESTONES = goldArray;
+            Mastery_EV.DRIFTING_WORLDS_XP_REQUIRED = xpArray2;
+            int[] charonGoldArray = new int[331]; // int overflow at 335
+            for( int i = 0; i < charonGoldArray.Length; i++ ) {
+                charonGoldArray[i] = Mathf.RoundToInt( ( 50f * i * i * i ) + ( 2425f * i * i ) + ( 5025f * i ) );
             }
+            SkillTree_EV.CHARON_GOLD_STAT_BONUS_MILESTONES = charonGoldArray;
         }
 
 

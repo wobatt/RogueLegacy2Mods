@@ -7,7 +7,7 @@ using HarmonyLib;
 using Wob_Common;
 
 namespace Wob_BonusDamage {
-    [BepInPlugin( "Wob.BonusDamage", "Bonus Damage Mod", "1.0.0" )]
+    [BepInPlugin( "Wob.BonusDamage", "Bonus Damage Mod", "1.0.1" )]
     public partial class BonusDamage : BaseUnityPlugin {
         // Cache of settings for quick lookup against the EnemyRank enum
         private static readonly Dictionary<int,float> rankBonus = new Dictionary<int,float>();
@@ -30,13 +30,13 @@ namespace Wob_BonusDamage {
             WobPlugin.Initialise( this, this.Logger );
             // Create/read the mod specific configuration options
             WobSettings.Add( new WobSettings.Entry[] {
-                new WobSettings.Num<float>( "Tier1Bonus",    "Deal this % bonus damage to all tier 1 (basic) variant enemies",                 0f,  0.01f, bounds: (0f, 1000000f) ),
-                new WobSettings.Num<float>( "Tier2Bonus",    "Deal this % bonus damage to all tier 2 (advanced) variant enemies",              0f,  0.01f, bounds: (0f, 1000000f) ),
-                new WobSettings.Num<float>( "Tier3Bonus",    "Deal this % bonus damage to all tier 3 (commander) variant enemies",             0f,  0.01f, bounds: (0f, 1000000f) ),
-                new WobSettings.Num<float>( "MinibossBonus", "Deal this % bonus damage to all minibosses",                                     0f,  0.01f, bounds: (0f, 1000000f) ),
-                new WobSettings.Num<float>( "BossBonus",     "Deal this % bonus damage to all bosses",                                         0f,  0.01f, bounds: (0f, 1000000f) ),
-                new WobSettings.Num<float>( "InsightBonus",  "Deal this % bonus damage to a boss for resolving their insight",                 15f, 0.01f, bounds: (0f, 1000000f) ),
-                new WobSettings.Num<float>( "InsightPrime",  "Deal this % bonus damage to Traitor/Cain for resolving the Prime boss insights", 5f,  0.01f, bounds: (0f, 1000000f) ),
+                new WobSettings.Num<float>( "Tier1Bonus",    "Deal this % bonus damage to all tier 1 (basic) variant enemies",                 0f,  0.01f, bounds: (-100f, 1000000f) ),
+                new WobSettings.Num<float>( "Tier2Bonus",    "Deal this % bonus damage to all tier 2 (advanced) variant enemies",              0f,  0.01f, bounds: (-100f, 1000000f) ),
+                new WobSettings.Num<float>( "Tier3Bonus",    "Deal this % bonus damage to all tier 3 (commander) variant enemies",             0f,  0.01f, bounds: (-100f, 1000000f) ),
+                new WobSettings.Num<float>( "MinibossBonus", "Deal this % bonus damage to all minibosses",                                     0f,  0.01f, bounds: (-100f, 1000000f) ),
+                new WobSettings.Num<float>( "BossBonus",     "Deal this % bonus damage to all bosses",                                         0f,  0.01f, bounds: (-100f, 1000000f) ),
+                new WobSettings.Num<float>( "InsightBonus",  "Deal this % bonus damage to a boss for resolving their insight",                 15f, 0.01f, bounds: (   0f, 1000000f) ),
+                new WobSettings.Num<float>( "InsightPrime",  "Deal this % bonus damage to Traitor/Cain for resolving the Prime boss insights", 5f,  0.01f, bounds: (   0f, 1000000f) ),
             } );
             // Cache the settings into a dictionary based on the EnemyRank enum
             rankBonus.Add( (int)EnemyRank.Basic,    WobSettings.Get( "Tier1Bonus",    0f ) );

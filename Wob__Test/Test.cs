@@ -28,23 +28,66 @@ namespace Wob__Test {
 
 
         // This patch simply dumps skill tree data to the debug log when the Manor skill tree is opened - useful for getting internal names and default values for the upgrades
-        /*[HarmonyPatch( typeof( SkillTreeWindowController ), nameof( SkillTreeWindowController.Initialize ) )]
+        [HarmonyPatch( typeof( SkillTreeWindowController ), nameof( SkillTreeWindowController.Initialize ) )]
         internal static class SkillTreeWindowController_Initialize_Patch {
             internal static void Postfix() {
-                foreach( RuneType runeType in RuneType_RL.TypeArray ) {
-                    if( runeType != RuneType.None ) {
-                        RuneData runeData = RuneLibrary.GetRuneData( runeType );
-                        if( runeData != null && !runeData.Disabled ) {
-                            WobPlugin.Log( "~~  " + runeType + "|" + runeData.BaseItemLevel + "|" + runeData.ScalingItemLevel  + "|" + runeData.MaximumLevel
-                                + "|" + runeData.GoldCost + "|" + runeData.ScalingGoldCost + "|" + runeData.BlackStoneCost + "|" + runeData.ScalingBlackStoneCost
-                                + "|" + runeData.BaseWeight + "|" + runeData.ScalingWeight
-                                + "|" + runeData.StatMod01 + "|" + runeData.ScalingStatMod01 + "|" + runeData.StatMod02 + "|" + runeData.ScalingStatMod02 + "|" + runeData.StatMod03 + "|" + runeData.ScalingStatMod03
-                                + "|" + LocalizationManager.GetString( runeData.Title, false, false ) + "|" + LocalizationManager.GetString( runeData.Description, false, false ) );
+                foreach( BiomeType biomeType in BiomeType_RL.TypeArray ) {
+                    try {
+                        BiomeArtData biomeArtData = BiomeArtDataLibrary.GetArtData( biomeType );
+                        if( biomeArtData != null && biomeArtData.LightAndFogData != null ) {
+                            //WobPlugin.Log( "~~  " + biomeType + "|" + biomeArtData.LightAndFogData.Fog + "|" + biomeArtData.LightAndFogData.FogMode + "|" 
+                            //    + biomeArtData.LightAndFogData.FogModeIndex + "|" + biomeArtData.LightAndFogData.FogColor + "|" 
+                            //    + biomeArtData.LightAndFogData.FogDensity + "|" + biomeArtData.LightAndFogData.FogStartDistance + "|" + biomeArtData.LightAndFogData.FogEndDistance );
+                            //biomeArtData.LightAndFogData.Fog = false;
+                        }
+                    } catch ( KeyNotFoundException ) {
+                        WobPlugin.Log( "~~  NOT FOUND: " + biomeType );
+                    }
+                }
+                /*foreach( EquipmentType type in EquipmentType_RL.TypeArray ) {
+                    if( type != EquipmentType.None ) {
+                        EquipmentSetData setData = EquipmentSetLibrary.GetEquipmentSetData( type );
+                        if( setData != null ) {
+                            WobPlugin.Log( "~1~  " + type + "|" + setData.Name + "|"
+                                    + setData.SetRequirement01 + "|" + setData.SetBonus01.BonusType + "|" + setData.SetBonus01.StatGain + "|"
+                                    + setData.SetRequirement02 + "|" + setData.SetBonus02.BonusType + "|" + setData.SetBonus02.StatGain + "|"
+                                    + setData.SetRequirement03 + "|" + setData.SetBonus03.BonusType + "|" + setData.SetBonus03.StatGain + "|"
+                                    + LocalizationManager.GetString( setData.Title, false ) );
                         }
                     }
                 }
+                foreach( EquipmentType type in EquipmentType_RL.TypeArray ) {
+                    if( type != EquipmentType.None ) {
+                        foreach( EquipmentCategoryType catType in EquipmentType_RL.CategoryTypeArray ) {
+                            if( catType != EquipmentCategoryType.None ) {
+                                EquipmentData data = EquipmentLibrary.GetEquipmentData( catType, type );
+                                if( data != null && !data.Disabled ) {
+                                    WobPlugin.Log( "~2~  " + type + "|" + catType + "|" + data.Name + "|" + data.BlacksmithUIIndex + "|" 
+                                        + data.ChestLevelRequirement + "|" + data.ChestRarityRequirement + "|"
+                                        + data.MaximumLevel + "|" + data.ScalingItemLevel + "|" 
+                                        + data.BaseEquipmentSetLevel + "|" + data.ScalingEquipmentSetLevel + "|"
+                                        + data.GoldCost + "|" + data.ScalingGoldCost + "|" 
+                                        + data.OreCost + "|" + data.ScalingOreCost + "|" 
+                                        + data.BaseWeight + "|" + data.ScalingWeight + "|" 
+                                        + data.BaseHealth + "|" + data.ScalingHealth + "|" 
+                                        + data.BaseMana + "|" + data.ScalingMana + "|" 
+                                        + data.BaseArmor + "|" + data.ScalingArmor + "|" 
+                                        + data.BaseStrengthDamage + "|" + data.ScalingStrengthDamage + "|" 
+                                        + data.BaseMagicDamage + "|" + data.ScalingMagicDamage + "|" 
+                                        + data.BaseStrengthCritDamage + "|" + data.ScalingStrengthCritDamage + "|" 
+                                        + data.BaseMagicCritDamage + "|" + data.ScalingMagicCritDamage + "|" 
+                                        + data.BaseStrengthCritChance + "|" + data.ScalingStrengthCritChance + "|" 
+                                        + data.BaseMagicCritChance + "|" + data.ScalingMagicCritChance + "|" 
+                                        + data.ScalingGoldSpike01 + "|" + data.ScalingGoldSpike02 + "|" 
+                                        + data.ScalingOreSpike01 + "|" + data.ScalingOreSpike02 + "|" 
+                                        + LocalizationManager.GetString( data.Title, false ) );
+                                }
+                            }
+                        }
+                    }
+                }*/
             }
-        }*/
+        }
 
         // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -133,19 +176,6 @@ namespace Wob__Test {
                 float spent = SaveManager.PlayerSaveData.GetTotalRelicResolveCost();
                 float total = current + spent;
                 WobPlugin.Log( "~~  Resolve = " + current + " + " + spent + " = " + total );
-                /*if( !ChallengeManager.IsInChallenge ) {
-                    resolve += Equipment_EV.RESOLVE_BONUS_PER_WEIGHT_LEVEL[Mathf.Clamp( EquipmentManager.GetWeightLevel(), 0, Equipment_EV.CRIT_DAMAGE_BONUS_PER_WEIGHT_LEVEL.Length - 1 )];
-                }
-                resolve += RuneLogicHelper.GetResolveAdd();
-                resolve += SkillTreeLogicHelper.GetResolveAdds();
-                resolve += EquipmentManager.Get_EquipmentSet_BonusTypeStatGain( EquipmentSetBonusType.Resolve );
-                int burdenAdd = BurdenManager.BurdenRequiredForNG(SaveManager.PlayerSaveData.NewGamePlusLevel);
-                if( burdenAdd < 0 ) {
-                    SoulShopObj soulShopObj = SaveManager.ModeSaveData.GetSoulShopObj(SoulShopType.BurdenOverload);
-                    if( !soulShopObj.IsNativeNull() ) {
-                        burdenAdd += soulShopObj.CurrentStatGain * (float)Mathf.Abs( num4 );
-                    }
-                }*/
                 return total;
             }
         }
