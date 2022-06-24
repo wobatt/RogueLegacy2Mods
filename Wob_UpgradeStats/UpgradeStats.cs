@@ -1,12 +1,13 @@
 ﻿using BepInEx;
 using HarmonyLib;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection.Emit;
 using UnityEngine;
 using Wob_Common;
 
 namespace Wob_UpgradeStats {
-    [BepInPlugin( "Wob.UpgradeStats", "Upgrade Stat Gains Mod", "1.0.1" )]
+    [BepInPlugin( "Wob.UpgradeStats", "Upgrade Stat Gains Mod", "1.0.2" )]
     public partial class UpgradeStats : BaseUnityPlugin {
         // Main method that kicks everything off
         protected void Awake() {
@@ -68,6 +69,8 @@ namespace Wob_UpgradeStats {
             WobPlugin.Patch();
         }
 
+        // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
         // Change the stat gain just before the firest level stat gain is read
         [HarmonyPatch( typeof( SkillTreeObj ), nameof( SkillTreeObj.FirstLevelStatGain ), MethodType.Getter )]
         internal static class SkillTreeObj_FirstLevelStatGain_Patch {
@@ -101,6 +104,8 @@ namespace Wob_UpgradeStats {
             }
         }
 
+        // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
         // Reroll for heirs seems to ignore the stat gain and just use the upgrade level - this is to fix that
         // Patch for the method that controls initial setup of the UI elements for character selection, including reroll
         [HarmonyPatch( typeof( LineageWindowController ), "OnOpen" )]
@@ -128,6 +133,8 @@ namespace Wob_UpgradeStats {
             }
         }
 
+        // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
         // Correct the total resolve cost calculation to prevent negative costs from increased effect of Archeology Camp (Relic_Cost_Down)
         [HarmonyPatch( typeof( PlayerSaveData ), nameof( PlayerSaveData.GetTotalRelicResolveCost ) )]
         internal static class PlayerSaveData_GetTotalRelicResolveCost_Patch {
@@ -154,6 +161,128 @@ namespace Wob_UpgradeStats {
                         } );
                 // Return the modified instructions
                 return transpiler.GetResult();
+            }
+        }
+
+        // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+        // Prevent game freeze if rerolling relics too many times
+        [HarmonyPatch( typeof( RelicRoomPropController ), nameof( RelicRoomPropController.RollRelics ) )]
+        internal static class RelicRoomPropController_RollRelics_Patch {
+            internal static IEnumerable<CodeInstruction> Transpiler( IEnumerable<CodeInstruction> instructions ) {
+                WobPlugin.Log( "RelicRoomPropController.RollRelics Transpiler Patch" );
+                // Set up the transpiler handler with the instruction list
+                WobTranspiler transpiler = new WobTranspiler( instructions );
+                // Perform the patching
+                transpiler.PatchAll(
+                        // Define the IL code instructions that should be matched
+                        new List<WobTranspiler.OpTest> {
+                            /*  0 */ new WobTranspiler.OpTest( OpCodes.Ldarg_0                         ), // this
+                            /*  1 */ new WobTranspiler.OpTest( OpCodes.Ldflda                          ), // this.m_relicTypes
+                            /*  2 */ new WobTranspiler.OpTest( OpCodeSet.Ldloc                         ), // rngIDToUse
+                            /*  3 */ new WobTranspiler.OpTest( OpCodes.Ldc_I4_0                        ), // false
+                            /*  4 */ new WobTranspiler.OpTest( OpCodes.Ldsfld, name: "m_exclusionList" ), // m_exclusionList
+                            /*  5 */ new WobTranspiler.OpTest( OpCodes.Call, name: "GetRandomRelic"    ), // RelicLibrary.GetRandomRelic(rngIDToUse, false, m_exclusionList)
+                            /*  6 */ new WobTranspiler.OpTest( OpCodes.Call, name: "set_x"             ), // this.m_relicTypes.x = 
+                        },
+                        // Define the actions to take when an occurrence is found
+                        new List<WobTranspiler.OpAction> {
+                                new WobTranspiler.OpAction_Insert( 5, OpCodes.Call, SymbolExtensions.GetMethodInfo( () => CheckExclusionListX( null ) ) ),
+                        } );
+                transpiler.PatchAll(
+                        // Define the IL code instructions that should be matched
+                        new List<WobTranspiler.OpTest> {
+                            /*  0 */ new WobTranspiler.OpTest( OpCodes.Ldarg_0                         ), // this
+                            /*  1 */ new WobTranspiler.OpTest( OpCodes.Ldflda                          ), // this.m_relicTypes
+                            /*  2 */ new WobTranspiler.OpTest( OpCodeSet.Ldloc                         ), // rngIDToUse
+                            /*  3 */ new WobTranspiler.OpTest( OpCodes.Ldc_I4_0                        ), // false
+                            /*  4 */ new WobTranspiler.OpTest( OpCodes.Ldsfld, name: "m_exclusionList" ), // m_exclusionList
+                            /*  5 */ new WobTranspiler.OpTest( OpCodes.Call, name: "GetRandomRelic"    ), // RelicLibrary.GetRandomRelic(rngIDToUse, false, m_exclusionList)
+                            /*  6 */ new WobTranspiler.OpTest( OpCodes.Call, name: "set_y"             ), // this.m_relicTypes.y = 
+                        },
+                        // Define the actions to take when an occurrence is found
+                        new List<WobTranspiler.OpAction> {
+                                new WobTranspiler.OpAction_Insert( 5, OpCodes.Call, SymbolExtensions.GetMethodInfo( () => CheckExclusionListY( null ) ) ),
+                        } );
+                // Return the modified instructions
+                return transpiler.GetResult();
+            }
+
+            // Reset exclusions if there are no unseen relics left to roll
+            private static List<RelicType> CheckExclusionListX( List<RelicType> exclusionList ) { return CheckExclusionList( exclusionList, 0 ); }
+            // Reset exclusions if there is 1 unseen relics left to roll, as that one will be in X and duplicates are not allowed
+            private static List<RelicType> CheckExclusionListY( List<RelicType> exclusionList ) { return CheckExclusionList( exclusionList, 1 ); }
+            // Check the exclusion list to ensure that it is possible to roll relics, and reset the list if too many are excluded
+            private static List<RelicType> CheckExclusionList( List<RelicType> exclusionList, int resetAt ) {
+                List<RelicType> allowedTypes = new List<RelicType>();
+                foreach( RelicType relicType in RelicType_RL.TypeArray ) {
+                    if( RelicLibrary.IsRelicAllowed( relicType ) ) {
+                        //RelicData relicData = RelicLibrary.GetRelicData( relicType );
+                        //RelicObj relicObj = SaveManager.PlayerSaveData.GetRelic( relicType );
+                        //if( relicData != null && relicObj != null && relicObj.Level <= relicData.MaxStack ) {
+                        if( !exclusionList.Contains( relicType ) ) {
+                            allowedTypes.Add( relicType );
+                        }
+                        //}
+                    }
+                }
+                if( allowedTypes.Count <= resetAt ) {
+                    WobPlugin.Log( "Relic reroll list reset" );
+                    exclusionList.Clear();
+                    if( ChallengeManager.IsInChallenge ) {
+                        exclusionList.AddRange( Challenge_EV.RELIC_EXCLUSION_ARRAY );
+                    }
+                }
+                return exclusionList;
+            }
+        }
+
+        // Reset available abilities list if rerolled through all of them, instead of using the sword weapon ability
+        [HarmonyPatch( typeof( SwapAbilityRoomPropController ), nameof( SwapAbilityRoomPropController.RollAbilities ) )]
+        internal static class SwapAbilityRoomPropController_RollAbilities_Patch {
+            internal static IEnumerable<CodeInstruction> Transpiler( IEnumerable<CodeInstruction> instructions ) {
+                WobPlugin.Log( "SwapAbilityRoomPropController.RollAbilities Transpiler Patch" );
+                // Set up the transpiler handler with the instruction list
+                WobTranspiler transpiler = new WobTranspiler( instructions );
+                // Perform the patching
+                transpiler.PatchAll(
+                        // Define the IL code instructions that should be matched
+                        new List<WobTranspiler.OpTest> {
+							// this.m_abilityType = AbilityType.SwordWeapon; break;
+                            /*  0 */ new WobTranspiler.OpTest( OpCodes.Ldarg_0                           ), // this
+                            /*  1 */ new WobTranspiler.OpTest( OpCodes.Ldc_I4_S, AbilityType.SwordWeapon ), // AbilityType.SwordWeapon
+                            /*  2 */ new WobTranspiler.OpTest( OpCodes.Stfld, name: "m_abilityType"      ), // this.m_abilityType = AbilityType.SwordWeapon
+                            /*  3 */ new WobTranspiler.OpTest( OpCodes.Br                                ), // break
+                        },
+                        // Define the actions to take when an occurrence is found
+                        new List<WobTranspiler.OpAction> {
+                                new WobTranspiler.OpAction_SetInstruction( 1, OpCodes.Call, SymbolExtensions.GetMethodInfo( () => RepopulateList( null ) ) ),
+                                new WobTranspiler.OpAction_Remove( 2, 2 ),
+                        } );
+                // Return the modified instructions
+                return transpiler.GetResult();
+            }
+
+            private static void RepopulateList( SwapAbilityRoomPropController instance ) {
+                // Find out if the ability should be a weapon, talent, or spell
+                CastAbilityType castAbilityType = Traverse.Create( instance ).Field( "m_castAbilityTypeToSwap" ).GetValue<CastAbilityType>();
+                // Call the method that lists available abilities for the category (patched)
+                AbilityType[] abilityArray = Traverse.Create( instance ).Method( "GetAbilityArray", new object[] { typeof( CastAbilityType ) } ).GetValue<AbilityType[]>( new object[] { castAbilityType } );
+                // Get a reference to the list to be repopulated
+                List<AbilityType> m_potentialAbilityList = Traverse.Create( typeof( SwapAbilityRoomPropController ) ).Field( "m_potentialAbilityList" ).GetValue<List<AbilityType>>();
+                // Check and copy each ability into the list
+                for( int i = 0; i < abilityArray.Length; i++ ) {
+                    if( abilityArray[i] != AbilityType.None && AbilityLibrary.GetAbility( abilityArray[i] ) ) {
+                        m_potentialAbilityList.Add( abilityArray[i] );
+                    }
+                }
+                // If the list is still somehow empty after attempting to repopulate, fall back to giving a sword as before modifying the method
+                if( m_potentialAbilityList.Count == 0 ) {
+                    // Add the sword to the list so random generation still works
+                    m_potentialAbilityList.Add( AbilityType.SwordWeapon );
+                    // Set the rolled ability to the sword so the while loop exits
+                    Traverse.Create( instance ).Field( "m_abilityType" ).SetValue( AbilityType.SwordWeapon );
+                }
             }
         }
     }

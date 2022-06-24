@@ -77,6 +77,7 @@ namespace Wob_SoulShop {
             } );
             if( WobPlugin.Enabled ) {
                 GenerateLeveledArrays();
+                SkillTreeObj_MaxLevel_Patch.capWeights = WobSettings.Get( keys.Get( SoulShopType.BaseStats04MaxUp, "CapWeights" ), true );
             }
             // Apply the patches if the mod is enabled
             WobPlugin.Patch();
@@ -282,6 +283,31 @@ namespace Wob_SoulShop {
             }
         }
 
+        [HarmonyPatch( typeof( SoulShopObj ), nameof( SoulShopObj.SetEquippedLevel ) )]
+        internal static class SoulShopObj_SetEquippedLevel_Patch {
+            internal static void Postfix( SoulShopObj __instance ) {
+                if( __instance.SoulShopType == SoulShopType.BaseStats04MaxUp ) {
+                    SkillTreeObj_MaxLevel_Patch.UpdateCaps();
+                }
+            }
+        }
+        
+        [HarmonyPatch( typeof( SkillTreeManager ), nameof( SkillTreeManager.SetSkillObjLevel ) )]
+        internal static class SkillTreeManager_SetSkillObjLevel_Patch {
+            private static readonly HashSet<SkillTreeType> upgrades = new HashSet<SkillTreeType>() { SkillTreeType.Equip_Up, SkillTreeType.Equip_Up2, SkillTreeType.Equip_Up3, SkillTreeType.Rune_Equip_Up, SkillTreeType.Rune_Equip_Up2, SkillTreeType.Rune_Equip_Up3 };
+            internal static void Postfix( SkillTreeType skillTreeType ) {
+                if( upgrades.Contains( skillTreeType ) ) {
+                    SkillTreeObj_MaxLevel_Patch.UpdateCaps();
+                }
+            }
+        }
+        
+        [HarmonyPatch( typeof( EquipmentSaveData ), nameof( EquipmentSaveData.Initialize ) )]
+        internal static class EquipmentSaveData_Initialize_Patch {
+            internal static void Postfix() {
+                SkillTreeObj_MaxLevel_Patch.UpdateCaps();
+            }
+        }
 
         // Patch to apply a cap on equip weight and rune weight upgrades overload levels based on their stat gains and the maximum weight of equipable items
         [HarmonyPatch( typeof( SkillTreeObj ), nameof( SkillTreeObj.MaxLevel ), MethodType.Getter )]
@@ -291,15 +317,20 @@ namespace Wob_SoulShop {
             private static readonly SkillTreeType[] runeUpgrades = new SkillTreeType[] { SkillTreeType.Rune_Equip_Up, SkillTreeType.Rune_Equip_Up2, SkillTreeType.Rune_Equip_Up3 };
             // Only need to edit once
             private static bool runOnce = false;
+            internal static bool capWeights;
 
             // The patch itself - call the calculation methods
             internal static void Prefix() {
                 if( !runOnce ) {
-                    if( WobSettings.Get( keys.Get( SoulShopType.BaseStats04MaxUp, "CapWeights" ), true ) ) {
-                        CalcMaxLevel( equipUpgrades, GetTotalEquipWeight() );
-                        CalcMaxLevel( runeUpgrades, GetTotalRuneWeight() );
-                    }
+                    UpdateCaps();
                     runOnce = true;
+                }
+            }
+
+            internal static void UpdateCaps() {
+                if( capWeights ) {
+                    CalcMaxLevel( equipUpgrades, GetTotalEquipWeight() );
+                    CalcMaxLevel( runeUpgrades, GetTotalRuneWeight() );
                 }
             }
 

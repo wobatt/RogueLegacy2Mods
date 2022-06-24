@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using BepInEx;
 using BepInEx.Configuration;
 
 namespace Wob_Common {
@@ -179,6 +180,10 @@ namespace Wob_Common {
                 }
             }
             /// <summary>
+            /// The file that the config item is in.
+            /// </summary>
+            protected ConfigFile ConfigFile { get; private set; }
+            /// <summary>
             /// The underlying config item in the file.
             /// </summary>
             protected ConfigEntryBase ConfigEntry { get; set; } // The value of this MUST be set in the constructor of the subclass
@@ -195,7 +200,8 @@ namespace Wob_Common {
             /// Constructor that sets the key values for reading the item from the config file.
             /// </summary>
             /// <param name="keys">Object defining the section and setting names for the config item.</param>
-            protected Entry( ConfigDefinition keys ) {
+            protected Entry( ConfigFile file, ConfigDefinition keys ) {
+                this.ConfigFile = file;
                 this.Keys = keys;
             }
 
@@ -278,12 +284,37 @@ namespace Wob_Common {
             /// <summary>
             /// Initialise a config item of boolean type.
             /// </summary>
+            /// <param name="file">The file that the setting is saved in.</param>
             /// <param name="keys">Object defining the section and setting names for the config item.</param>
             /// <param name="description">Descriptive text to explain how the end-user should set the config item.</param>
             /// <param name="value">Initial value of the config item.</param>
-            public Boolean( ConfigDefinition keys, string description, bool value ) : base( keys ) {
-                this.ConfigEntry = WobPlugin.Config.Bind( keys, value, new ConfigDescription( description, new AcceptableValueList<bool>( new bool[] { true, false } ) ) );
+            public Boolean( ConfigFile file, ConfigDefinition keys, string description, bool value ) : base( file, keys ) {
+                this.ConfigEntry = file.Bind( keys, value, new ConfigDescription( description, new AcceptableValueList<bool>( new bool[] { true, false } ) ) );
             }
+            /// <summary>
+            /// Initialise a config item of boolean type.
+            /// </summary>
+            /// <param name="file">The file that the setting is saved in.</param>
+            /// <param name="section">The name of the section the config item is in.</param>
+            /// <param name="name">The name of the config item.</param>
+            /// <param name="description">Descriptive text to explain how the end-user should set the config item.</param>
+            /// <param name="value">Initial value of the config item.</param>
+            public Boolean( ConfigFile file, string section, string name, string description, bool value ) : this( file, new ConfigDefinition( section, name ), description, value ) { }
+            /// <summary>
+            /// Initialise a config item of boolean type.
+            /// </summary>
+            /// <param name="file">The file that the setting is saved in.</param>
+            /// <param name="name">The name of the config item.</param>
+            /// <param name="description">Descriptive text to explain how the end-user should set the config item.</param>
+            /// <param name="value">Initial value of the config item.</param>
+            public Boolean( ConfigFile file, string name, string description, bool value ) : this( file, new ConfigDefinition( DEFAULT_SECTION, name ), description, value ) { }
+            /// <summary>
+            /// Initialise a config item of boolean type.
+            /// </summary>
+            /// <param name="keys">Object defining the section and setting names for the config item.</param>
+            /// <param name="description">Descriptive text to explain how the end-user should set the config item.</param>
+            /// <param name="value">Initial value of the config item.</param>
+            public Boolean( ConfigDefinition keys, string description, bool value ) : this( WobPlugin.Config, keys, description, value ) { }
             /// <summary>
             /// Initialise a config item of boolean type.
             /// </summary>
@@ -291,14 +322,14 @@ namespace Wob_Common {
             /// <param name="name">The name of the config item.</param>
             /// <param name="description">Descriptive text to explain how the end-user should set the config item.</param>
             /// <param name="value">Initial value of the config item.</param>
-            public Boolean( string section, string name, string description, bool value ) : this( new ConfigDefinition( section, name ), description, value ) { }
+            public Boolean( string section, string name, string description, bool value ) : this( WobPlugin.Config, new ConfigDefinition( section, name ), description, value ) { }
             /// <summary>
             /// Initialise a config item of boolean type.
             /// </summary>
             /// <param name="name">The name of the config item.</param>
             /// <param name="description">Descriptive text to explain how the end-user should set the config item.</param>
             /// <param name="value">Initial value of the config item.</param>
-            public Boolean( string name, string description, bool value ) : this( new ConfigDefinition( DEFAULT_SECTION, name ), description, value ) { }
+            public Boolean( string name, string description, bool value ) : this( WobPlugin.Config, new ConfigDefinition( DEFAULT_SECTION, name ), description, value ) { }
         }
 
         /// <summary>
@@ -309,12 +340,37 @@ namespace Wob_Common {
             /// <summary>
             /// Initialise a config item of enum type.
             /// </summary>
+            /// <param name="file">The file that the setting is saved in.</param>
             /// <param name="keys">Object defining the section and setting names for the config item.</param>
             /// <param name="description">Descriptive text to explain how the end-user should set the config item.</param>
             /// <param name="value">Initial value of the config item.</param>
-            public Enum( ConfigDefinition keys, string description, T value ) : base( keys ) {
-                this.ConfigEntry = WobPlugin.Config.Bind( keys, value, new ConfigDescription( description ) );
+            public Enum( ConfigFile file, ConfigDefinition keys, string description, T value ) : base( file, keys ) {
+                this.ConfigEntry = file.Bind( keys, value, new ConfigDescription( description ) );
             }
+            /// <summary>
+            /// Initialise a config item of enum type.
+            /// </summary>
+            /// <param name="file">The file that the setting is saved in.</param>
+            /// <param name="section">The name of the section the config item is in.</param>
+            /// <param name="name">The name of the config item.</param>
+            /// <param name="description">Descriptive text to explain how the end-user should set the config item.</param>
+            /// <param name="value">Initial value of the config item.</param>
+            public Enum( ConfigFile file, string section, string name, string description, T value ) : this( file, new ConfigDefinition( section, name ), description, value ) { }
+            /// <summary>
+            /// Initialise a config item of enum type.
+            /// </summary>
+            /// <param name="file">The file that the setting is saved in.</param>
+            /// <param name="name">The name of the config item.</param>
+            /// <param name="description">Descriptive text to explain how the end-user should set the config item.</param>
+            /// <param name="value">Initial value of the config item.</param>
+            public Enum( ConfigFile file, string name, string description, T value ) : this( file, new ConfigDefinition( DEFAULT_SECTION, name ), description, value ) { }
+            /// <summary>
+            /// Initialise a config item of enum type.
+            /// </summary>
+            /// <param name="keys">Object defining the section and setting names for the config item.</param>
+            /// <param name="description">Descriptive text to explain how the end-user should set the config item.</param>
+            /// <param name="value">Initial value of the config item.</param>
+            public Enum( ConfigDefinition keys, string description, T value ) : this( WobPlugin.Config, keys, description, value ) { }
             /// <summary>
             /// Initialise a config item of enum type.
             /// </summary>
@@ -322,14 +378,14 @@ namespace Wob_Common {
             /// <param name="name">The name of the config item.</param>
             /// <param name="description">Descriptive text to explain how the end-user should set the config item.</param>
             /// <param name="value">Initial value of the config item.</param>
-            public Enum( string section, string name, string description, T value ) : this( new ConfigDefinition( section, name ), description, value ) { }
+            public Enum( string section, string name, string description, T value ) : this( WobPlugin.Config, new ConfigDefinition( section, name ), description, value ) { }
             /// <summary>
             /// Initialise a config item of enum type.
             /// </summary>
             /// <param name="name">The name of the config item.</param>
             /// <param name="description">Descriptive text to explain how the end-user should set the config item.</param>
             /// <param name="value">Initial value of the config item.</param>
-            public Enum( string name, string description, T value ) : this( new ConfigDefinition( DEFAULT_SECTION, name ), description, value ) { }
+            public Enum( string name, string description, T value ) : this( WobPlugin.Config, new ConfigDefinition( DEFAULT_SECTION, name ), description, value ) { }
         }
 
         /// <summary>
@@ -339,13 +395,41 @@ namespace Wob_Common {
             /// <summary>
             /// Initialise a config item of string type.
             /// </summary>
+            /// <param name="file">The file that the setting is saved in.</param>
             /// <param name="keys">Object defining the section and setting names for the config item.</param>
             /// <param name="description">Descriptive text to explain how the end-user should set the config item.</param>
             /// <param name="value">Initial value of the config item.</param>
             /// <param name="acceptedValues">Restrict user input to this list of specific values. Use <see langword="null"/> for no restriction.</param>
-            public String( ConfigDefinition keys, string description, string value, string[] acceptedValues = null ) : base( keys ) {
+            public String( ConfigFile file, ConfigDefinition keys, string description, string value, string[] acceptedValues = null ) : base( file, keys ) {
                 this.ConfigEntry = WobPlugin.Config.Bind( keys, value, new ConfigDescription( description, this.GetAcceptable( acceptedValues ) ) );
             }
+            /// <summary>
+            /// Initialise a config item of string type.
+            /// </summary>
+            /// <param name="file">The file that the setting is saved in.</param>
+            /// <param name="section">The name of the section the config item is in.</param>
+            /// <param name="name">The name of the config item.</param>
+            /// <param name="description">Descriptive text to explain how the end-user should set the config item.</param>
+            /// <param name="value">Initial value of the config item.</param>
+            /// <param name="acceptedValues">Restrict user input to this list of specific values. Use <see langword="null"/> for no restriction.</param>
+            public String( ConfigFile file, string section, string name, string description, string value, string[] acceptedValues = null ) : this( file, new ConfigDefinition( section, name ), description, value, acceptedValues ) { }
+            /// <summary>
+            /// Initialise a config item of string type.
+            /// </summary>
+            /// <param name="file">The file that the setting is saved in.</param>
+            /// <param name="name">The name of the config item.</param>
+            /// <param name="description">Descriptive text to explain how the end-user should set the config item.</param>
+            /// <param name="value">Initial value of the config item.</param>
+            /// <param name="acceptedValues">Restrict user input to this list of specific values. Use <see langword="null"/> for no restriction.</param>
+            public String( ConfigFile file, string name, string description, string value, string[] acceptedValues = null ) : this( file, new ConfigDefinition( DEFAULT_SECTION, name ), description, value, acceptedValues ) { }
+            /// <summary>
+            /// Initialise a config item of string type.
+            /// </summary>
+            /// <param name="keys">Object defining the section and setting names for the config item.</param>
+            /// <param name="description">Descriptive text to explain how the end-user should set the config item.</param>
+            /// <param name="value">Initial value of the config item.</param>
+            /// <param name="acceptedValues">Restrict user input to this list of specific values. Use <see langword="null"/> for no restriction.</param>
+            public String( ConfigDefinition keys, string description, string value, string[] acceptedValues = null ) : this( WobPlugin.Config, keys, description, value, acceptedValues ) { }
             /// <summary>
             /// Initialise a config item of string type.
             /// </summary>
@@ -354,7 +438,7 @@ namespace Wob_Common {
             /// <param name="description">Descriptive text to explain how the end-user should set the config item.</param>
             /// <param name="value">Initial value of the config item.</param>
             /// <param name="acceptedValues">Restrict user input to this list of specific values. Use <see langword="null"/> for no restriction.</param>
-            public String( string section, string name, string description, string value, string[] acceptedValues = null ) : this( new ConfigDefinition( section, name ), description, value, acceptedValues ) { }
+            public String( string section, string name, string description, string value, string[] acceptedValues = null ) : this( WobPlugin.Config, new ConfigDefinition( section, name ), description, value, acceptedValues ) { }
             /// <summary>
             /// Initialise a config item of string type.
             /// </summary>
@@ -362,7 +446,7 @@ namespace Wob_Common {
             /// <param name="description">Descriptive text to explain how the end-user should set the config item.</param>
             /// <param name="value">Initial value of the config item.</param>
             /// <param name="acceptedValues">Restrict user input to this list of specific values. Use <see langword="null"/> for no restriction.</param>
-            public String( string name, string description, string value, string[] acceptedValues = null ) : this( new ConfigDefinition( DEFAULT_SECTION, name ), description, value, acceptedValues ) { }
+            public String( string name, string description, string value, string[] acceptedValues = null ) : this( WobPlugin.Config, new ConfigDefinition( DEFAULT_SECTION, name ), description, value, acceptedValues ) { }
 
             /// <summary>
             /// Get the object defining restrictions to the value that the config reader should enforce.
@@ -401,6 +485,7 @@ namespace Wob_Common {
             /// <summary>
             /// Initialise a config item of numeric type.
             /// </summary>
+            /// <param name="file">The file that the setting is saved in.</param>
             /// <param name="keys">Object defining the section and setting names for the config item.</param>
             /// <param name="description">Descriptive text to explain how the end-user should set the config item.</param>
             /// <param name="value">Initial value of the config item.</param>
@@ -408,8 +493,8 @@ namespace Wob_Common {
             /// <param name="acceptedValues">Restrict user input to this list of specific values. Use <see langword="null"/> for no restriction.</param>
             /// <param name="bounds">Restrict user input to this range of values. Use default or other value with equal min and max for no restriction.</param>
             /// <param name="limiter">Function to apply additional limits to a given value, such as rounding. Use <see langword="null"/> for no restriction.</param>
-            /// <exception cref="ArgumentException"></exception>
-            public Num( ConfigDefinition keys, string description, T value, float scaler = 0f, T[] acceptedValues = null, (T min, T max) bounds = default, Func<T, T> limiter = null ) : base( keys ) {
+            /// <exception cref="ArgumentException">Throws exception if the type parameter is not a numeric primitive type.</exception>
+            public Num( ConfigFile file, ConfigDefinition keys, string description, T value, float scaler = 0f, T[] acceptedValues = null, (T min, T max) bounds = default, Func<T, T> limiter = null ) : base( file, keys ) {
                 if( !numericTypes.Contains( typeof( T ) ) ) {
                     string message = "ERROR: Number config entry being created for non-numeric type " + typeof( T );
                     WobPlugin.Log( message, WobPlugin.ERROR );
@@ -417,11 +502,50 @@ namespace Wob_Common {
                 }
                 this.Limiter = limiter;
                 this.Scaler = scaler;
-                this.ConfigEntry = WobPlugin.Config.Bind( keys, value, new ConfigDescription( description, this.GetAcceptable( acceptedValues, bounds ) ) );
+                this.ConfigEntry = file.Bind( keys, value, new ConfigDescription( description, this.GetAcceptable( acceptedValues, bounds ) ) );
                 if( this.Limiter != null ) {
                     this.SetValue( this.ConfigEntry.BoxedValue );
                 }
             }
+            /// <summary>
+            /// Initialise a config item of numeric type.
+            /// </summary>
+            /// <param name="file">The file that the setting is saved in.</param>
+            /// <param name="section">The name of the section the config item is in.</param>
+            /// <param name="name">The name of the config item.</param>
+            /// <param name="description">Descriptive text to explain how the end-user should set the config item.</param>
+            /// <param name="value">Initial value of the config item.</param>
+            /// <param name="scaler">Multiply the value read from the config file by this number for use in patches.</param>
+            /// <param name="acceptedValues">Restrict user input to this list of specific values. Use <see langword="null"/> for no restriction.</param>
+            /// <param name="bounds">Restrict user input to this range of values. Use default or other value with equal min and max for no restriction.</param>
+            /// <param name="limiter">Function to apply additional limits to a given value, such as rounding. Use <see langword="null"/> for no restriction.</param>
+            /// <exception cref="ArgumentException">Throws exception if the type parameter is not a numeric primitive type.</exception>
+            public Num( ConfigFile file, string section, string name, string description, T value, float scaler = 0f, T[] acceptedValues = null, (T min, T max) bounds = default, Func<T, T> limiter = null ) : this( file, new ConfigDefinition( section, name ), description, value, scaler, acceptedValues, bounds, limiter ) { }
+            /// <summary>
+            /// Initialise a config item of numeric type.
+            /// </summary>
+            /// <param name="file">The file that the setting is saved in.</param>
+            /// <param name="name">The name of the config item.</param>
+            /// <param name="description">Descriptive text to explain how the end-user should set the config item.</param>
+            /// <param name="value">Initial value of the config item.</param>
+            /// <param name="scaler">Multiply the value read from the config file by this number for use in patches.</param>
+            /// <param name="acceptedValues">Restrict user input to this list of specific values. Use <see langword="null"/> for no restriction.</param>
+            /// <param name="bounds">Restrict user input to this range of values. Use default or other value with equal min and max for no restriction.</param>
+            /// <param name="limiter">Function to apply additional limits to a given value, such as rounding. Use <see langword="null"/> for no restriction.</param>
+            /// <exception cref="ArgumentException">Throws exception if the type parameter is not a numeric primitive type.</exception>
+            public Num( ConfigFile file, string name, string description, T value, float scaler = 0f, T[] acceptedValues = null, (T min, T max) bounds = default, Func<T, T> limiter = null ) : this( file, new ConfigDefinition( DEFAULT_SECTION, name ), description, value, scaler, acceptedValues, bounds, limiter ) { }
+            /// <summary>
+            /// Initialise a config item of numeric type.
+            /// </summary>
+            /// <param name="keys">Object defining the section and setting names for the config item.</param>
+            /// <param name="description">Descriptive text to explain how the end-user should set the config item.</param>
+            /// <param name="value">Initial value of the config item.</param>
+            /// <param name="scaler">Multiply the value read from the config file by this number for use in patches.</param>
+            /// <param name="acceptedValues">Restrict user input to this list of specific values. Use <see langword="null"/> for no restriction.</param>
+            /// <param name="bounds">Restrict user input to this range of values. Use default or other value with equal min and max for no restriction.</param>
+            /// <param name="limiter">Function to apply additional limits to a given value, such as rounding. Use <see langword="null"/> for no restriction.</param>
+            /// <exception cref="ArgumentException">Throws exception if the type parameter is not a numeric primitive type.</exception>
+            public Num( ConfigDefinition keys, string description, T value, float scaler = 0f, T[] acceptedValues = null, (T min, T max) bounds = default, Func<T, T> limiter = null ) : this( WobPlugin.Config, keys, description, value, scaler, acceptedValues, bounds, limiter ) { }
             /// <summary>
             /// Initialise a config item of numeric type.
             /// </summary>
@@ -433,7 +557,8 @@ namespace Wob_Common {
             /// <param name="acceptedValues">Restrict user input to this list of specific values. Use <see langword="null"/> for no restriction.</param>
             /// <param name="bounds">Restrict user input to this range of values. Use default or other value with equal min and max for no restriction.</param>
             /// <param name="limiter">Function to apply additional limits to a given value, such as rounding. Use <see langword="null"/> for no restriction.</param>
-            public Num( string section, string name, string description, T value, float scaler = 0f, T[] acceptedValues = null, (T min, T max) bounds = default, Func<T, T> limiter = null ) : this( new ConfigDefinition( section, name ), description, value, scaler, acceptedValues, bounds, limiter ) { }
+            /// <exception cref="ArgumentException">Throws exception if the type parameter is not a numeric primitive type.</exception>
+            public Num( string section, string name, string description, T value, float scaler = 0f, T[] acceptedValues = null, (T min, T max) bounds = default, Func<T, T> limiter = null ) : this( WobPlugin.Config, new ConfigDefinition( section, name ), description, value, scaler, acceptedValues, bounds, limiter ) { }
             /// <summary>
             /// Initialise a config item of numeric type.
             /// </summary>
@@ -444,7 +569,8 @@ namespace Wob_Common {
             /// <param name="acceptedValues">Restrict user input to this list of specific values. Use <see langword="null"/> for no restriction.</param>
             /// <param name="bounds">Restrict user input to this range of values. Use default or other value with equal min and max for no restriction.</param>
             /// <param name="limiter">Function to apply additional limits to a given value, such as rounding. Use <see langword="null"/> for no restriction.</param>
-            public Num( string name, string description, T value, float scaler = 0f, T[] acceptedValues = null, (T min, T max) bounds = default, Func<T, T> limiter = null ) : this( new ConfigDefinition( DEFAULT_SECTION, name ), description, value, scaler, acceptedValues, bounds, limiter ) { }
+            /// <exception cref="ArgumentException">Throws exception if the type parameter is not a numeric primitive type.</exception>
+            public Num( string name, string description, T value, float scaler = 0f, T[] acceptedValues = null, (T min, T max) bounds = default, Func<T, T> limiter = null ) : this( WobPlugin.Config, new ConfigDefinition( DEFAULT_SECTION, name ), description, value, scaler, acceptedValues, bounds, limiter ) { }
 
             /// <summary>
             /// Get the object defining restrictions to the value that the config reader should enforce.
@@ -512,13 +638,13 @@ namespace Wob_Common {
             /// <summary>
             /// Set of translations from internal type to user-friendly name used in the config file.
             /// </summary>
-            private readonly Dictionary<T, (string Key, int Index)> configNames = new Dictionary<T, (string Key, int Index)>();
+            private readonly Dictionary<T, (string Section, string StatPrefix)> configNames = new Dictionary<T, (string Section, string StatPrefix)>();
             /// <summary>
             /// Prefix added to all section names, to keep them grouped in the file as it sorts sections alphabetically.
             /// </summary>
             private readonly string sectionPrefix;
             /// <summary>
-            /// 
+            /// For sections with a specific order, add the index into the section name, zero-extended to this many digits.
             /// </summary>
             private readonly int digits;
 
@@ -526,11 +652,24 @@ namespace Wob_Common {
             /// Constructor that sets the section prefix and optionally registers a set of translations.
             /// </summary>
             /// <param name="sectionPrefix">Prefix to be added to all section names, to keep them grouped in the file as it sorts sections alphabetically.</param>
+            /// <param name="digits">For sections with a specific order, add the index into the section name, zero-extended to this many digits.</param>
             /// <param name="translations">Dictionary of internal types and their respective section names without prefix.</param>
-            public KeyHelper( string sectionPrefix, int digits = 0, Dictionary<T, string> translations = null ) {
+            public KeyHelper( string sectionPrefix = null, int digits = 0, Dictionary<T, string> translations = null ) {
                 this.sectionPrefix = sectionPrefix;
                 this.digits = digits;
                 this.Add( translations );
+            }
+
+            private string GetSectionPrefix( string prefixOverride ) {
+                string sectionPrefix = "";
+                if( prefixOverride != null ) {
+                    sectionPrefix += prefixOverride;
+                } else {
+                    if( this.sectionPrefix != null ) { sectionPrefix += this.sectionPrefix; }
+                }
+                if( this.digits > 0 ) { sectionPrefix += ( this.configNames.Count + 1 ).ToString( "D" + this.digits ); }
+                if( sectionPrefix != "" ) { sectionPrefix += "_"; }
+                return sectionPrefix;
             }
 
             /// <summary>
@@ -538,14 +677,18 @@ namespace Wob_Common {
             /// </summary>
             /// <param name="internalType">Internal type to use for config key lookup.</param>
             /// <param name="configKey">Name of the section without prefix.</param>
-            public void Add( T internalType, string configKey ) {
-                if( this.configNames.TryGetValue( internalType, out (string Key, int Index) configKey2 ) ) {
-                    if( configKey != configKey2.Key ) {
-                        WobPlugin.Log( "ERROR: Attempt to register " + internalType + " as " + configKey + " but it is already defined as " + configKey2 );
-                    }
+            public void Add( T internalType, string configKey ) { this.Add( internalType, null, configKey ); }
+            /// <summary>
+            /// Register a new internal type to config key translation.
+            /// </summary>
+            /// <param name="internalType">Internal type to use for config key lookup.</param>
+            /// <param name="sectionPrefix">Override for section the prefix defined in the constructor.</param>
+            /// <param name="configKey">Name of the section without prefix.</param>
+            public void Add( T internalType, string sectionPrefix, string configKey ) {
+                if( this.configNames.TryGetValue( internalType, out (string Section, string StatPrefix) configKey2 ) ) {
+                    WobPlugin.Log( "ERROR: Attempt to register " + internalType + " as " + configKey + " but it is already defined as " + configKey2.Section + "." + configKey2.StatPrefix );
                 } else {
-                    int index = this.configNames.Count + 1;
-                    this.configNames.Add( internalType, (configKey, index) );
+                    this.configNames.Add( internalType, (this.GetSectionPrefix( sectionPrefix ) + configKey, configKey + "_") );
                 }
             }
 
@@ -553,10 +696,16 @@ namespace Wob_Common {
             /// Register a set of new internal type to config key translations.
             /// </summary>
             /// <param name="translations">Dictionary of internal types and their respective section names without prefix.</param>
-            public void Add( Dictionary<T, string> translations ) {
+            public void Add( Dictionary<T, string> translations ) { this.Add( null, translations ); }
+            /// <summary>
+            /// Register a set of new internal type to config key translations.
+            /// </summary>
+            /// <param name="sectionPrefix">Override for section the prefix defined in the constructor.</param>
+            /// <param name="translations">Dictionary of internal types and their respective section names without prefix.</param>
+            public void Add( string sectionPrefix, Dictionary<T, string> translations ) {
                 if( translations != null ) {
                     foreach( KeyValuePair<T, string> pair in translations ) {
-                        this.Add( pair.Key, pair.Value );
+                        this.Add( pair.Key, sectionPrefix, pair.Value );
                     }
                 }
             }
@@ -568,8 +717,17 @@ namespace Wob_Common {
             /// <param name="configKey">Name of the section without prefix.</param>
             /// <param name="statName">Name of the stat without prefix.</param>
             /// <returns>Object containing the constructed names.</returns>
-            public ConfigDefinition New( T internalType, string configKey, string statName ) {
-                this.Add( internalType, configKey );
+            public ConfigDefinition New( T internalType, string configKey, string statName ) { return this.New( internalType, null, configKey, statName ); }
+            /// <summary>
+            /// Register a new internal type to config key translation and return the keys.
+            /// </summary>
+            /// <param name="internalType">Internal type to use for config key lookup.</param>
+            /// <param name="sectionPrefix">Override for section the prefix defined in the constructor.</param>
+            /// <param name="configKey">Name of the section without prefix.</param>
+            /// <param name="statName">Name of the stat without prefix.</param>
+            /// <returns>Object containing the constructed names.</returns>
+            public ConfigDefinition New( T internalType, string sectionPrefix, string configKey, string statName ) {
+                this.Add( internalType, sectionPrefix, configKey );
                 return this.Get( internalType, statName );
             }
 
@@ -580,12 +738,8 @@ namespace Wob_Common {
             /// <param name="statName">Name of the stat without prefix.</param>
             /// <returns>Object containing the constructed names.</returns>
             public ConfigDefinition Get( T internalType, string statName ) {
-                if( this.configNames.TryGetValue( internalType, out (string Key, int Index) configKey ) ) {
-                    string sectionIndex = "";
-                    if( this.digits > 0 ) {
-                        sectionIndex = configKey.Index.ToString( "D" + this.digits );
-                    }
-                    return new ConfigDefinition( this.sectionPrefix + sectionIndex + "_" + configKey.Key, configKey.Key + "_" + statName );
+                if( this.configNames.TryGetValue( internalType, out (string Section, string StatPrefix) configKey ) ) {
+                    return new ConfigDefinition( configKey.Section, configKey.StatPrefix + statName );
                 } else {
                     return null;
                 }
@@ -596,6 +750,106 @@ namespace Wob_Common {
             /// </summary>
             /// <param name="internalType">Internal type to use for config key lookup.</param>
             /// <returns>Returns <see langword="true"/> if the type has a matching config key, otherwise <see langword="false"/>.</returns>
+            public bool Exists( T internalType ) {
+                return this.configNames.ContainsKey( internalType );
+            }
+        }
+
+        /// <summary>
+        /// Class to help with using a type for file lookup for when using multiple config files.
+        /// </summary>
+        /// <typeparam name="T">Internal type used for lookups. Usually enum type or string.</typeparam>
+        public class FileHelper<T> {
+            /// <summary>
+            /// Set of translations from internal type to user-friendly name used in the config file.
+            /// </summary>
+            private readonly Dictionary<T, (string Name, ConfigFile File)> configNames = new Dictionary<T, (string Name, ConfigFile File)>();
+            /// <summary>
+            /// Prefix added to all section names, to keep them grouped in the file as it sorts sections alphabetically.
+            /// </summary>
+            private readonly string namePrefix;
+            /// <summary>
+            /// For files with a specific order, add the index into the file name, zero-extended to this many digits.
+            /// </summary>
+            private readonly int digits;
+
+            /// <summary>
+            /// Constructor that optionally registers a set of translations.
+            /// </summary>
+            /// <param name="namePrefix">Prefix to be added after GUID and before all name suffixes.</param>
+            /// <param name="digits">For files with a specific order, add the index into the file name, zero-extended to this many digits.</param>
+            /// <param name="translations">Dictionary of internal types and their respective file names without prefix.</param>
+            public FileHelper( string namePrefix = null, int digits = 0, Dictionary<T, string> translations = null ) {
+                this.namePrefix = namePrefix;
+                this.digits = digits;
+                this.Add( translations );
+            }
+
+            private string GetPathName( string nameSuffix, int index ) {
+                string path = Paths.ConfigPath + "\\" + WobPlugin.Info.Metadata.GUID + ".";
+                if( this.namePrefix != null ) { path += this.namePrefix; }
+                if( this.digits > 0 ) { path += index.ToString( "D" + this.digits ); }
+                if( this.namePrefix != null || this.digits > 0 ) { path += "_"; }
+                path += nameSuffix + ".cfg";
+                return path;
+            }
+
+            /// <summary>
+            /// Register a new internal type to config flie translation.
+            /// </summary>
+            /// <param name="internalType">Internal type to use for config file lookup.</param>
+            /// <param name="nameSuffix">Name of the file without prefix.</param>
+            public void Add( T internalType, string nameSuffix ) {
+                if( this.configNames.TryGetValue( internalType, out (string Name, ConfigFile File) configFile2 ) ) {
+                    if( nameSuffix != configFile2.Name ) {
+                        WobPlugin.Log( "ERROR: Attempt to register " + internalType + " as " + nameSuffix + " but it is already defined as " + configFile2.Name );
+                    }
+                } else {
+                    this.configNames.Add( internalType, (nameSuffix, new ConfigFile( this.GetPathName( nameSuffix, this.configNames.Count + 1 ), true, WobPlugin.Info.Metadata ) ) );
+                }
+            }
+
+            /// <summary>
+            /// Register a set of new internal type to config file translations.
+            /// </summary>
+            /// <param name="translations">Dictionary of internal types and their respective file names without prefix.</param>
+            public void Add( Dictionary<T, string> translations ) {
+                if( translations != null ) {
+                    foreach( KeyValuePair<T, string> pair in translations ) {
+                        this.Add( pair.Key, pair.Value );
+                    }
+                }
+            }
+
+            /// <summary>
+            /// Register a new internal type to config file translation and return the file.
+            /// </summary>
+            /// <param name="internalType">Internal type to use for config file lookup.</param>
+            /// <param name="nameSuffix">Name of the file without prefix.</param>
+            /// <returns>Reference to the file.</returns>
+            public ConfigFile New( T internalType, string nameSuffix ) {
+                this.Add( internalType, nameSuffix );
+                return this.Get( internalType );
+            }
+
+            /// <summary>
+            /// Get the file looked up for the given internal type.
+            /// </summary>
+            /// <param name="internalType">Internal type to use for config file lookup.</param>
+            /// <returns>Reference to the file.</returns>
+            public ConfigFile Get( T internalType ) {
+                if( this.configNames.TryGetValue( internalType, out (string Name, ConfigFile File) configFile ) ) {
+                    return configFile.File;
+                } else {
+                    return null;
+                }
+            }
+
+            /// <summary>
+            /// Check if there is a registered config file for the given internal type.
+            /// </summary>
+            /// <param name="internalType">Internal type to use for config file lookup.</param>
+            /// <returns>Returns <see langword="true"/> if the type has a matching config file, otherwise <see langword="false"/>.</returns>
             public bool Exists( T internalType ) {
                 return this.configNames.ContainsKey( internalType );
             }

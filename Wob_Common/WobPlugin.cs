@@ -13,6 +13,11 @@ namespace Wob_Common {
         private static ManualLogSource bepInExLog;
 
         /// <summary>
+        /// Reference to the plugin's metadata.
+        /// </summary>
+        internal static PluginInfo Info { get; private set; }
+
+        /// <summary>
         /// Reference to the plugin's config file.
         /// </summary>
         internal static ConfigFile Config { get; private set; }
@@ -37,6 +42,8 @@ namespace Wob_Common {
             bepInExLog = log;
             // Save a reference to the config file
             Config = plugin.Config;
+            // Save a reference to the plugin metadata
+            Info = plugin.Info;
             // Create the basic settings used in all mods
             WobSettings.Add( new List<WobSettings.Entry> {
                 new WobSettings.Boolean( "Basic", "Enabled", "Enable this mod",   true  ),

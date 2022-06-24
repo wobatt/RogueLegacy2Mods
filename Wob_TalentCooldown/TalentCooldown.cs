@@ -7,7 +7,7 @@ using UnityEngine;
 using Wob_Common;
 
 namespace Wob_TalentCooldown {
-    [BepInPlugin( "Wob.TalentCooldown", "Talent Cooldown Mod", "1.1.0" )]
+    [BepInPlugin( "Wob.TalentCooldown", "Talent Cooldown Mod", "1.1.1" )]
     public partial class TalentCooldown : BaseUnityPlugin {
         
         private static readonly WobSettings.KeyHelper<AbilityType> keys = new WobSettings.KeyHelper<AbilityType>( "Talent" );
@@ -63,14 +63,17 @@ namespace Wob_TalentCooldown {
             CreateSettings( AbilityType.TeleSliceTalent,      "Ronin_ImmortalKotetsu",         true,  5f,  0 );
             CreateSettings( AbilityType.SpearSpinTalent,      "Valkyrie_Deflect",              false, 5f,  0 );
             CreateSettings( AbilityType.SuperFart,            "SuperIBS_SuperFart",            true,  3f,  0 );
+            keys.Add( AbilityType.KineticReloadTalent, "Gunslinger_RevolverReload" );
             // Additional settings
             WobSettings.Add( new WobSettings.Entry[] {
-                new WobSettings.Boolean(    keys.Get( AbilityType.CreatePlatformTalent, "CooldownFromCast" ), "Start the cooldown timer at the start of the effect, not the end", false                     ),
-                new WobSettings.Num<float>( keys.Get( AbilityType.ShieldBlockTalent,    "PerfectBlockTime" ), "Time between starting blocking and impact to get a perfect block", 0.135f, bounds: (0f, 60f) ),
-                new WobSettings.Boolean(    keys.Get( AbilityType.ManaBombTalent,       "RefreshAllAmmo"   ), "Refresh all charges on cooldown instead of just 1 charge",         true                      ),
-                new WobSettings.Num<float>( keys.Get( AbilityType.StaticWallTalent,     "Lifespan"         ), "Duration of the talent effect in seconds",                         3.26f,  bounds: (1f, 60f) ),
-                new WobSettings.Num<float>( keys.Get( AbilityType.CreatePlatformTalent, "Lifespan"         ), "Duration of the talent effect in seconds",                         8f,     bounds: (1f, 60f) ),
+                new WobSettings.Boolean(    keys.Get( AbilityType.CreatePlatformTalent, "CooldownFromCast" ), "Start the cooldown timer at the start of the effect, not the end.", false                     ),
+                new WobSettings.Num<float>( keys.Get( AbilityType.ShieldBlockTalent,    "PerfectBlockTime" ), "Time between starting blocking and impact to get a perfect block.", 0.135f, bounds: (0f, 60f) ),
+                new WobSettings.Boolean(    keys.Get( AbilityType.ManaBombTalent,       "RefreshAllAmmo"   ), "Refresh all charges on cooldown instead of just 1 charge.",         true                      ),
+                new WobSettings.Num<float>( keys.Get( AbilityType.StaticWallTalent,     "Lifespan"         ), "Duration of the talent effect in seconds.",                         3.26f,  bounds: (1f, 60f) ),
+                new WobSettings.Num<float>( keys.Get( AbilityType.CreatePlatformTalent, "Lifespan"         ), "Duration of the talent effect in seconds.",                         8f,     bounds: (1f, 60f) ),
+                new WobSettings.Boolean(    keys.Get( AbilityType.KineticReloadTalent,  "SkipReload"       ), "When the revolver fires its last shot, instantly reload it.",       false                     ),
             } );
+            PistolWeapon_Ability_FireProjectile_Patch.Enabled = WobSettings.Get( keys.Get( AbilityType.KineticReloadTalent, "SkipReload" ), false );
             // Apply the patches if the mod is enabled
             WobPlugin.Patch();
         }
@@ -186,6 +189,17 @@ namespace Wob_TalentCooldown {
                         } );
                 // Return the modified instructions
                 return transpiler.GetResult();
+            }
+        }
+
+        // Gunslinger's Revolver - no reloads
+        [HarmonyPatch( typeof( PistolWeapon_Ability ), "FireProjectile" )]
+        internal static class PistolWeapon_Ability_FireProjectile_Patch {
+            internal static bool Enabled = false;
+            internal static void Postfix( PistolWeapon_Ability __instance ) {
+                if( Enabled && __instance.CurrentAmmo <= 0 ) {
+                    __instance.CurrentAmmo = __instance.MaxAmmo;
+                }
             }
         }
     }

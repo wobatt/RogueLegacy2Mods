@@ -52,6 +52,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wob_RuneStats", "Wob_RuneSt
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wob_EquipStats", "Wob_EquipStats\Wob_EquipStats.csproj", "{2C49E9C3-88A6-4F35-B2AB-159B032E8291}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wob_SeenState", "Wob_SeenState\Wob_SeenState.csproj", "{49283807-C293-4EED-A700-23D503BADCAA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wob_RandomRolls", "Wob_RandomRolls\Wob_RandomRolls.csproj", "{E3E97BCE-ADC4-4C88-BC22-CC05C058AAE0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wob_PishonLight", "Wob_PishonLight\Wob_PishonLight.csproj", "{E0AD6A18-08D8-4568-8401-F7508B6A29BB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -142,6 +148,18 @@ Global
 		{2C49E9C3-88A6-4F35-B2AB-159B032E8291}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2C49E9C3-88A6-4F35-B2AB-159B032E8291}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2C49E9C3-88A6-4F35-B2AB-159B032E8291}.Release|Any CPU.Build.0 = Release|Any CPU
+		{49283807-C293-4EED-A700-23D503BADCAA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{49283807-C293-4EED-A700-23D503BADCAA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{49283807-C293-4EED-A700-23D503BADCAA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{49283807-C293-4EED-A700-23D503BADCAA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E3E97BCE-ADC4-4C88-BC22-CC05C058AAE0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E3E97BCE-ADC4-4C88-BC22-CC05C058AAE0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E3E97BCE-ADC4-4C88-BC22-CC05C058AAE0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E3E97BCE-ADC4-4C88-BC22-CC05C058AAE0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E0AD6A18-08D8-4568-8401-F7508B6A29BB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E0AD6A18-08D8-4568-8401-F7508B6A29BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E0AD6A18-08D8-4568-8401-F7508B6A29BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E0AD6A18-08D8-4568-8401-F7508B6A29BB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -159,6 +177,7 @@ Global
 		Wob_Common\Wob_Common.projitems*{328de0e1-d8e6-4cf2-a01e-ac8e9df92f00}*SharedItemsImports = 5
 		Wob_Common\Wob_Common.projitems*{36d5d47f-6c46-4582-8854-5153786a8e2d}*SharedItemsImports = 5
 		Wob_Common\Wob_Common.projitems*{3b136931-9495-404a-8dc2-3342677a4a7d}*SharedItemsImports = 5
+		Wob_Common\Wob_Common.projitems*{49283807-c293-4eed-a700-23d503badcaa}*SharedItemsImports = 5
 		Wob_Common\Wob_Common.projitems*{74ce4b26-cb25-4724-beb8-ba3baf9b9afb}*SharedItemsImports = 5
 		Wob_Common\Wob_Common.projitems*{751b497e-952c-4a1f-bf14-de90413c6e4c}*SharedItemsImports = 5
 		Wob_Common\Wob_Common.projitems*{7b49714c-e29c-4019-96ed-a10d92d4de64}*SharedItemsImports = 5
@@ -171,6 +190,8 @@ Global
 		Wob_Common\Wob_Common.projitems*{d19541f1-bc51-455a-92d0-9cf1f7f05869}*SharedItemsImports = 5
 		Wob_Common\Wob_Common.projitems*{d2133398-e727-4d17-808e-ab0976d56a3f}*SharedItemsImports = 5
 		Wob_Common\Wob_Common.projitems*{d98fea97-0dd4-4fdb-8555-e7e9495d3ddf}*SharedItemsImports = 5
+		Wob_Common\Wob_Common.projitems*{e0ad6a18-08d8-4568-8401-f7508b6a29bb}*SharedItemsImports = 5
+		Wob_Common\Wob_Common.projitems*{e3e97bce-adc4-4c88-bc22-cc05c058aae0}*SharedItemsImports = 5
 		Wob_Common\Wob_Common.projitems*{ff26aba1-7f85-4ab9-a6b3-d5bfcd214679}*SharedItemsImports = 5
 	EndGlobalSection
 EndGlobal
