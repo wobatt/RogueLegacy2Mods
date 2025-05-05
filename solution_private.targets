@@ -1,7 +1,0 @@
-﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-
-  <PropertyGroup>
-    <GamePath>D:\Steam\steamapps\common\Rogue Legacy 2</GamePath>
-  </PropertyGroup>
-
-</Project>

@@ -149,7 +149,7 @@ namespace Wob_Common {
         /// <summary>
         /// Safe type casts. It is safe to cast to the key value if the data type is in the return value list.
         /// </summary>
-        private static readonly Dictionary<Type, HashSet<Type>> safeCasts = new Dictionary<Type, HashSet<Type>>() {
+        private static readonly Dictionary<Type, HashSet<Type>> safeCasts = new() {
             // Integer types - can cast from any smaller integer type
             { typeof( short   ), new HashSet<Type> { typeof( sbyte ), typeof( byte ) } },
             { typeof( ushort  ), new HashSet<Type> { typeof( sbyte ), typeof( byte ) } },
@@ -480,7 +480,7 @@ namespace Wob_Common {
             /// <summary>
             /// List of numeric primitive types. These are the types that T will be validated against.
             /// </summary>
-            protected static readonly HashSet<Type> numericTypes = new HashSet<Type> { typeof( sbyte ), typeof( byte ), typeof( short ), typeof( ushort ), typeof( int ), typeof( uint ), typeof( long ), typeof( ulong ), typeof( float ), typeof( double ), typeof( decimal ) };
+            protected static readonly HashSet<Type> numericTypes = new() { typeof( sbyte ), typeof( byte ), typeof( short ), typeof( ushort ), typeof( int ), typeof( uint ), typeof( long ), typeof( ulong ), typeof( float ), typeof( double ), typeof( decimal ) };
 
             /// <summary>
             /// Initialise a config item of numeric type.
@@ -638,7 +638,7 @@ namespace Wob_Common {
             /// <summary>
             /// Set of translations from internal type to user-friendly name used in the config file.
             /// </summary>
-            private readonly Dictionary<T, (string Section, string StatPrefix)> configNames = new Dictionary<T, (string Section, string StatPrefix)>();
+            private readonly Dictionary<T, (string Section, string StatPrefix)> configNames = new();
             /// <summary>
             /// Prefix added to all section names, to keep them grouped in the file as it sorts sections alphabetically.
             /// </summary>
@@ -686,7 +686,7 @@ namespace Wob_Common {
             /// <param name="configKey">Name of the section without prefix.</param>
             public void Add( T internalType, string sectionPrefix, string configKey ) {
                 if( this.configNames.TryGetValue( internalType, out (string Section, string StatPrefix) configKey2 ) ) {
-                    WobPlugin.Log( "ERROR: Attempt to register " + internalType + " as " + configKey + " but it is already defined as " + configKey2.Section + "." + configKey2.StatPrefix );
+                    WobPlugin.Log( "ERROR: Attempt to register " + internalType + " as " + configKey + " but it is already defined as " + configKey2.Section + "." + configKey2.StatPrefix, WobPlugin.ERROR );
                 } else {
                     this.configNames.Add( internalType, (this.GetSectionPrefix( sectionPrefix ) + configKey, configKey + "_") );
                 }
@@ -763,7 +763,7 @@ namespace Wob_Common {
             /// <summary>
             /// Set of translations from internal type to user-friendly name used in the config file.
             /// </summary>
-            private readonly Dictionary<T, (string Name, ConfigFile File)> configNames = new Dictionary<T, (string Name, ConfigFile File)>();
+            private readonly Dictionary<T, (string Name, ConfigFile File)> configNames = new();
             /// <summary>
             /// Prefix added to all section names, to keep them grouped in the file as it sorts sections alphabetically.
             /// </summary>
@@ -802,7 +802,7 @@ namespace Wob_Common {
             public void Add( T internalType, string nameSuffix ) {
                 if( this.configNames.TryGetValue( internalType, out (string Name, ConfigFile File) configFile2 ) ) {
                     if( nameSuffix != configFile2.Name ) {
-                        WobPlugin.Log( "ERROR: Attempt to register " + internalType + " as " + nameSuffix + " but it is already defined as " + configFile2.Name );
+                        WobPlugin.Log( "ERROR: Attempt to register " + internalType + " as " + nameSuffix + " but it is already defined as " + configFile2.Name, WobPlugin.ERROR );
                     }
                 } else {
                     this.configNames.Add( internalType, (nameSuffix, new ConfigFile( this.GetPathName( nameSuffix, this.configNames.Count + 1 ), true, WobPlugin.Info.Metadata ) ) );

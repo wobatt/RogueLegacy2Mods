@@ -11,34 +11,34 @@ namespace Wob_Common {
     /// </summary>
     public static class OpCodeSet {
         // Most of these are to combine int32 and int8 variants, as what dnSpy/ILSpy displays and what the transpiler detects are not always the same
-        public static readonly HashSet<OpCode> Beq     = new HashSet<OpCode> { OpCodes.Beq,     OpCodes.Beq_S     };
-        public static readonly HashSet<OpCode> Bge     = new HashSet<OpCode> { OpCodes.Bge,     OpCodes.Bge_S     };
-        public static readonly HashSet<OpCode> Bge_Un  = new HashSet<OpCode> { OpCodes.Bge_Un,  OpCodes.Bge_Un_S  };
-        public static readonly HashSet<OpCode> Bgt     = new HashSet<OpCode> { OpCodes.Bgt,     OpCodes.Bgt_S     };
-        public static readonly HashSet<OpCode> Bgt_Un  = new HashSet<OpCode> { OpCodes.Bgt_Un,  OpCodes.Bgt_Un_S  };
-        public static readonly HashSet<OpCode> Ble     = new HashSet<OpCode> { OpCodes.Ble,     OpCodes.Ble_S     };
-        public static readonly HashSet<OpCode> Ble_Un  = new HashSet<OpCode> { OpCodes.Ble_Un,  OpCodes.Ble_Un_S  };
-        public static readonly HashSet<OpCode> Blt     = new HashSet<OpCode> { OpCodes.Blt,     OpCodes.Blt_S     };
-        public static readonly HashSet<OpCode> Blt_Un  = new HashSet<OpCode> { OpCodes.Blt_Un,  OpCodes.Blt_Un_S  };
-        public static readonly HashSet<OpCode> Bne_Un  = new HashSet<OpCode> { OpCodes.Bne_Un,  OpCodes.Bne_Un_S  };
-        public static readonly HashSet<OpCode> Br      = new HashSet<OpCode> { OpCodes.Br,      OpCodes.Br_S      };
-        public static readonly HashSet<OpCode> Brfalse = new HashSet<OpCode> { OpCodes.Brfalse, OpCodes.Brfalse_S };
-        public static readonly HashSet<OpCode> Brtrue  = new HashSet<OpCode> { OpCodes.Brtrue,  OpCodes.Brtrue_S  };
-        public static readonly HashSet<OpCode> Ldarg   = new HashSet<OpCode> { OpCodes.Ldarg,   OpCodes.Ldarg_S,  OpCodes.Ldarg_0,  OpCodes.Ldarg_1,  OpCodes.Ldarg_2,  OpCodes.Ldarg_3 };
-        public static readonly HashSet<OpCode> Ldarga  = new HashSet<OpCode> { OpCodes.Ldarga,  OpCodes.Ldarga_S  };
-        public static readonly HashSet<OpCode> Ldc_I4  = new HashSet<OpCode> { OpCodes.Ldc_I4,  OpCodes.Ldc_I4_S, OpCodes.Ldc_I4_0, OpCodes.Ldc_I4_1, OpCodes.Ldc_I4_2, OpCodes.Ldc_I4_3, OpCodes.Ldc_I4_4, OpCodes.Ldc_I4_5, OpCodes.Ldc_I4_6, OpCodes.Ldc_I4_7, OpCodes.Ldc_I4_8, OpCodes.Ldc_I4_M1 };
-        public static readonly HashSet<OpCode> Ldloc   = new HashSet<OpCode> { OpCodes.Ldloc,   OpCodes.Ldloc_S,  OpCodes.Ldloc_0,  OpCodes.Ldloc_1,  OpCodes.Ldloc_2,  OpCodes.Ldloc_3 };
-        public static readonly HashSet<OpCode> Ldloca  = new HashSet<OpCode> { OpCodes.Ldloca,  OpCodes.Ldloca_S  };
-        public static readonly HashSet<OpCode> Leave   = new HashSet<OpCode> { OpCodes.Leave,   OpCodes.Leave_S   };
-        public static readonly HashSet<OpCode> Starg   = new HashSet<OpCode> { OpCodes.Starg,   OpCodes.Starg_S   };
-        public static readonly HashSet<OpCode> Stloc   = new HashSet<OpCode> { OpCodes.Stloc,   OpCodes.Stloc_S,  OpCodes.Stloc_0,  OpCodes.Stloc_1,  OpCodes.Stloc_2,  OpCodes.Stloc_3 };
+        public static readonly HashSet<OpCode> Beq     = new() { OpCodes.Beq,     OpCodes.Beq_S     };
+        public static readonly HashSet<OpCode> Bge     = new() { OpCodes.Bge,     OpCodes.Bge_S     };
+        public static readonly HashSet<OpCode> Bge_Un  = new() { OpCodes.Bge_Un,  OpCodes.Bge_Un_S  };
+        public static readonly HashSet<OpCode> Bgt     = new() { OpCodes.Bgt,     OpCodes.Bgt_S     };
+        public static readonly HashSet<OpCode> Bgt_Un  = new() { OpCodes.Bgt_Un,  OpCodes.Bgt_Un_S  };
+        public static readonly HashSet<OpCode> Ble     = new() { OpCodes.Ble,     OpCodes.Ble_S     };
+        public static readonly HashSet<OpCode> Ble_Un  = new() { OpCodes.Ble_Un,  OpCodes.Ble_Un_S  };
+        public static readonly HashSet<OpCode> Blt     = new() { OpCodes.Blt,     OpCodes.Blt_S     };
+        public static readonly HashSet<OpCode> Blt_Un  = new() { OpCodes.Blt_Un,  OpCodes.Blt_Un_S  };
+        public static readonly HashSet<OpCode> Bne_Un  = new() { OpCodes.Bne_Un,  OpCodes.Bne_Un_S  };
+        public static readonly HashSet<OpCode> Br      = new() { OpCodes.Br,      OpCodes.Br_S      };
+        public static readonly HashSet<OpCode> Brfalse = new() { OpCodes.Brfalse, OpCodes.Brfalse_S };
+        public static readonly HashSet<OpCode> Brtrue  = new() { OpCodes.Brtrue,  OpCodes.Brtrue_S  };
+        public static readonly HashSet<OpCode> Ldarg   = new() { OpCodes.Ldarg,   OpCodes.Ldarg_S,  OpCodes.Ldarg_0,  OpCodes.Ldarg_1,  OpCodes.Ldarg_2,  OpCodes.Ldarg_3 };
+        public static readonly HashSet<OpCode> Ldarga  = new() { OpCodes.Ldarga,  OpCodes.Ldarga_S  };
+        public static readonly HashSet<OpCode> Ldc_I4  = new() { OpCodes.Ldc_I4,  OpCodes.Ldc_I4_S, OpCodes.Ldc_I4_0, OpCodes.Ldc_I4_1, OpCodes.Ldc_I4_2, OpCodes.Ldc_I4_3, OpCodes.Ldc_I4_4, OpCodes.Ldc_I4_5, OpCodes.Ldc_I4_6, OpCodes.Ldc_I4_7, OpCodes.Ldc_I4_8, OpCodes.Ldc_I4_M1 };
+        public static readonly HashSet<OpCode> Ldloc   = new() { OpCodes.Ldloc,   OpCodes.Ldloc_S,  OpCodes.Ldloc_0,  OpCodes.Ldloc_1,  OpCodes.Ldloc_2,  OpCodes.Ldloc_3 };
+        public static readonly HashSet<OpCode> Ldloca  = new() { OpCodes.Ldloca,  OpCodes.Ldloca_S  };
+        public static readonly HashSet<OpCode> Leave   = new() { OpCodes.Leave,   OpCodes.Leave_S   };
+        public static readonly HashSet<OpCode> Starg   = new() { OpCodes.Starg,   OpCodes.Starg_S   };
+        public static readonly HashSet<OpCode> Stloc   = new() { OpCodes.Stloc,   OpCodes.Stloc_S,  OpCodes.Stloc_0,  OpCodes.Stloc_1,  OpCodes.Stloc_2,  OpCodes.Stloc_3 };
         // Boolean literals are 0 (false) or 1 (true), so this is for them 
-        public static readonly HashSet<OpCode> Ldc_I4_Bool = new HashSet<OpCode> { OpCodes.Ldc_I4_0, OpCodes.Ldc_I4_1 };
+        public static readonly HashSet<OpCode> Ldc_I4_Bool = new() { OpCodes.Ldc_I4_0, OpCodes.Ldc_I4_1 };
         // These are grouped by operand type, mostly used in my transpiler class
-        public static readonly HashSet<OpCode> OperandType_FieldInfo       = new HashSet<OpCode> { OpCodes.Ldfld, OpCodes.Ldsfld,   OpCodes.Stfld, OpCodes.Stsfld    };
-        public static readonly HashSet<OpCode> OperandType_MethodInfo      = new HashSet<OpCode> { OpCodes.Call,  OpCodes.Callvirt, OpCodes.Ldftn, OpCodes.Ldvirtftn };
-        public static readonly HashSet<OpCode> OperandType_ConstructorInfo = new HashSet<OpCode> { OpCodes.Newobj };
-        public static readonly HashSet<OpCode> OperandType_Type            = new HashSet<OpCode> { OpCodes.Isinst };
+        public static readonly HashSet<OpCode> OperandType_FieldInfo       = new() { OpCodes.Ldfld, OpCodes.Ldsfld,   OpCodes.Stfld, OpCodes.Stsfld    };
+        public static readonly HashSet<OpCode> OperandType_MethodInfo      = new() { OpCodes.Call,  OpCodes.Callvirt, OpCodes.Ldftn, OpCodes.Ldvirtftn };
+        public static readonly HashSet<OpCode> OperandType_ConstructorInfo = new() { OpCodes.Newobj };
+        public static readonly HashSet<OpCode> OperandType_Type            = new() { OpCodes.Isinst };
     }
 
     /// <summary>
@@ -56,12 +56,22 @@ namespace Wob_Common {
         public int NumPatched { get; private set; }
 
         /// <summary>
+        /// Name of the mthod being patched, for use in debug logs.
+        /// </summary>
+        public string TargetMethod { get; private set; }
+
+        /// <summary>
         /// Initialises a transpiler handler for a method's instructions.
         /// </summary>
         /// <param name="instructions">The method instructions to be patched.</param>
-        public WobTranspiler( IEnumerable<CodeInstruction> instructions ) {
+        /// <param name="targetMethod">Name of the mthod being patched, for use in debug logs.</param>
+        public WobTranspiler( IEnumerable<CodeInstruction> instructions, string targetMethod = null ) {
             this.CodeList = new List<CodeInstruction>( instructions );
             this.NumPatched = 0;
+            if( targetMethod != null ) {
+                this.TargetMethod = targetMethod;
+                WobPlugin.Log( targetMethod + " Transpiler Patch" );
+            }
         }
 
         /// <summary>
@@ -77,14 +87,15 @@ namespace Wob_Common {
         /// </summary>
         /// <param name="tests">The instructions to be matched.</param>
         /// <param name="actions">The patching actions to take when matched.</param>
-        public void PatchAll( List<OpTest> tests, List<OpAction> actions ) { this.Patch( tests, actions, -1 ); }
+        /// <param name="expected">The expected number of occurrences. Error will be logged if the actual number of occurrences found doesn't match.</param>
+        public void PatchAll( List<OpTest> tests, List<OpAction> actions, int expected = -1 ) { this.Patch( tests, actions, -1, expected ); }
 
         /// <summary>
         /// Apply the patch actions for the first occurrence of the matched lines.
         /// </summary>
         /// <param name="tests">The instructions to be matched.</param>
         /// <param name="actions">The patching actions to take when matched.</param>
-        public void PatchFirst( List<OpTest> tests, List<OpAction> actions ) { this.Patch( tests, actions, 1 ); }
+        public void PatchFirst( List<OpTest> tests, List<OpAction> actions ) { this.Patch( tests, actions, 1, 1 ); }
 
         /// <summary>
         /// Apply the patch actions for the nth occurrence of the matched lines.
@@ -92,7 +103,7 @@ namespace Wob_Common {
         /// <param name="tests">The instructions to be matched.</param>
         /// <param name="actions">The patching actions to take when matched.</param>
         /// <param name="occurrence">The occurrence to be patched. Must be greater than 0.</param>
-        public void PatchOnce( List<OpTest> tests, List<OpAction> actions, int occurrence ) { this.Patch( tests, actions, occurrence <= 0 ? 1 : occurrence ); }
+        public void PatchOnce( List<OpTest> tests, List<OpAction> actions, int occurrence ) { this.Patch( tests, actions, occurrence <= 0 ? 1 : occurrence, 1 ); }
 
         /// <summary>
         /// Apply the patch actions for matched lines.
@@ -100,7 +111,8 @@ namespace Wob_Common {
         /// <param name="tests">The instructions to be matched.</param>
         /// <param name="actions">The patching actions to take when matched.</param>
         /// <param name="occurrence">The occurrence to be patched. Values of 0 or less mean patch all occurrences.</param>
-        public void Patch( List<OpTest> tests, List<OpAction> actions, int occurrence = 1 ) {
+        /// <param name="expected">The expected number of occurrences. Error will be logged if the actual number of occurrences found doesn't match.</param>
+        public void Patch( List<OpTest> tests, List<OpAction> actions, int occurrence = 1, int expected = -1 ) {
             bool patchAll = occurrence <= 0;
             int patchCount = 0;
             WobPlugin.Log( "Starting search for instructions" );
@@ -123,7 +135,42 @@ namespace Wob_Common {
                     this.NumPatched++;
                 }
             }
-            WobPlugin.Log( patchCount + " occurrence" + ( patchCount == 1 ? "" : "s" ) + " patched" );
+            // Check the number of expected and actual occurrences and report success or error
+            if( ( expected < 0 && patchCount > 0 ) || patchCount == expected ) {
+                // All good - report success
+                WobPlugin.Log( patchCount + " occurrence" + ( patchCount == 1 ? "" : "s" ) + " patched" );
+            } else {
+                // Something went wrong
+                string errorMsg = "ERROR: ";
+                errorMsg += ( this.TargetMethod == null ? "Transpiler patch" : this.TargetMethod + " transpiler patch" );
+                errorMsg += " found " + patchCount + " occurrence" + ( patchCount == 1 ? "" : "s" );
+                errorMsg += ( expected < 0 ? "" : " when " + expected + ( expected == 1 ? " was" : " were" ) + " expected" );
+                WobPlugin.Log( errorMsg, WobPlugin.ERROR );
+            }
+        }
+
+        /// <summary>
+        /// Find the index of the matched lines.
+        /// </summary>
+        /// <param name="tests">The instructions to be matched.</param>
+        /// <param name="occurrence">The occurrence to be found. Values of 0 or less mean find the first occurrence.</param>
+        public int Find( List<OpTest> tests, int occurrence = 1 ) {
+            WobPlugin.Log( "Starting search for instructions" );
+            // Start at the beginning of the method
+            int index = -1;
+            // Keep track of how many occurrences have been found so far
+            int occurrenceCount = 0;
+            // Find the next occurrence
+            while( this.GetNext( tests, ref index ) ) {
+                // Increment the counter, then check id it matches the parameter
+                occurrenceCount++;
+                if( ( occurrence <= 0 ) || ( occurrenceCount == occurrence ) ) {
+                    WobPlugin.Log( "Occurrence found at " + index );
+                    return index;
+                }
+            }
+            WobPlugin.Log( "No occurrences found" );
+            return -1;
         }
 
         /// <summary>
@@ -166,7 +213,9 @@ namespace Wob_Common {
                         // If not a match, immediately exit and return no match
                         found = false;
                         break;
-                    }
+                    }// else {
+                    //    WobPlugin.Log( "    ~~    Test: " + i + "   At: " + ( startAt + i ) + "   Match: " + this.CodeList[startAt + i] );
+                    //}
                 }
             } else {
                 // Out of bounds - clearly not a match
@@ -216,9 +265,9 @@ namespace Wob_Common {
             }
 
             // Just a list of the primitive numeric types
-            private static readonly HashSet<Type> numericTypes = new HashSet<Type> { typeof( sbyte ), typeof( byte ), typeof( short ), typeof( ushort ), typeof( int ), typeof( uint ), typeof( long ), typeof( ulong ), typeof( float ), typeof( double ), typeof( decimal ) };
+            private static readonly HashSet<Type> numericTypes = new() { typeof( sbyte ), typeof( byte ), typeof( short ), typeof( ushort ), typeof( int ), typeof( uint ), typeof( long ), typeof( ulong ), typeof( float ), typeof( double ), typeof( decimal ) };
             // The Ldc_I4 opcodes that put specific values onto the stack, and the number they add, for operand comparison
-            private static readonly Dictionary<OpCode,int> i4NoOperands = new Dictionary<OpCode, int> {
+            private static readonly Dictionary<OpCode,long> i4NoOperands = new() {
                 { OpCodes.Ldc_I4_0, 0 }, { OpCodes.Ldc_I4_1, 1 }, { OpCodes.Ldc_I4_2, 2 }, { OpCodes.Ldc_I4_3, 3 }, { OpCodes.Ldc_I4_4, 4 },
                 { OpCodes.Ldc_I4_5, 5 }, { OpCodes.Ldc_I4_6, 6 }, { OpCodes.Ldc_I4_7, 7 }, { OpCodes.Ldc_I4_8, 8 }, { OpCodes.Ldc_I4_M1, -1 },
             };
@@ -246,20 +295,22 @@ namespace Wob_Common {
 
             // Compare operands - needs to be instruction OpCode dependant as these define the type of the operand
             private bool HasOperand( CodeInstruction code ) {
-                if( code.operand != null ) {
+                if( code.operand != null || i4NoOperands.ContainsKey( code.opcode ) ) {
                     Type operandType = this.operand.GetType();
                     try {
-                        /* 32-bit integer */ if( code.opcode == OpCodes.Ldc_I4   && TryTypeCast( this.operand, out int    intCast    ) ) { return ( (int)code.operand    ) == intCast;    }
-                        /* 8-bit integer  */ if( code.opcode == OpCodes.Ldc_I4_S && TryTypeCast( this.operand, out sbyte  sbyteCast  ) ) { return ( (sbyte)code.operand  ) == sbyteCast;  }
-                        /* 64-bit integer */ if( code.opcode == OpCodes.Ldc_I8   && TryTypeCast( this.operand, out long   longCast   ) ) { return ( (long)code.operand   ) == longCast;   }
-                        /* 32-bit float   */ if( code.opcode == OpCodes.Ldc_R4   && TryTypeCast( this.operand, out float  floatCast  ) ) { return ( (float)code.operand  ) == floatCast;  }
-                        /* 64-bit float   */ if( code.opcode == OpCodes.Ldc_R8   && TryTypeCast( this.operand, out double doubleCast ) ) { return ( (double)code.operand ) == doubleCast; }
+                        long testInt64Value, codeInt64Value;
+                        double testDoubleValue, codeDoubleValue;
+                        /* 32-bit integer */ if( code.opcode == OpCodes.Ldc_I4   && TryTypeCast( this.operand, out testInt64Value  ) && TryTypeCast( (int)code.operand,    out codeInt64Value  ) ) { return testInt64Value  == codeInt64Value;       }
+                        /* 8-bit integer  */ if( code.opcode == OpCodes.Ldc_I4_S && TryTypeCast( this.operand, out testInt64Value  ) && TryTypeCast( (sbyte)code.operand,  out codeInt64Value  ) ) { return testInt64Value  == codeInt64Value;       }
+                        /* 64-bit integer */ if( code.opcode == OpCodes.Ldc_I8   && TryTypeCast( this.operand, out testInt64Value  )                                                             ) { return testInt64Value  == (long)code.operand;   }
+                        /* 32-bit float   */ if( code.opcode == OpCodes.Ldc_R4   && TryTypeCast( this.operand, out testDoubleValue ) && TryTypeCast( (float)code.operand,  out codeDoubleValue ) ) { return testDoubleValue == codeDoubleValue;      }
+                        /* 64-bit float   */ if( code.opcode == OpCodes.Ldc_R8   && TryTypeCast( this.operand, out testDoubleValue )                                                             ) { return testDoubleValue == (double)code.operand; }
                         /* String         */ if( code.opcode == OpCodes.Ldstr    && TryTypeCast( this.operand, out string stringCast ) ) { return ( (string)code.operand ) == stringCast; }
                         /* Fields         */ if( OpCodeSet.OperandType_FieldInfo.Contains( code.opcode )       && operandType == typeof( FieldInfo       ) ) { return ( (FieldInfo)code.operand       ) == ( (FieldInfo)this.operand       ); }
                         /* Methods        */ if( OpCodeSet.OperandType_MethodInfo.Contains( code.opcode )      && operandType == typeof( MethodInfo      ) ) { return ( (MethodInfo)code.operand      ) == ( (MethodInfo)this.operand      ); }
                         /* Constructors   */ if( OpCodeSet.OperandType_ConstructorInfo.Contains( code.opcode ) && operandType == typeof( ConstructorInfo ) ) { return ( (ConstructorInfo)code.operand ) == ( (ConstructorInfo)this.operand ); }
                         /* Types          */ if( OpCodeSet.OperandType_Type.Contains( code.opcode )            && operandType == typeof( Type            ) ) { return ( (Type)code.operand            ) == ( (Type)this.operand            ); }
-                        /* I4 operandless */ if( i4NoOperands.ContainsKey( code.opcode ) && TryTypeCast( this.operand, out sbyte oplessCast ) ) { return i4NoOperands[code.opcode] == oplessCast; }
+                        /* I4 operandless */ if( i4NoOperands.ContainsKey( code.opcode ) && TryTypeCast( this.operand, out testInt64Value ) ) { return i4NoOperands[code.opcode] == testInt64Value; }
                         // No implemented yet - log it then return no match
                         WobPlugin.Log( "ERROR: Could not perform operand comparison for " + code.opcode + " and " + operandType, WobPlugin.ERROR );
                     } catch( InvalidCastException ) {
@@ -383,7 +434,7 @@ namespace Wob_Common {
             /// <param name="index">Index the method instructions to insert at.</param>
             /// <param name="opcode">Opcode of the new instruction to be inserted.</param>
             /// <param name="operand">Operand of the new instruction to be inserted.</param>
-            protected void InsertOp( List<CodeInstruction> codes, int index, OpCode opcode, object operand = null ) { this.InsertOp( codes, index, new CodeInstruction( opcode, operand ) ); }
+            protected void InsertOp( List<CodeInstruction> codes, int index, OpCode opcode, object operand = null ) { this.InsertOp( codes, index, new( opcode, operand ) ); }
             /// <summary>
             /// Insert a new instruction at the specified index.
             /// </summary>
@@ -469,7 +520,7 @@ namespace Wob_Common {
             /// <param name="relativeIndex">Index relative to the start of the matched code block for where to apply this action.</param>
             /// <param name="opcode">New opcode to be set.</param>
             /// <param name="operand">New operand to be set.</param>
-            public OpAction_SetInstruction( int relativeIndex, OpCode opcode, object operand ) : this( relativeIndex, new CodeInstruction( opcode, operand ), true ) { }
+            public OpAction_SetInstruction( int relativeIndex, OpCode opcode, object operand ) : this( relativeIndex, new( opcode, operand ), true ) { }
             /// <summary>
             /// Initialise the action with the relative index to be patched and the instruction to be set.
             /// </summary>
@@ -603,21 +654,21 @@ namespace Wob_Common {
             /// </summary>
             /// <param name="relativeIndex">Index relative to the start of the matched code block for where to apply this action.</param>
             /// <param name="relativeCopyFrom">Index relative to the start of the matched code block for the instruction to be copied.</param>
-            public OpAction_InsertCopy( int relativeIndex, int relativeCopyFrom ) : this( relativeIndex, new List<OpCopy> { new OpCopy( relativeCopyFrom ) } ) { }
+            public OpAction_InsertCopy( int relativeIndex, int relativeCopyFrom ) : this( relativeIndex, new List<OpCopy> { new( relativeCopyFrom ) } ) { }
             /// <summary>
             /// Initialise the action with the relative index to be patched and the instruction to be copied and inserted, with opcode override.
             /// </summary>
             /// <param name="relativeIndex">Index relative to the start of the matched code block for where to apply this action.</param>
             /// <param name="relativeCopyFrom">Index relative to the start of the matched code block for the instruction to be copied.</param>
             /// <param name="opcode">Opcode to be set on the copied instruction.</param>
-            public OpAction_InsertCopy( int relativeIndex, int relativeCopyFrom, OpCode opcode ) : this( relativeIndex, new List<OpCopy> { new OpCopy( relativeCopyFrom, opcode ) } ) { }
+            public OpAction_InsertCopy( int relativeIndex, int relativeCopyFrom, OpCode opcode ) : this( relativeIndex, new List<OpCopy> { new( relativeCopyFrom, opcode ) } ) { }
             /// <summary>
             /// Initialise the action with the relative index to be patched and the instruction to be copied and inserted, with operand override.
             /// </summary>
             /// <param name="relativeIndex">Index relative to the start of the matched code block for where to apply this action.</param>
             /// <param name="relativeCopyFrom">Index relative to the start of the matched code block for the instruction to be copied.</param>
             /// <param name="operand">Operand to be set on the copied instruction.</param>
-            public OpAction_InsertCopy( int relativeIndex, int relativeCopyFrom, object operand ) : this( relativeIndex, new List<OpCopy> { new OpCopy( relativeCopyFrom, operand ) } ) { }
+            public OpAction_InsertCopy( int relativeIndex, int relativeCopyFrom, object operand ) : this( relativeIndex, new List<OpCopy> { new( relativeCopyFrom, operand ) } ) { }
             /// <summary>
             /// Initialise the action with the relative index to be patched and the instruction to be copied and inserted, with opcode and operand overrides.
             /// </summary>
@@ -625,7 +676,7 @@ namespace Wob_Common {
             /// <param name="relativeCopyFrom">Index relative to the start of the matched code block for the instruction to be copied.</param>
             /// <param name="opcode">Opcode to be set on the copied instruction.</param>
             /// <param name="operand">Operand to be set on the copied instruction.</param>
-            public OpAction_InsertCopy( int relativeIndex, int relativeCopyFrom, OpCode opcode, object operand ) : this( relativeIndex, new List<OpCopy> { new OpCopy( relativeCopyFrom, opcode, operand ) } ) { }
+            public OpAction_InsertCopy( int relativeIndex, int relativeCopyFrom, OpCode opcode, object operand ) : this( relativeIndex, new List<OpCopy> { new( relativeCopyFrom, opcode, operand ) } ) { }
             /// <summary>
             /// Initialise the action with the relative index to be patched and the new instructions to be inserted.
             /// </summary>
@@ -639,7 +690,7 @@ namespace Wob_Common {
             /// <param name="codes">Full method instruction list to be patched.</param>
             /// <param name="startAt">Index of the start of the matched block of instructions.</param>
             public override void Do( List<CodeInstruction> codes, ref int startAt ) {
-                List<CodeInstruction> newInstructions = new List<CodeInstruction>();
+                List<CodeInstruction> newInstructions = new();
                 foreach( OpCopy instruction in this.instructions ) {
                     newInstructions.Add( instruction.GetInstruction( codes, startAt ) );
                 }
@@ -660,7 +711,7 @@ namespace Wob_Common {
             /// <param name="relativeIndex">Index relative to the start of the matched code block for where to apply this action.</param>
             /// <param name="instructions">New instructions to be inserted.</param>
             public OpAction_Extract( int relativeIndex, out CodeInstruction instruction ) : base( relativeIndex ) {
-                this.instruction = new CodeInstruction( OpCodes.Nop );
+                this.instruction = new( OpCodes.Nop );
                 instruction = this.instruction;
             }
 
@@ -739,9 +790,9 @@ namespace Wob_Common {
             /// <returns></returns>
             public CodeInstruction GetInstruction( List<CodeInstruction> codes, int startAt ) {
                 if( this.relativeIndex == int.MinValue ) {
-                    return new CodeInstruction( this.instruction );
+                    return new( this.instruction );
                 } else {
-                    CodeInstruction instruction = new CodeInstruction( codes[startAt + this.relativeIndex] );
+                    CodeInstruction instruction = new( codes[startAt + this.relativeIndex] );
                     if( this.setOpcode ) {
                         instruction.opcode = this.instruction.opcode;
                     }
