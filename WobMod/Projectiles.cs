@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using Wob_Common;
 using HarmonyLib;
-using System.Runtime.CompilerServices;
 
 namespace WobMod {
     internal class Projectiles {
@@ -142,7 +141,7 @@ namespace WobMod {
             float knockback     = projectileInfo.Knockback;
             ProjectilesHit hits = projectileInfo.ProjectilesHit;
             if( projectileInfo.UseLifeSpan ) {
-                if( typeof(T) == typeof( AbilityType ) && Unsafe.As<T, AbilityType>(ref internalType) == AbilityType.CrowsNestTalent && projectileName == "Cannonball" ) {
+                if( typeof(T) == typeof( AbilityType ) && (AbilityType)(object)internalType == AbilityType.CrowsNestTalent && projectileName == "Cannonball" ) {
                     lifespan = WobSettings.Get( keyHelper.Get( internalType, "Ship_LifeSpan" ), lifespan );
                 } else {
                     WobSettings.Add( new WobSettings.Num<float>( WobMod.configFiles.Get( configFileName ), keyHelper.Get( internalType, projectileName + "_LifeSpan" ), friendlyName + " - " + projectileName + " life span in seconds", lifespan, bounds: (0.1f, 60f) ) );
@@ -162,7 +161,7 @@ namespace WobMod {
                 knockback = WobSettings.Get( keyHelper.Get( internalType, projectileName + "_Knockback" ), knockback );
             }
             if( projectileInfo.HitProjectiles ) {
-                if( typeof( T ) == typeof( AbilityType ) && Unsafe.As<T, AbilityType>( ref internalType ) == AbilityType.CrowsNestTalent && projectileName == "ShipOnFire" ) {
+                if( typeof( T ) == typeof( AbilityType ) && (AbilityType)(object)internalType == AbilityType.CrowsNestTalent && projectileName == "ShipOnFire" ) {
                     hits = WobSettings.Get( keyHelper.Get( internalType, "Ship_HitProjectiles" ), hits );
                 } else {
                     WobSettings.Add( new WobSettings.Enum<ProjectilesHit>( WobMod.configFiles.Get( configFileName ), keyHelper.Get( internalType, projectileName + "_HitProjectiles" ), friendlyName + " - " + projectileName + " destroys projectiles", hits ) );
@@ -173,7 +172,7 @@ namespace WobMod {
                 projectileLookup.Add( name, new( null, projectileInfo.UseLifeSpan, lifespan, projectileInfo.UseSpeed, speed, projectileInfo.UseDamage, strScale, intScale, knockback, projectileInfo.HitProjectiles, hits ) );
             }
             // Special exception: Lute notes should have the same projectile collision rules when static as when moving
-            if( typeof( T ) == typeof( AbilityType ) && Unsafe.As<T, AbilityType>( ref internalType ) == AbilityType.LuteWeapon && projectileName == "Note" ) {
+            if( typeof( T ) == typeof( AbilityType ) && (AbilityType)(object)internalType == AbilityType.LuteWeapon && projectileName == "Note" ) {
                 projectileLookup.Add( "PlayerLuteStaticWeapon", new( null, false, 0f, false, 0f, false, 0f, 0f, 0f, projectileInfo.HitProjectiles, hits ) );
             }
         }

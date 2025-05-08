@@ -7,8 +7,5 @@
 
 	<Import Project="..\Wob_Common\Wob_Common.projitems" Label="Shared" />
 	<Import Project="$(SolutionDir)\solution.targets" />
-	<ItemGroup>
-	  <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.1.2" />
-	</ItemGroup>
 
 </Project>

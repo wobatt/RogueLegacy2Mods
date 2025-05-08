@@ -62,10 +62,10 @@ namespace Wob_Common {
                 // Perform the patching
                 Harmony.CreateAndPatchAll( Assembly.GetExecutingAssembly(), null );
                 // Report success
-                Log( "Plugin awake" );
+                Log( "Plugin awake", true );
             } else {
                 // Report disabled
-                Log( "Plugin disabled" );
+                Log( "Plugin disabled", true );
             }
         }
 

@@ -1,8 +1,9 @@
-﻿using BepInEx;
+﻿using System.ComponentModel;
+using BepInEx;
 using Wob_Common;
 
 namespace WobMod {
-    [BepInPlugin( "WobMod", "Wob's RL2 Configuration Mod", "2.0.0" )]
+    [BepInPlugin( "WobMod", "Wob's RL2 Configuration Mod", "2.0.1" )]
     public class WobMod : BaseUnityPlugin {
 
         // Registry of config files to organise user settings
@@ -35,5 +36,6 @@ namespace WobMod {
 }
 
 namespace System.Runtime.CompilerServices {
+    [EditorBrowsable( EditorBrowsableState.Never )]
     internal static class IsExternalInit { }
 }
